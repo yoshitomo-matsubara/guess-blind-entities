@@ -20,8 +20,8 @@ public class PaperSeparator {
     private static final String TEST_END_YEAR_OPTION = "etest";
     private static final String TEST_OUTPUT_DIR_OPTION = "otest";
     private static final int INVALID_VALUE = -1;
-    private static final int TRAIN_BUFFER_SIZE = 500000000;
-    private static final int TEST_BUFFER_SIZE = 5000000;
+    private static final int TRAIN_BUFFER_SIZE = 5000000;
+    private static final int TEST_BUFFER_SIZE = 2500000;
 
     private static Options setOptions() {
         Options options = new Options();
@@ -43,7 +43,7 @@ public class PaperSeparator {
         options.addOption(Option.builder(TRAIN_OUTPUT_DIR_OPTION)
                 .hasArg(true)
                 .required(true)
-                .desc("[output, optional] output training dir, -" + TRAIN_START_YEAR_OPTION + " and - "
+                .desc("[output, optional] output training dir, -" + TRAIN_START_YEAR_OPTION + " and -"
                         + TRAIN_END_YEAR_OPTION + " are required")
                 .build());
         options.addOption(Option.builder(TEST_START_YEAR_OPTION)
@@ -59,7 +59,7 @@ public class PaperSeparator {
         options.addOption(Option.builder(TEST_OUTPUT_DIR_OPTION)
                 .hasArg(true)
                 .required(true)
-                .desc("[output, optional] output test dir, -" + TEST_START_YEAR_OPTION + " and - "
+                .desc("[output, optional] output test dir, -" + TEST_START_YEAR_OPTION + " and -"
                         + TEST_END_YEAR_OPTION + " are required")
                 .build());
         return options;
