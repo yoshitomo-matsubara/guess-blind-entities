@@ -61,15 +61,17 @@ public class MinimumMerger {
                 BufferedReader br = new BufferedReader(new FileReader(tmpFiles[i]));
                 String line;
                 while ((line = br.readLine()) != null) {
-                    String[] elements = line.split(Config.FIRST_DELIMITER);
-                    if (elements[0].length() == 0 || elements[1].length() == 0) {
+                    int index = line.indexOf(Config.FIRST_DELIMITER);
+                    String key = line.substring(0, index);
+                    String value = line.substring(index + 1);
+                    if (key.length() == 0 || value.length() == 0) {
                         continue;
                     }
 
-                    if (!mergedMap.containsKey(elements[0])) {
-                        mergedMap.put(elements[0], new ArrayList<>());
+                    if (!mergedMap.containsKey(key)) {
+                        mergedMap.put(key, new ArrayList<>());
                     }
-                    mergedMap.get(elements[0]).add(elements[1]);
+                    mergedMap.get(key).add(value);
                 }
 
                 br.close();

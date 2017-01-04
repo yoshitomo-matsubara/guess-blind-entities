@@ -199,4 +199,19 @@ public class FileUtil {
         }
         return prefixSet;
     }
+
+    public static void writeFile(HashMap<String, Integer> hashMap, String outputFilePath) {
+        try {
+            File publisherFile = new File(outputFilePath);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(publisherFile));
+            for (String publisherId : hashMap.keySet()) {
+                bw.write(publisherId + Config.FIRST_DELIMITER + String.valueOf(hashMap.get(publisherId)));
+                bw.newLine();
+            }
+            bw.close();
+        } catch (Exception e) {
+            System.err.println("Exception @ writeFile");
+            e.printStackTrace();
+        }
+    }
 }

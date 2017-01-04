@@ -14,10 +14,14 @@ public class MinimumExtractor {
     private static final String PAPERS_FILE_OPTION = "p";
     private static final String AFFILS_FILE_OPTION = "a";
     private static final String REFS_FILE_OPTION = "r";
+    private static final String JOURNAL_LIST_FILE_NAME = "journal-list.csv";
+    private static final String CONFERENCE_LIST_FILE_NAME = "conference-list.csv";
     private static final String MIN_FILE_PREFIX = "min-";
     private static final String TMP_FILE_PREFIX = "tmp-";
     private static final int PAPER_ID_INDEX = 0;
     private static final int PUB_DATE_INDEX = 4;
+    private static final int JOURNAL_ID_INDEX = 8;
+    private static final int CONFERENCE_ID_INDEX = 9;
     private static final int AUTHOR_ID_INDEX = 1;
     private static final int PAPER_REF_ID_INDEX = 1;
     private static final int ID_MIN_LENGTH = 1;
@@ -47,29 +51,64 @@ public class MinimumExtractor {
         return options;
     }
 
-    private static void extractFromPapersFile(String inputFilePath, String delimiter, int keyIdx, int valueIdx,
-                                       int minKeyLength, int minValueLength) {
+    private static boolean checkIfValidPaper(String[] elements) {
+        if (elements.length < CONFERENCE_ID_INDEX) {
+            return false;
+        } else if (elements[PAPER_ID_INDEX].length() < ID_MIN_LENGTH) {
+            return false;
+        } else if (elements[PUB_DATE_INDEX].length() < PUB_DATE_MIN_LENGTH) {
+            return false;
+        } else if (elements[JOURNAL_ID_INDEX].length() < ID_MIN_LENGTH
+                && elements[CONFERENCE_ID_INDEX].length() < ID_MIN_LENGTH) {
+            return false;
+        }
+        return true;
+    }
+
+    private static void updateCountMap(HashMap<String, Integer> countMap, String publisherId) {
+        if (!countMap.containsKey(publisherId)) {
+            countMap.put(publisherId, 1);
+        } else {
+            countMap.put(publisherId, countMap.get(publisherId) + 1);
+        }
+    }
+
+    private static void extractFromPapersFile(String inputFilePath, String delimiter) {
         if (inputFilePath == null) {
             return;
         }
 
         System.out.println("Start:\textracting from " + inputFilePath);
         File inputFile = new File(inputFilePath);
-        File outputFile = new File(inputFile.getParent() + "/" + MIN_FILE_PREFIX + inputFile.getName());
+        String inputParentDirPath = inputFile.getParent();
+        File outputFile = new File(inputParentDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
         try {
+            HashMap<String, Integer> jpaperCountMap = new HashMap<>();
+            HashMap<String, Integer> cpaperCountMap = new HashMap<>();
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(delimiter);
                 // Skip line which misses some information
-                if (elements[keyIdx].length() >= minKeyLength && elements[valueIdx].length() >= minValueLength) {
-                    bw.write(elements[keyIdx] + delimiter + elements[valueIdx].substring(0, minValueLength));
+                if (checkIfValidPaper(elements)) {
+                    String  publisherId = elements[JOURNAL_ID_INDEX].length() >= ID_MIN_LENGTH ? elements[JOURNAL_ID_INDEX]
+                            : elements[CONFERENCE_ID_INDEX];
+                    bw.write(elements[PAPER_ID_INDEX] + delimiter
+                            + elements[PUB_DATE_INDEX].substring(0, PUB_DATE_MIN_LENGTH) + delimiter + publisherId);
                     bw.newLine();
+                    if (elements[JOURNAL_ID_INDEX].length() >= ID_MIN_LENGTH) {
+                        updateCountMap(jpaperCountMap, publisherId);
+                    } else {
+                        updateCountMap(cpaperCountMap, publisherId);
+                    }
                 }
             }
+
             br.close();
             bw.close();
+            FileUtil.writeFile(jpaperCountMap, inputParentDirPath + "/" + JOURNAL_LIST_FILE_NAME);
+            FileUtil.writeFile(cpaperCountMap, inputParentDirPath + "/" + CONFERENCE_LIST_FILE_NAME);
         } catch (Exception e) {
             System.err.println("Exception @ extractFromPapersFile");
             e.printStackTrace();
@@ -183,8 +222,7 @@ public class MinimumExtractor {
     }
 
     private static void extract(String papersFilePath, String affilsFilePath, String refsFilePath) {
-        extractFromPapersFile(papersFilePath, Config.FIRST_DELIMITER,
-                PAPER_ID_INDEX, PUB_DATE_INDEX, ID_MIN_LENGTH, PUB_DATE_MIN_LENGTH);
+        extractFromPapersFile(papersFilePath, Config.FIRST_DELIMITER);
         extractFromIdListFile(affilsFilePath, Config.FIRST_DELIMITER,
                 PAPER_ID_INDEX, AUTHOR_ID_INDEX, ID_MIN_LENGTH, AUTHOR_LIST_MIN_SIZE);
         extractFromIdListFile(refsFilePath, Config.FIRST_DELIMITER,
