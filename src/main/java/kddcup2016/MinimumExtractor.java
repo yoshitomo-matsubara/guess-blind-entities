@@ -14,8 +14,9 @@ public class MinimumExtractor {
     private static final String PAPERS_FILE_OPTION = "p";
     private static final String AFFILS_FILE_OPTION = "a";
     private static final String REFS_FILE_OPTION = "r";
-    private static final String JOURNAL_LIST_FILE_NAME = "journal-list.csv";
-    private static final String CONFERENCE_LIST_FILE_NAME = "conference-list.csv";
+    private static final String PAPER_KEYWORDS_FILE_OPTION = "k";
+    private static final String JOURNAL_LIST_FILE_NAME = "journal-paper-count.csv";
+    private static final String CONFERENCE_LIST_FILE_NAME = "conference-paper-count.csv";
     private static final String MIN_FILE_PREFIX = "min-";
     private static final String TMP_FILE_PREFIX = "tmp-";
     private static final int PAPER_ID_INDEX = 0;
@@ -24,10 +25,12 @@ public class MinimumExtractor {
     private static final int CONFERENCE_ID_INDEX = 9;
     private static final int AUTHOR_ID_INDEX = 1;
     private static final int PAPER_REF_ID_INDEX = 1;
+    private static final int FIELD_ID_INDEX = 2;
     private static final int ID_MIN_LENGTH = 1;
     private static final int PUB_DATE_MIN_LENGTH = 4;
     private static final int AUTHOR_LIST_MIN_SIZE = 1;
     private static final int REF_LIST_MIN_SIZE = 1;
+    private static final int FIELD_LIST_MIN_SIZE = 1;
     private static final int PREFIX_LENGTH = 2;
     private static final int BUFFER_SIZE = 5000000;
 
@@ -47,6 +50,11 @@ public class MinimumExtractor {
                 .hasArg(true)
                 .required(false)
                 .desc("[input, optional] PaperReferences file")
+                .build());
+        options.addOption(Option.builder(PAPER_KEYWORDS_FILE_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[input, optional] PaperKeywords file")
                 .build());
         return options;
     }
@@ -186,10 +194,10 @@ public class MinimumExtractor {
         }
 
         System.out.println("Start:\textracting from " + inputFilePath);
-        File inputFile = new File(inputFilePath);
-        HashSet<String> prefixSet = readIdListFile(inputFile, delimiter, keyIdx, valueIdx, minIdLength);
-        File outputFile = new File(inputFile.getParent() + "/" + MIN_FILE_PREFIX + inputFile.getName());
         try {
+            File inputFile = new File(inputFilePath);
+            HashSet<String> prefixSet = readIdListFile(inputFile, delimiter, keyIdx, valueIdx, minIdLength);
+            File outputFile = new File(inputFile.getParent() + "/" + MIN_FILE_PREFIX + inputFile.getName());
             boolean first = true;
             Iterator<String> ite = prefixSet.iterator();
             while (ite.hasNext()) {
@@ -221,12 +229,15 @@ public class MinimumExtractor {
         System.out.println("End:\textracting from " + inputFilePath);
     }
 
-    private static void extract(String papersFilePath, String affilsFilePath, String refsFilePath) {
+    private static void extract(String papersFilePath, String affilsFilePath,
+                                String refsFilePath, String paperKeysFilePath) {
         extractFromPapersFile(papersFilePath, Config.FIRST_DELIMITER);
         extractFromIdListFile(affilsFilePath, Config.FIRST_DELIMITER,
                 PAPER_ID_INDEX, AUTHOR_ID_INDEX, ID_MIN_LENGTH, AUTHOR_LIST_MIN_SIZE);
         extractFromIdListFile(refsFilePath, Config.FIRST_DELIMITER,
                 PAPER_ID_INDEX, PAPER_REF_ID_INDEX, ID_MIN_LENGTH, REF_LIST_MIN_SIZE);
+        extractFromIdListFile(paperKeysFilePath, Config.FIRST_DELIMITER,
+                PAPER_ID_INDEX, FIELD_ID_INDEX, ID_MIN_LENGTH, FIELD_LIST_MIN_SIZE);
     }
 
     public static void main(String[] args) {
@@ -235,6 +246,7 @@ public class MinimumExtractor {
         String papersFilePath = cl.hasOption(PAPERS_FILE_OPTION) ? cl.getOptionValue(PAPERS_FILE_OPTION) : null;
         String affilsFilePath = cl.hasOption(AFFILS_FILE_OPTION) ? cl.getOptionValue(AFFILS_FILE_OPTION) : null;
         String refsFilePath = cl.hasOption(REFS_FILE_OPTION) ? cl.getOptionValue(REFS_FILE_OPTION) : null;
-        extract(papersFilePath, affilsFilePath, refsFilePath);
+        String paperKeysFilePath = cl.hasOption(PAPER_KEYWORDS_FILE_OPTION) ? cl.getOptionValue(PAPER_KEYWORDS_FILE_OPTION) : null;
+        extract(papersFilePath, affilsFilePath, refsFilePath, paperKeysFilePath);
     }
 }

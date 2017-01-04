@@ -71,28 +71,27 @@ public class FileUtil {
         }
     }
 
-    public static void readFile(File file, String delimiter, int keyIdx, int valueIdx) {
+    public static HashMap<String, String> readFile(String filePath, String delimiter, int keyIdx, int valueIdx) {
+        HashMap<String, String> hashMap = new HashMap<>();
         try {
-            File outputFile = new File(file.getParent() + "/test.csv");
+            File file = new File(filePath);
             BufferedReader br = new BufferedReader(new FileReader(file));
-            BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(delimiter);
-                bw.write(elements[keyIdx] + delimiter + elements[valueIdx]);
-                bw.newLine();
+                if (!hashMap.containsKey(elements[keyIdx])) {
+                    hashMap.put(elements[keyIdx], elements[valueIdx]);
+                } else {
+                    String orgValue = hashMap.get(elements[keyIdx]);
+                    hashMap.put(elements[keyIdx], orgValue + delimiter + elements[valueIdx]);
+                }
             }
             br.close();
-            bw.close();
         } catch (Exception e) {
             System.err.println("Exception @ readFile");
             e.printStackTrace();
         }
-    }
-
-    public static void readFile(String filePath, String delimiter,
-                                                   int keyIdx, int valueIdx, HashMap<String, String> hashMap) {
-        readFile(new File(filePath), delimiter, keyIdx, valueIdx, hashMap);
+        return hashMap;
     }
 
     public static void makeParentDir(String filePath) {
@@ -194,7 +193,46 @@ public class FileUtil {
             br.close();
             distributeFiles(bufferMap, fileNameSet, tmpFilePrefix, outputDirPath);
         } catch (Exception e) {
-            System.err.println("Exception @ overwriteFile");
+            System.err.println("Exception @ splitFile");
+            e.printStackTrace();
+        }
+        return prefixSet;
+    }
+
+    public static HashSet<String> splitFile(String inputFilePath, String delimiter, int keyIdx, int valueIdx,
+                                            int prefixLength, int bufferSize, String tmpFilePrefix, String outputDirPath) {
+        HashSet<String> prefixSet = new HashSet<>();
+        try {
+            File outputDir = new File (outputDirPath);
+            if (!outputDir.exists()) {
+                outputDir.mkdir();
+            }
+
+            File inputFile = new File(inputFilePath);
+            HashMap<String, List<String>> bufferMap = new HashMap<>();
+            BufferedReader br = new BufferedReader(new FileReader(inputFile));
+            HashSet<String> fileNameSet = new HashSet<>();
+            int count = 0;
+            String line;
+            while ((line = br.readLine()) != null) {
+                String prefix = line.substring(0, prefixLength);
+                prefixSet.add(prefix);
+                if (!bufferMap.containsKey(prefix)) {
+                    bufferMap.put(prefix, new ArrayList<>());
+                }
+
+                String[] elements = line.split(delimiter);
+                bufferMap.get(prefix).add(elements[keyIdx] + delimiter + elements[valueIdx]);
+                count++;
+                if (count % bufferSize == 0) {
+                    distributeFiles(bufferMap, fileNameSet, tmpFilePrefix, outputDirPath);
+                }
+            }
+
+            br.close();
+            distributeFiles(bufferMap, fileNameSet, tmpFilePrefix, outputDirPath);
+        } catch (Exception e) {
+            System.err.println("Exception @ splitFile");
             e.printStackTrace();
         }
         return prefixSet;

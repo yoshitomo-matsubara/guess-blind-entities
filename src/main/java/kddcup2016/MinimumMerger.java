@@ -90,6 +90,7 @@ public class MinimumMerger {
                 for (int i = 1; i < valueList.size(); i++) {
                     sb.append(Config.FIRST_DELIMITER + valueList.get(i));
                 }
+
                 bw.write(paperId + Config.FIRST_DELIMITER + sb.toString());
                 bw.newLine();
             }
