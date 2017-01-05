@@ -125,7 +125,7 @@ public class PaperSeparator {
                 int year = Integer.parseInt(yearStr);
                 if (trainMode && trainStartYear <= year && year <= trainEndYear) {
                     String[] elements = line.split(Config.FIRST_DELIMITER);
-                    if (elements.length != 4) {
+                    if (elements.length != 5) {
                         continue;
                     }
 
