@@ -1,5 +1,8 @@
 package common;
 
+import structure.Author;
+import structure.Paper;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,17 +97,20 @@ public class FileUtil {
         return hashMap;
     }
 
+    public static void makeIfNotExist(String dirPath) {
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+    }
+
     public static void makeParentDir(String filePath) {
         File file = new File(filePath);
         String parentDirPath = file.getParent();
         if (parentDirPath == null || parentDirPath.length() == 0) {
             return;
         }
-
-        File parentDir = new File(parentDirPath);
-        if (!parentDir.exists()) {
-            parentDir.mkdirs();
-        }
+        makeIfNotExist(parentDirPath);
     }
 
     public static boolean overwriteFile(String line, boolean first, String filePath) {

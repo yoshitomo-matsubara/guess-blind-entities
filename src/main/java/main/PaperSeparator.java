@@ -19,6 +19,7 @@ public class PaperSeparator {
     private static final String TEST_START_YEAR_OPTION = "stest";
     private static final String TEST_END_YEAR_OPTION = "etest";
     private static final String TEST_OUTPUT_DIR_OPTION = "otest";
+    private static final int PAPER_ELEMENT_SIZE = 5;
     private static final int INVALID_VALUE = -1;
     private static final int TRAIN_BUFFER_SIZE = 5000000;
     private static final int TEST_BUFFER_SIZE = 2500000;
@@ -65,7 +66,7 @@ public class PaperSeparator {
         return options;
     }
 
-    private static boolean checkIfValid(int startYear, int endYear, String outputDirPath) {
+    private static boolean checkIfValidParams(int startYear, int endYear, String outputDirPath) {
         if (startYear == INVALID_VALUE || endYear == INVALID_VALUE || outputDirPath == null) {
             return false;
         } else if (endYear < startYear) {
@@ -97,11 +98,24 @@ public class PaperSeparator {
         hashMap.clear();
     }
 
+    private static boolean checkIfValidPaper(String[] elements) {
+        if (elements.length != PAPER_ELEMENT_SIZE) {
+            return false;
+        }
+
+        for (int i = 0; i < elements.length; i++) {
+            if (elements[i] == null || elements[i].length() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static void separate(String inputFilePath, int trainStartYear, int trainEndYear, int testStartYear,
                                  int testEndYear, String outputTrainDirPath, String outputTestDirPath) {
         try {
-            boolean trainMode = checkIfValid(trainStartYear, trainEndYear, outputTrainDirPath);
-            boolean testMode = checkIfValid(testStartYear, testEndYear, outputTestDirPath);
+            boolean trainMode = checkIfValidParams(trainStartYear, trainEndYear, outputTrainDirPath);
+            boolean testMode = checkIfValidParams(testStartYear, testEndYear, outputTestDirPath);
             if (trainMode) {
                 File dir = new File(outputTrainDirPath);
                 dir.mkdirs();
@@ -123,12 +137,12 @@ public class PaperSeparator {
             while ((line = br.readLine()) != null) {
                 String yearStr = line.split(Config.FIRST_DELIMITER)[1];
                 int year = Integer.parseInt(yearStr);
-                if (trainMode && trainStartYear <= year && year <= trainEndYear) {
-                    String[] elements = line.split(Config.FIRST_DELIMITER);
-                    if (elements.length != 5) {
-                        continue;
-                    }
+                String[] elements = line.split(Config.FIRST_DELIMITER);
+                if (!checkIfValidPaper(elements)) {
+                    continue;
+                }
 
+                if (trainMode && trainStartYear <= year && year <= trainEndYear) {
                     // key: author ID
                     String[] authorIds = elements[2].split(Config.SECOND_DELIMITER);
                     for (String authorId : authorIds) {
@@ -136,8 +150,7 @@ public class PaperSeparator {
                             trainListMap.put(authorId, new ArrayList<>());
                         }
 
-                        trainListMap.get(authorId).add(elements[0] + Config.FIRST_DELIMITER
-                                + elements[1] + Config.FIRST_DELIMITER + elements[3]);
+                        trainListMap.get(authorId).add(line);
                         trainCount++;
                         if (trainCount % TRAIN_BUFFER_SIZE == 0) {
                             distributeFiles(trainListMap, trainFileNameSet, outputTrainDirPath);
