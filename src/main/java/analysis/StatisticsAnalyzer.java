@@ -13,15 +13,8 @@ import java.io.File;
 import java.util.*;
 
 public class StatisticsAnalyzer {
-    private static final String AUTHOR_ID_DIR_OPTION = "a";
-
     private static Options setOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(AUTHOR_ID_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] author file")
-                .build());
         options.addOption(Option.builder(Config.INPUT_DIR_OPTION)
                 .hasArg(true)
                 .required(true)
@@ -30,25 +23,13 @@ public class StatisticsAnalyzer {
         return options;
     }
 
-    private static HashMap<String, String> createAuthorIdMap(String authorIdFilePath) {
-        List<String> inputLineList = FileUtil.readFile(authorIdFilePath);
-        HashMap<String, String> authorIdMap = new HashMap<>();
-        for (String inputLine : inputLineList) {
-            String[] elements = inputLine.split(Config.FIRST_DELIMITER);
-            authorIdMap.put(elements[1], elements[0]);
-        }
-        return authorIdMap;
-    }
-
-    private static List<Author> getAuthorList(String authorIdFilePath, String inputDirPath) {
-        HashMap<String, String> authorIdMap = createAuthorIdMap(authorIdFilePath);
+    private static List<Author> getAuthorList(String inputDirPath) {
         List<File> fileList = FileUtil.getFileList(inputDirPath);
         List<Author> authorList = new ArrayList<>();
         for (File file : fileList) {
             String authorId = file.getName();
-            String authorName = authorIdMap.get(authorId);
             List<String> inputLineList = FileUtil.readFile(file);
-            Author author = new Author(authorId, authorName, inputLineList);
+            Author author = new Author(authorId, inputLineList);
             authorList.add(author);
         }
         return authorList;
@@ -138,11 +119,11 @@ public class StatisticsAnalyzer {
         }
     }
 
-    private static void analyze(String authorIdFilePath, String inputDirPath) {
+    private static void analyze(String inputDirPath) {
         HashSet<String> authorIdSet = new HashSet<>();
         HashSet<String> paperIdSet = new HashSet<>();
         HashSet<String> refPaperIdSet = new HashSet<>();
-        List<Author> authorList = getAuthorList(authorIdFilePath, inputDirPath);
+        List<Author> authorList = getAuthorList(inputDirPath);
         analyzeBasicMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);
         analyzeAveMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);
     }
@@ -150,8 +131,7 @@ public class StatisticsAnalyzer {
     public static void main(String[] args) {
         Options options = setOptions();
         CommandLine cl = MiscUtil.setParams("StatisticsAnalyzer", options, args);
-        String authorIdFilePath = cl.getOptionValue(AUTHOR_ID_DIR_OPTION);
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
-        analyze(authorIdFilePath, inputDirPath);
+        analyze(inputDirPath);
     }
 }

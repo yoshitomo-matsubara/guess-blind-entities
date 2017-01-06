@@ -11,6 +11,6 @@ public class Paper {
         this.id = elements[0];
         this.year = elements[1];
         this.publisherId = elements[2];
-        this.refPaperIds = elements[3].split(Config.SECOND_DELIMITER);
+        this.refPaperIds = elements[4].split(Config.SECOND_DELIMITER);
     }
 }
