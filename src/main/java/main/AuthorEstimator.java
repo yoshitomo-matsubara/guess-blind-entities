@@ -95,8 +95,11 @@ public class AuthorEstimator {
                 Paper paper = new Paper(line);
                 File outputFile = new File(outputDirPath + "/" + paper.id);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
-                bw.write(line);
-                bw.newLine();
+                if (first) {
+                    bw.write(line);
+                    bw.newLine();
+                }
+
                 for (BaseModel model : modelList) {
                     double score = model.estimate(paper);
                     if (paper.checkIfAuthor(model.authorId) && score == model.INVALID_VALUE) {
