@@ -21,6 +21,7 @@ public class AuthorEstimator {
     private static final String MODEL_TYPE_OPTION = "mt";
     private static final String SPLIT_SIZE_OPTION = "s";
     private static final int DEFAULT_SPLIT_SIZE = 3;
+    private static final double ZERO_SCORE = 0.0d;
 
     private static Options setOptions() {
         Options options = new Options();
@@ -98,6 +99,10 @@ public class AuthorEstimator {
                 bw.newLine();
                 for (BaseModel model : modelList) {
                     double score = model.estimate(paper);
+                    if (paper.checkIfAuthor(model.authorId) && score == model.INVALID_VALUE) {
+                        score = ZERO_SCORE;
+                    }
+
                     if (score != model.INVALID_VALUE) {
                         bw.write(model.authorId + Config.FIRST_DELIMITER + String.valueOf(score));
                         bw.newLine();
