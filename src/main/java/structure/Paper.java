@@ -22,6 +22,10 @@ public class Paper {
         }
     }
 
+    public HashSet<String> getAuthorSet() {
+        return this.authorSet;
+    }
+
     public int getAuthorSize() {
         return this.authorSet.size();
     }

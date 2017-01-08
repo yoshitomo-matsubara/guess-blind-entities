@@ -20,6 +20,7 @@ public class PaperSeparator {
     private static final String TEST_END_YEAR_OPTION = "etest";
     private static final String TEST_OUTPUT_DIR_OPTION = "otest";
     private static final int PAPER_ELEMENT_SIZE = 5;
+    private static final int AUTHOR_ID_INDEX = 3;
     private static final int INVALID_VALUE = -1;
     private static final int TRAIN_BUFFER_SIZE = 5000000;
     private static final int TEST_BUFFER_SIZE = 2500000;
@@ -144,7 +145,7 @@ public class PaperSeparator {
 
                 if (trainMode && trainStartYear <= year && year <= trainEndYear) {
                     // key: author ID
-                    String[] authorIds = elements[2].split(Config.SECOND_DELIMITER);
+                    String[] authorIds = elements[AUTHOR_ID_INDEX].split(Config.SECOND_DELIMITER);
                     for (String authorId : authorIds) {
                         if (!trainListMap.containsKey(authorId)) {
                             trainListMap.put(authorId, new ArrayList<>());
