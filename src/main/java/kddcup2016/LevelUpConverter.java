@@ -15,6 +15,8 @@ import java.util.List;
 
 public class LevelUpConverter {
     private static final String FOS_HIERARCHY_FILE_OPTION = "f";
+    private static final String MIN_COUNT_THRESHOLD_OPTION = "t";
+    private static final int DEFAULT_MIN_COUNT_THRESHOLD = 1;
     private static final int CHILD_FOS_ID_INDEX = 0;
     private static final int CHILD_FOS_LEVEL_INDEX = 1;
     private static final int PARENT_FOS_ID_INDEX = 2;
@@ -33,6 +35,11 @@ public class LevelUpConverter {
                 .hasArg(true)
                 .required(true)
                 .desc("[input] FieldOfStudyHierarchy file")
+                .build());
+        options.addOption(Option.builder(MIN_COUNT_THRESHOLD_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[param, optional] minimum count threshold for each bag of fields")
                 .build());
         options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
                 .hasArg(true)
@@ -104,8 +111,8 @@ public class LevelUpConverter {
         return topFosIdSet;
     }
 
-    private static void convert(String inputFilePath,
-                                HashMap<String, FieldOfStudy> fosHierarchyMap, String outputFilePath) {
+    private static void convert(String inputFilePath, HashMap<String, FieldOfStudy> fosHierarchyMap,
+                                int minCountThr, String outputFilePath) {
         System.out.println("Start:\tconverting");
         try {
             File inputFile = new File(inputFilePath);
@@ -133,8 +140,10 @@ public class LevelUpConverter {
                     }
                 }
 
-                bw.write(bof.toString());
-                bw.newLine();
+                if (bof.getTotalCount() >= minCountThr) {
+                    bw.write(bof.toString());
+                    bw.newLine();
+                }
             }
 
             bw.close();
@@ -146,10 +155,10 @@ public class LevelUpConverter {
         System.out.println("End:\tconverting");
     }
 
-    private static void convert(String inputFilePath, String foshFilePath, String outputFilePath) {
+    private static void convert(String inputFilePath, String foshFilePath, int minCountThr, String outputFilePath) {
         List<String> lineList = FileUtil.readFile(foshFilePath);
         HashMap<String, FieldOfStudy> fosHierarchyMap = buildFosHierarchyMap(lineList);
-        convert(inputFilePath, fosHierarchyMap, outputFilePath);
+        convert(inputFilePath, fosHierarchyMap, minCountThr, outputFilePath);
     }
 
     public static void main(String[] args) {
@@ -157,7 +166,9 @@ public class LevelUpConverter {
         CommandLine cl = MiscUtil.setParams("LevelUpConverter for KDD Cup 2016 dataset", options, args);
         String inputFilePath = cl.getOptionValue(Config.INPUT_FILE_OPTION);
         String foshFilePath = cl.getOptionValue(FOS_HIERARCHY_FILE_OPTION);
+        int minCountThr = cl.hasOption(MIN_COUNT_THRESHOLD_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(MIN_COUNT_THRESHOLD_OPTION)) : DEFAULT_MIN_COUNT_THRESHOLD;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        convert(inputFilePath, foshFilePath, outputFilePath);
+        convert(inputFilePath, foshFilePath, minCountThr, outputFilePath);
     }
 }

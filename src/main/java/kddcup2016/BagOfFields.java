@@ -9,10 +9,12 @@ import java.util.TreeMap;
 
 public class BagOfFields {
     public final String publisherId;
+    private int totalCount;
     private HashMap<String, Integer> countMap;
 
     public BagOfFields(String publisherId) {
         this.publisherId = publisherId;
+        this.totalCount = 0;
         this.countMap = new HashMap<>();
     }
 
@@ -22,10 +24,15 @@ public class BagOfFields {
         } else {
             this.countMap.put(fieldId, this.countMap.get(fieldId) + count);
         }
+        this.totalCount += count;
     }
 
     public void countUp(String fieldId) {
         countUp(fieldId, 1);
+    }
+
+    public int getTotalCount() {
+        return this.totalCount;
     }
 
     private String formatField(String fieldId, String countStr) {

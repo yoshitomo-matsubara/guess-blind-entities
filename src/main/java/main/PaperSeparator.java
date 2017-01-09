@@ -112,6 +112,10 @@ public class PaperSeparator {
         return true;
     }
 
+    private static boolean checkIfValidMode(boolean mode, int startYear, int endYear, int year) {
+        return mode && startYear <= year && year <= endYear;
+    }
+
     private static void separate(String inputFilePath, int trainStartYear, int trainEndYear, int testStartYear,
                                  int testEndYear, String outputTrainDirPath, String outputTestDirPath) {
         try {
@@ -143,7 +147,7 @@ public class PaperSeparator {
                     continue;
                 }
 
-                if (trainMode && trainStartYear <= year && year <= trainEndYear) {
+                if (checkIfValidMode(trainMode, trainStartYear, trainEndYear, year)) {
                     // key: author ID
                     String[] authorIds = elements[AUTHOR_ID_INDEX].split(Config.SECOND_DELIMITER);
                     for (String authorId : authorIds) {
@@ -157,7 +161,7 @@ public class PaperSeparator {
                             distributeFiles(trainListMap, trainFileNameSet, outputTrainDirPath);
                         }
                     }
-                } else if (testMode && testStartYear <= year && year <= testEndYear) {
+                } else if (checkIfValidMode(testMode, testStartYear, testEndYear, year)) {
                     if (!testListMap.containsKey(yearStr)) {
                         testListMap.put(yearStr, new ArrayList<>());
                     }
