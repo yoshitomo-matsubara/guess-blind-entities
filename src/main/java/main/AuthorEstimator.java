@@ -55,15 +55,6 @@ public class AuthorEstimator {
         return options;
     }
 
-    private static HashSet<String> buildAuthorIdSet(List<File> fileList) {
-        HashSet<String> authorIdSet = new HashSet<>();
-        for (File file : fileList) {
-            String authorId = file.getName();
-            authorIdSet.add(authorId);
-        }
-        return authorIdSet;
-    }
-
     private static BaseModel selectModel(String modelType, Author author) {
         if (modelType.equals(NaiveBayesModel.TYPE)) {
             return new NaiveBayesModel(author);
@@ -98,16 +89,6 @@ public class AuthorEstimator {
         return modelList;
     }
 
-    private static boolean checkIfAuthorExists(HashSet<String> authorIdSet, HashSet<String> trainingAuthorIdSet) {
-        Iterator<String> ite = authorIdSet.iterator();
-        while (ite.hasNext()) {
-            if (trainingAuthorIdSet.contains(ite.next())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static void estimate(File testFile, List<BaseModel> modelList,
                                  HashSet<String> trainingAuthorIdSet, boolean first, String outputDirPath) {
         try {
@@ -115,7 +96,7 @@ public class AuthorEstimator {
             String line;
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
-                if (!checkIfAuthorExists(paper.getAuthorSet(), trainingAuthorIdSet)) {
+                if (!MiscUtil.checkIfAuthorExists(paper.getAuthorSet(), trainingAuthorIdSet)) {
                     continue;
                 }
 
@@ -148,7 +129,7 @@ public class AuthorEstimator {
 
     private static void estimate(String trainingDirPath, String testDirPath, int splitSize, String modelType, String outputDirPath) {
         List<File> trainingFileList = FileUtil.getFileList(trainingDirPath);
-        HashSet<String> authorIdSet = buildAuthorIdSet(trainingFileList);
+        HashSet<String> authorIdSet = MiscUtil.buildAuthorIdSet(trainingFileList);
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         int size = trainingFileList.size();
         int unitSize = size / splitSize;
