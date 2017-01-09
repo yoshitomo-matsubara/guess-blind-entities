@@ -13,7 +13,6 @@ import structure.Paper;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class AuthorEstimator {
@@ -88,15 +87,6 @@ public class AuthorEstimator {
         return modelList;
     }
 
-    private static List<File> moveToSublist(List<File> orgList, int size) {
-        List<File> sublist = new ArrayList<>();
-        int moveSize = size < orgList.size() ? size : orgList.size();
-        for (int i = 0; i < moveSize; i++) {
-            sublist.add(orgList.remove(0));
-        }
-        return sublist;
-    }
-
     private static void estimate(File testFile, List<BaseModel> modelList, boolean first, String outputDirPath) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(testFile));
@@ -138,8 +128,9 @@ public class AuthorEstimator {
         for (int i = 0; i < splitSize; i++) {
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(splitSize));
             int subSize = i < splitSize - 1 ? unitSize : trainingFileList.size();
-            List<File> subTrainingFileList = moveToSublist(trainingFileList, subSize);
+            List<File> subTrainingFileList = trainingFileList.subList(0, subSize);
             List<BaseModel> modelList = readAuthorFiles(subTrainingFileList, modelType);
+            subTrainingFileList.clear();
             FileUtil.makeIfNotExist(outputDirPath);
             boolean first = i == 0;
             for (File testFile : testFileList) {
