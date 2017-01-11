@@ -1,6 +1,7 @@
 package main;
 
 import Model.BaseModel;
+import Model.CountUpModel;
 import Model.NaiveBayesModel;
 import common.Config;
 import common.FileUtil;
@@ -56,6 +57,8 @@ public class AuthorEstimator {
     private static BaseModel selectModel(String modelType, Author author) {
         if (modelType.equals(NaiveBayesModel.TYPE)) {
             return new NaiveBayesModel(author);
+        } else if (modelType.equals(CountUpModel.TYPE)) {
+            return new CountUpModel(author);
         }
         return null;
     }
