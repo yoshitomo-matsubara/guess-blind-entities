@@ -30,6 +30,8 @@ public class NaiveBayesModel extends BaseModel {
 
         if (hitCount > 0) {
             logScore /= (double) hitCount;
+            double prob = (double) hitCount / (double) paper.refPaperIds.length;
+            logScore += Math.log(prob);
             return Math.exp(logScore);
         }
         return INVALID_VALUE;
