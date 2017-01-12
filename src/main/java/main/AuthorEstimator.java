@@ -1,8 +1,8 @@
 package main;
 
-import Model.BaseModel;
-import Model.CountUpModel;
-import Model.NaiveBayesModel;
+import model.BaseModel;
+import model.CountUpModel;
+import model.NaiveBayesModel;
 import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
