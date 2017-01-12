@@ -7,10 +7,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.security.SecureRandom;
+import java.util.*;
 
 public class PaperSeparator {
     private static final String TRAIN_START_YEAR_OPTION = "strain";
@@ -19,11 +17,13 @@ public class PaperSeparator {
     private static final String TEST_START_YEAR_OPTION = "stest";
     private static final String TEST_END_YEAR_OPTION = "etest";
     private static final String TEST_OUTPUT_DIR_OPTION = "otest";
+    private static final String SAMPLE_RATE_OPTION = "rate";
     private static final int PAPER_ELEMENT_SIZE = 5;
     private static final int AUTHOR_ID_INDEX = 3;
     private static final int INVALID_VALUE = -1;
     private static final int TRAIN_BUFFER_SIZE = 5000000;
     private static final int TEST_BUFFER_SIZE = 2500000;
+    private static final float INVALID_RATE = -Float.MAX_VALUE;
 
     private static Options setOptions() {
         Options options = new Options();
@@ -64,6 +64,11 @@ public class PaperSeparator {
                 .desc("[output, optional] output test dir, -" + TEST_START_YEAR_OPTION + " and -"
                         + TEST_END_YEAR_OPTION + " are required")
                 .build());
+        options.addOption(Option.builder(SAMPLE_RATE_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[param, optional] random sampling rate (0 < rate <= 1)")
+                .build());
         return options;
     }
 
@@ -76,7 +81,7 @@ public class PaperSeparator {
         return true;
     }
 
-    public static void distributeFiles(HashMap<String, List<String>> hashMap,
+    private static void distributeFiles(HashMap<String, List<String>> hashMap,
                                        HashSet<String> fileNameSet, String outputDirPath) {
         try {
             for (String key : hashMap.keySet()) {
@@ -93,8 +98,6 @@ public class PaperSeparator {
                 fileNameSet.add(outputFileName);
             }
         } catch (Exception e) {
-            System.err.println("Exception @ distributeFiles");
-            e.printStackTrace();
         }
         hashMap.clear();
     }
@@ -117,7 +120,7 @@ public class PaperSeparator {
     }
 
     private static void separate(String inputFilePath, int trainStartYear, int trainEndYear, int testStartYear,
-                                 int testEndYear, String outputTrainDirPath, String outputTestDirPath) {
+                                 int testEndYear, float sampleRate, String outputTrainDirPath, String outputTestDirPath) {
         try {
             boolean trainMode = checkIfValidParams(trainStartYear, trainEndYear, outputTrainDirPath);
             boolean testMode = checkIfValidParams(testStartYear, testEndYear, outputTestDirPath);
@@ -131,6 +134,8 @@ public class PaperSeparator {
                 dir.mkdirs();
             }
 
+            Random rand = new Random();
+            boolean isSampled = sampleRate != INVALID_RATE;
             int trainCount = 0;
             int testCount = 0;
             HashMap<String, List<String>> trainListMap = new HashMap<>();
@@ -148,6 +153,10 @@ public class PaperSeparator {
                 }
 
                 if (checkIfValidMode(trainMode, trainStartYear, trainEndYear, year)) {
+                    if (isSampled && rand.nextFloat() > sampleRate) {
+                        continue;
+                    }
+
                     // key: author ID
                     String[] authorIds = elements[AUTHOR_ID_INDEX].split(Config.SECOND_DELIMITER);
                     for (String authorId : authorIds) {
@@ -162,6 +171,10 @@ public class PaperSeparator {
                         }
                     }
                 } else if (checkIfValidMode(testMode, testStartYear, testEndYear, year)) {
+                    if (isSampled && rand.nextFloat() > sampleRate) {
+                        continue;
+                    }
+
                     if (!testListMap.containsKey(yearStr)) {
                         testListMap.put(yearStr, new ArrayList<>());
                     }
@@ -200,7 +213,9 @@ public class PaperSeparator {
                 cl.getOptionValue(TRAIN_OUTPUT_DIR_OPTION) : null;
         String testOutputDirPath = cl.hasOption(TEST_OUTPUT_DIR_OPTION) ?
                 cl.getOptionValue(TEST_OUTPUT_DIR_OPTION) : null;
-        separate(inputFilePath, trainStartYear, trainEndYear,
-                testStartYear, testEndYear, trainOutputDirPath, testOutputDirPath);
+        float sampleRate = cl.hasOption(SAMPLE_RATE_OPTION) ?
+                Float.parseFloat(cl.getOptionValue(SAMPLE_RATE_OPTION)) : INVALID_RATE;
+        separate(inputFilePath, trainStartYear, trainEndYear, testStartYear,
+                testEndYear, sampleRate, trainOutputDirPath, testOutputDirPath);
     }
 }

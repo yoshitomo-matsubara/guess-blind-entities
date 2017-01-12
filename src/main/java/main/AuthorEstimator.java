@@ -1,6 +1,7 @@
 package main;
 
 import Model.BaseModel;
+import Model.CountUpModel;
 import Model.NaiveBayesModel;
 import common.Config;
 import common.FileUtil;
@@ -13,7 +14,6 @@ import structure.Paper;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class AuthorEstimator {
@@ -57,6 +57,8 @@ public class AuthorEstimator {
     private static BaseModel selectModel(String modelType, Author author) {
         if (modelType.equals(NaiveBayesModel.TYPE)) {
             return new NaiveBayesModel(author);
+        } else if (modelType.equals(CountUpModel.TYPE)) {
+            return new CountUpModel(author);
         }
         return null;
     }
@@ -88,17 +90,12 @@ public class AuthorEstimator {
         return modelList;
     }
 
-    private static void estimate(File testFile, List<BaseModel> modelList,
-                                 HashSet<String> trainingAuthorIdSet, boolean first, String outputDirPath) {
+    private static void estimate(File testFile, List<BaseModel> modelList, boolean first, String outputDirPath) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(testFile));
             String line;
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
-                if (!MiscUtil.checkIfAuthorExists(paper.getAuthorSet(), trainingAuthorIdSet)) {
-                    continue;
-                }
-
                 File outputFile = new File(outputDirPath + "/" + paper.id);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
                 if (first) {
@@ -128,20 +125,19 @@ public class AuthorEstimator {
 
     private static void estimate(String trainingDirPath, String testDirPath, int splitSize, String modelType, String outputDirPath) {
         List<File> trainingFileList = FileUtil.getFileList(trainingDirPath);
-        HashSet<String> authorIdSet = MiscUtil.buildAuthorIdSet(trainingFileList);
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         int size = trainingFileList.size();
         int unitSize = size / splitSize;
         for (int i = 0; i < splitSize; i++) {
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(splitSize));
-            int fromIdx = unitSize * i;
-            int toIdx = i < splitSize - 1 ? fromIdx + unitSize : size;
-            List<File> subTrainingFileList = trainingFileList.subList(fromIdx, toIdx);
+            int subSize = i < splitSize - 1 ? unitSize : trainingFileList.size();
+            List<File> subTrainingFileList = trainingFileList.subList(0, subSize);
             List<BaseModel> modelList = readAuthorFiles(subTrainingFileList, modelType);
+            subTrainingFileList.clear();
             FileUtil.makeIfNotExist(outputDirPath);
             boolean first = i == 0;
             for (File testFile : testFileList) {
-                estimate(testFile, modelList, authorIdSet, first, outputDirPath);
+                estimate(testFile, modelList, first, outputDirPath);
             }
         }
     }
