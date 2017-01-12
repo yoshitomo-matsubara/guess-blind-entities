@@ -1,4 +1,4 @@
-package Model;
+package model;
 
 import structure.Author;
 import structure.Paper;
