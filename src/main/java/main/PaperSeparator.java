@@ -7,7 +7,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.*;
-import java.security.SecureRandom;
 import java.util.*;
 
 public class PaperSeparator {
