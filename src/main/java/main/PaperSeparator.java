@@ -97,6 +97,8 @@ public class PaperSeparator {
                 fileNameSet.add(outputFileName);
             }
         } catch (Exception e) {
+            System.err.println("Exception @ distributeFiles");
+            e.printStackTrace();
         }
         hashMap.clear();
     }
