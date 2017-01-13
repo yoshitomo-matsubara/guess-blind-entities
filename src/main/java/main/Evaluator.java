@@ -77,7 +77,7 @@ public class Evaluator {
 
         for (int i = 0; i < size; i++) {
             Result result = resultList.get(i);
-            if (paper.checkIfAuthor(result.authorId)) {
+            if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
                 if (i < trueAuthorSize) {
                     authorSizeX++;
                 }
@@ -92,11 +92,11 @@ public class Evaluator {
         int overOneAtM = authorSizeM > 0 ? 1 : 0;
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         double recallAtM = (double) authorSizeX / (double) recallSize;
-        return String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER + String.valueOf(authorSizeX)
-                + Config.FIRST_DELIMITER + String.valueOf(overOneAtX) + Config.FIRST_DELIMITER
-                + String.valueOf(recallAtX) + Config.FIRST_DELIMITER + String.valueOf(authorSizeM)
-                + Config.FIRST_DELIMITER + String.valueOf(overOneAtM) + Config.FIRST_DELIMITER
-                + String.valueOf(recallAtM);
+        return paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
+                + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
+                + Config.FIRST_DELIMITER + String.valueOf(recallAtX) + Config.FIRST_DELIMITER
+                + String.valueOf(authorSizeM) + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
+                + Config.FIRST_DELIMITER + String.valueOf(recallAtM);
     }
 
     private static void evaluate(String inputDirPath, int recallSize, String outputFilePath) {
