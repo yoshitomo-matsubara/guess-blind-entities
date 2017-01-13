@@ -94,7 +94,7 @@ public class Evaluator {
         double recallAtM = (double) authorSizeX / (double) recallSize;
         return String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER + String.valueOf(authorSizeX)
                 + Config.FIRST_DELIMITER + String.valueOf(overOneAtX) + Config.FIRST_DELIMITER
-                + String.valueOf(recallAtX) + String.valueOf(authorSizeM)
+                + String.valueOf(recallAtX) + Config.FIRST_DELIMITER + String.valueOf(authorSizeM)
                 + Config.FIRST_DELIMITER + String.valueOf(overOneAtM) + Config.FIRST_DELIMITER
                 + String.valueOf(recallAtM);
     }

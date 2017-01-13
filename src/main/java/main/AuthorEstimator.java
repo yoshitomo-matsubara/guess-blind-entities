@@ -1,11 +1,11 @@
 package main;
 
-import model.BaseModel;
-import model.CountUpModel;
-import model.NaiveBayesModel;
 import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
+import model.BaseModel;
+import model.CountUpModel;
+import model.NaiveBayesModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
