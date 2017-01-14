@@ -62,6 +62,7 @@ public class HistogramMaker {
     }
 
     private static void writeHistogramFile(TreeMap<Integer, Integer> treeMap, String outputFilePath) {
+        System.out.println("\tStart:\twriting " + outputFilePath);
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int key : treeMap.keySet()) {
@@ -74,6 +75,7 @@ public class HistogramMaker {
             System.err.println("Exception @ makePaperHistogram");
             e.printStackTrace();
         }
+        System.out.println("\tEnd:\twriting " + outputFilePath);
     }
 
     private static void makePaperHistogram(String paperFilePath, int startYear, int endYear, String outputDirPath) {
@@ -138,10 +140,10 @@ public class HistogramMaker {
                 } else {
                     refAuthorCountMap.put(refPaperSize, refAuthorCountMap.get(refPaperSize) + 1);
                 }
-
-                writeHistogramFile(refAuthorCountMap, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
-                writeHistogramFile(authorCountMap, outputDirPath + AUTHOR_HIST_FILE_NAME);
             }
+
+            writeHistogramFile(refAuthorCountMap, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
+            writeHistogramFile(authorCountMap, outputDirPath + AUTHOR_HIST_FILE_NAME);
         } catch (Exception e) {
             System.err.println("Exception @ makeAuthorHistogram");
             e.printStackTrace();
