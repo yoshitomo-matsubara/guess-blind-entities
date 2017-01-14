@@ -66,18 +66,19 @@ public class Evaluator {
     }
 
     private static String evaluate(List<Result> resultList, int recallSize, Paper paper) {
+        Collections.sort(resultList);
         int trueAuthorSize = paper.getAuthorSize();
         int resultSize = resultList.size();
         int authorSizeX = 0;
         int authorSizeM = 0;
-        int size = trueAuthorSize < resultSize ? trueAuthorSize : resultSize;
-        if (size < recallSize && recallSize <= resultSize) {
-            size = recallSize;
+        int size = recallSize > trueAuthorSize ? recallSize : trueAuthorSize;
+        if (resultSize < size) {
+            size = resultSize;
         }
 
         for (int i = 0; i < size; i++) {
             Result result = resultList.get(i);
-            if (paper.checkIfAuthor(result.authorId)) {
+            if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
                 if (i < trueAuthorSize) {
                     authorSizeX++;
                 }
@@ -92,11 +93,11 @@ public class Evaluator {
         int overOneAtM = authorSizeM > 0 ? 1 : 0;
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         double recallAtM = (double) authorSizeX / (double) recallSize;
-        return String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER + String.valueOf(authorSizeX)
-                + Config.FIRST_DELIMITER + String.valueOf(overOneAtX) + Config.FIRST_DELIMITER
-                + String.valueOf(recallAtX) + Config.FIRST_DELIMITER + String.valueOf(authorSizeM)
-                + Config.FIRST_DELIMITER + String.valueOf(overOneAtM) + Config.FIRST_DELIMITER
-                + String.valueOf(recallAtM);
+        return paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
+                + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
+                + Config.FIRST_DELIMITER + String.valueOf(recallAtX) + Config.FIRST_DELIMITER
+                + String.valueOf(authorSizeM) + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
+                + Config.FIRST_DELIMITER + String.valueOf(recallAtM);
     }
 
     private static void evaluate(String inputDirPath, int recallSize, String outputFilePath) {
@@ -115,7 +116,6 @@ public class Evaluator {
 
                 Paper paper = resultPair.key;
                 List<Result> resultList = resultPair.value;
-                Collections.sort(resultList);
                 String outputLine = evaluate(resultList, recallSize, paper);
                 bw.write(outputLine);
                 bw.newLine();
