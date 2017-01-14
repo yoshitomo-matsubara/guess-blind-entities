@@ -66,13 +66,14 @@ public class Evaluator {
     }
 
     private static String evaluate(List<Result> resultList, int recallSize, Paper paper) {
+        Collections.sort(resultList);
         int trueAuthorSize = paper.getAuthorSize();
         int resultSize = resultList.size();
         int authorSizeX = 0;
         int authorSizeM = 0;
-        int size = trueAuthorSize < resultSize ? trueAuthorSize : resultSize;
-        if (size < recallSize && recallSize <= resultSize) {
-            size = recallSize;
+        int size = recallSize > trueAuthorSize ? recallSize : trueAuthorSize;
+        if (resultSize < size) {
+            size = resultSize;
         }
 
         for (int i = 0; i < size; i++) {
@@ -115,7 +116,6 @@ public class Evaluator {
 
                 Paper paper = resultPair.key;
                 List<Result> resultList = resultPair.value;
-                Collections.sort(resultList);
                 String outputLine = evaluate(resultList, recallSize, paper);
                 bw.write(outputLine);
                 bw.newLine();
