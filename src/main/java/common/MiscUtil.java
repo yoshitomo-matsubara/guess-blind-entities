@@ -70,4 +70,12 @@ public class MiscUtil {
         }
         return false;
     }
+
+    public static int[] initIntArray(int size, int init) {
+        int[] array = new int[size];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = init;
+        }
+        return array;
+    }
 }
