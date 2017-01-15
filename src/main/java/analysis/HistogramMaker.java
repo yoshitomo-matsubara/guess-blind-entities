@@ -22,6 +22,7 @@ public class HistogramMaker {
     private static final String AUTHOR_HIST_FILE_NAME = "author-histogram.csv";
     private static final String REF_AUTHOR_HIST_FILE_NAME = "refauthor-histogram.csv";
     private static final int INVALID_VALUE = -1;
+    private static final int DEFAULT_ARRAY_SIZE = 5000;
 
     private static Options setOptions() {
         Options options = new Options();
@@ -62,6 +63,7 @@ public class HistogramMaker {
     }
 
     private static void writeHistogramFile(TreeMap<Integer, Integer> treeMap, String outputFilePath) {
+        System.out.println("\tStart:\twriting " + outputFilePath);
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int key : treeMap.keySet()) {
@@ -71,9 +73,34 @@ public class HistogramMaker {
             }
             bw.close();
         } catch (Exception e) {
-            System.err.println("Exception @ makePaperHistogram");
+            System.err.println("Exception @ writeHistogramFile");
             e.printStackTrace();
         }
+        System.out.println("\tEnd:\twriting " + outputFilePath);
+    }
+
+    private static void writeHistogramFile(int[] array, TreeMap<Integer, Integer> treeMap, String outputFilePath) {
+        System.out.println("\tStart:\twriting " + outputFilePath);
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
+            for (int i = 0; i < array.length; i++) {
+                if (array[i] > 0) {
+                    bw.write(String.valueOf(i + 1) + Config.FIRST_DELIMITER + String.valueOf(array[i]));
+                    bw.newLine();
+                }
+            }
+
+            for (int key : treeMap.keySet()) {
+                bw.write(String.valueOf(key) + Config.FIRST_DELIMITER
+                        + String.valueOf(treeMap.get(key)));
+                bw.newLine();
+            }
+            bw.close();
+        } catch (Exception e) {
+            System.err.println("Exception @ writeHistogramFile");
+            e.printStackTrace();
+        }
+        System.out.println("\tEnd:\twriting " + outputFilePath);
     }
 
     private static void makePaperHistogram(String paperFilePath, int startYear, int endYear, String outputDirPath) {
@@ -107,41 +134,47 @@ public class HistogramMaker {
     private static void makeAuthorHistogram(String authorDirPath, String outputDirPath) {
         System.out.println("Start:\treading author files");
         try {
-            TreeMap<Integer, Integer> refAuthorCountMap = new TreeMap<>();
-            TreeMap<Integer, Integer> authorCountMap = new TreeMap<>();
+            int[] refAuthorCounts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
+            int[] authorCounts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
+            TreeMap<Integer, Integer> exRefAuthorCountMap = new TreeMap<>();
+            TreeMap<Integer, Integer> exAuthorCountMap = new TreeMap<>();
             List<File> authorFileList = FileUtil.getFileList(authorDirPath);
             int size = authorFileList.size();
             for (int i = 0; i < size; i++) {
                 File authorFile = authorFileList.remove(0);
                 int totalCount = 0;
-                HashSet<String> uniqRefPaperIdSet = new HashSet<>();
+                HashSet<String> refPaperIdSet = new HashSet<>();
                 BufferedReader br = new BufferedReader(new FileReader(authorFile));
                 String line;
                 while ((line = br.readLine()) != null) {
                     Paper paper = new Paper(line);
                     for (String refPaperId : paper.refPaperIds) {
-                        uniqRefPaperIdSet.add(refPaperId);
+                        refPaperIdSet.add(refPaperId);
                     }
                     totalCount++;
                 }
 
                 br.close();
-                if (!authorCountMap.containsKey(totalCount)) {
-                    authorCountMap.put(totalCount, 1);
+                if (totalCount < authorCounts.length) {
+                    authorCounts[totalCount]++;
+                } else if (!exAuthorCountMap.containsKey(totalCount)) {
+                    exAuthorCountMap.put(totalCount, 1);
                 } else {
-                    authorCountMap.put(totalCount, authorCountMap.get(totalCount) + 1);
+                    exAuthorCountMap.put(totalCount, exAuthorCountMap.get(totalCount) + 1);
                 }
 
-                int refPaperSize = uniqRefPaperIdSet.size();
-                if (!refAuthorCountMap.containsKey(refPaperSize)) {
-                    refAuthorCountMap.put(refPaperSize, 1);
+                int refPaperSize = refPaperIdSet.size();
+                if (refPaperSize < refAuthorCounts.length) {
+                    refAuthorCounts[refPaperSize]++;
+                } else if (!exRefAuthorCountMap.containsKey(refPaperSize)) {
+                    exRefAuthorCountMap.put(refPaperSize, 1);
                 } else {
-                    refAuthorCountMap.put(refPaperSize, refAuthorCountMap.get(refPaperSize) + 1);
+                    exRefAuthorCountMap.put(refPaperSize, exRefAuthorCountMap.get(refPaperSize) + 1);
                 }
-
-                writeHistogramFile(refAuthorCountMap, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
-                writeHistogramFile(authorCountMap, outputDirPath + AUTHOR_HIST_FILE_NAME);
             }
+
+            writeHistogramFile(refAuthorCounts, exRefAuthorCountMap, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
+            writeHistogramFile(authorCounts, exAuthorCountMap, outputDirPath + AUTHOR_HIST_FILE_NAME);
         } catch (Exception e) {
             System.err.println("Exception @ makeAuthorHistogram");
             e.printStackTrace();
