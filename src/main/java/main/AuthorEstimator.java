@@ -124,7 +124,7 @@ public class AuthorEstimator {
     }
 
     private static void estimate(String trainingDirPath, String testDirPath, int splitSize, String modelType, String outputDirPath) {
-        List<File> trainingFileList = FileUtil.getFileList(trainingDirPath);
+        List<File> trainingFileList = FileUtil.getFileListR(trainingDirPath);
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         int size = trainingFileList.size();
         int unitSize = size / splitSize;

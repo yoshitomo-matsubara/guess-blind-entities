@@ -1,6 +1,7 @@
 package main;
 
 import common.Config;
+import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -22,6 +23,7 @@ public class PaperSeparator {
     private static final int INVALID_VALUE = -1;
     private static final int TRAIN_BUFFER_SIZE = 5000000;
     private static final int TEST_BUFFER_SIZE = 2500000;
+    private static final int SUFFIX_SIZE = 3;
     private static final float INVALID_RATE = -Float.MAX_VALUE;
 
     private static Options setOptions() {
@@ -43,7 +45,7 @@ public class PaperSeparator {
                 .build());
         options.addOption(Option.builder(TRAIN_OUTPUT_DIR_OPTION)
                 .hasArg(true)
-                .required(true)
+                .required(false)
                 .desc("[output, optional] output training dir, -" + TRAIN_START_YEAR_OPTION + " and -"
                         + TRAIN_END_YEAR_OPTION + " are required")
                 .build());
@@ -59,7 +61,7 @@ public class PaperSeparator {
                 .build());
         options.addOption(Option.builder(TEST_OUTPUT_DIR_OPTION)
                 .hasArg(true)
-                .required(true)
+                .required(false)
                 .desc("[output, optional] output test dir, -" + TEST_START_YEAR_OPTION + " and -"
                         + TEST_END_YEAR_OPTION + " are required")
                 .build());
@@ -80,11 +82,15 @@ public class PaperSeparator {
         return true;
     }
 
-    private static void distributeFiles(HashMap<String, List<String>> hashMap,
-                                       HashSet<String> fileNameSet, String outputDirPath) {
+    private static void distributeFiles(HashMap<String, List<String>> hashMap, HashSet<String> fileNameSet,
+                                        boolean subDirMode, String outputDirPath) {
         try {
             for (String key : hashMap.keySet()) {
-                File outputFile = new File(outputDirPath + "/" + key);
+                String outputFilePath = subDirMode ?
+                        outputDirPath + "/" + key.substring(key.length() - SUFFIX_SIZE) + "/" + key
+                        : outputDirPath + "/" + key;
+                FileUtil.makeParentDir(outputFilePath);
+                File outputFile = new File(outputFilePath);
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
                 List<String> valueList = hashMap.get(key);
@@ -125,6 +131,10 @@ public class PaperSeparator {
         try {
             boolean trainMode = checkIfValidParams(trainStartYear, trainEndYear, outputTrainDirPath);
             boolean testMode = checkIfValidParams(testStartYear, testEndYear, outputTestDirPath);
+            if (!trainMode && !testMode) {
+                return;
+            }
+
             if (trainMode) {
                 File dir = new File(outputTrainDirPath);
                 dir.mkdirs();
@@ -168,7 +178,7 @@ public class PaperSeparator {
                         trainListMap.get(authorId).add(line);
                         trainCount++;
                         if (trainCount % TRAIN_BUFFER_SIZE == 0) {
-                            distributeFiles(trainListMap, trainFileNameSet, outputTrainDirPath);
+                            distributeFiles(trainListMap, trainFileNameSet, true, outputTrainDirPath);
                         }
                     }
                 } else if (checkIfValidMode(testMode, testStartYear, testEndYear, year)) {
@@ -184,14 +194,14 @@ public class PaperSeparator {
                     testListMap.get(yearStr).add(line);
                     testCount++;
                     if (testCount % TEST_BUFFER_SIZE == 0) {
-                        distributeFiles(testListMap, testFileNameSet, outputTestDirPath);
+                        distributeFiles(testListMap, testFileNameSet, false, outputTestDirPath);
                     }
                 }
             }
 
             br.close();
-            distributeFiles(trainListMap, trainFileNameSet, outputTrainDirPath);
-            distributeFiles(testListMap, testFileNameSet, outputTestDirPath);
+            distributeFiles(trainListMap, trainFileNameSet, true, outputTrainDirPath);
+            distributeFiles(testListMap, testFileNameSet, false, outputTestDirPath);
         } catch (Exception e) {
             System.err.println("Exception @ separate");
             e.printStackTrace();
