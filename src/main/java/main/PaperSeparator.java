@@ -45,7 +45,7 @@ public class PaperSeparator {
                 .build());
         options.addOption(Option.builder(TRAIN_OUTPUT_DIR_OPTION)
                 .hasArg(true)
-                .required(true)
+                .required(false)
                 .desc("[output, optional] output training dir, -" + TRAIN_START_YEAR_OPTION + " and -"
                         + TRAIN_END_YEAR_OPTION + " are required")
                 .build());
@@ -61,7 +61,7 @@ public class PaperSeparator {
                 .build());
         options.addOption(Option.builder(TEST_OUTPUT_DIR_OPTION)
                 .hasArg(true)
-                .required(true)
+                .required(false)
                 .desc("[output, optional] output test dir, -" + TEST_START_YEAR_OPTION + " and -"
                         + TEST_END_YEAR_OPTION + " are required")
                 .build());
@@ -131,6 +131,10 @@ public class PaperSeparator {
         try {
             boolean trainMode = checkIfValidParams(trainStartYear, trainEndYear, outputTrainDirPath);
             boolean testMode = checkIfValidParams(testStartYear, testEndYear, outputTestDirPath);
+            if (!trainMode && !testMode) {
+                return;
+            }
+
             if (trainMode) {
                 File dir = new File(outputTrainDirPath);
                 dir.mkdirs();
