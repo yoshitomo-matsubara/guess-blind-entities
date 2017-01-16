@@ -23,6 +23,7 @@ public class HistogramMaker {
     private static final String REF_AUTHOR_HIST_FILE_NAME = "refauthor-histogram.csv";
     private static final int INVALID_VALUE = -1;
     private static final int DEFAULT_ARRAY_SIZE = 5000;
+    private static final int PRINT_SPLIT_SIZE = 20;
 
     private static Options setOptions() {
         Options options = new Options();
@@ -138,9 +139,16 @@ public class HistogramMaker {
             int[] authorCounts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
             TreeMap<Integer, Integer> exRefAuthorCountMap = new TreeMap<>();
             TreeMap<Integer, Integer> exAuthorCountMap = new TreeMap<>();
-            List<File> authorFileList = FileUtil.getFileList(authorDirPath);
+            List<File> authorFileList = FileUtil.getFileListR(authorDirPath);
             int size = authorFileList.size();
+            int unitSize = size / PRINT_SPLIT_SIZE;
+            int unitPer = 100 / PRINT_SPLIT_SIZE;
             for (int i = 0; i < size; i++) {
+                if (size % unitSize == 0 && i > 0) {
+                    int percent = size / unitSize * unitPer;
+                    System.out.println("\t" + String.valueOf(percent) + "%");
+                }
+
                 File authorFile = authorFileList.remove(0);
                 int totalCount = 0;
                 HashSet<String> refPaperIdSet = new HashSet<>();
