@@ -31,6 +31,17 @@ public class FileUtil {
         return fileList;
     }
 
+    public static List<File> getDirList(String dirPath) {
+        File[] files = (new File(dirPath)).listFiles();
+        List<File> dirList = new ArrayList<>();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                dirList.add(file);
+            }
+        }
+        return dirList;
+    }
+
     public static List<String> readFile(File file) {
         List<String> lineList = new ArrayList<>();
         try {
