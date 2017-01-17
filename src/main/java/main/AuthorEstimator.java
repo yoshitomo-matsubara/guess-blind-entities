@@ -21,7 +21,6 @@ public class AuthorEstimator {
     private static final String TEST_DIR_OPTION = "test";
     private static final String MODEL_TYPE_OPTION = "mt";
     private static final String SPLIT_SIZE_OPTION = "s";
-    private static final int DEFAULT_SPLIT_SIZE = 3;
     private static final double ZERO_SCORE = 0.0d;
 
     private static Options setOptions() {
@@ -35,11 +34,6 @@ public class AuthorEstimator {
                 .hasArg(true)
                 .required(true)
                 .desc("[input] test dir")
-                .build());
-        options.addOption(Option.builder(SPLIT_SIZE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] split size")
                 .build());
         options.addOption(Option.builder(MODEL_TYPE_OPTION)
                 .hasArg(true)
@@ -123,17 +117,20 @@ public class AuthorEstimator {
         }
     }
 
-    private static void estimate(String trainingDirPath, String testDirPath, int splitSize, String modelType, String outputDirPath) {
-        List<File> trainingFileList = FileUtil.getFileListR(trainingDirPath);
+    private static void estimate(String trainingDirPath, String testDirPath, String modelType, String outputDirPath) {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
-        int size = trainingFileList.size();
-        int unitSize = size / splitSize;
-        for (int i = 0; i < splitSize; i++) {
-            System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(splitSize));
-            int subSize = i < splitSize - 1 ? unitSize : trainingFileList.size();
-            List<File> subTrainingFileList = trainingFileList.subList(0, subSize);
-            List<BaseModel> modelList = readAuthorFiles(subTrainingFileList, modelType);
-            subTrainingFileList.clear();
+        List<File> authorDirList = FileUtil.getDirList(trainingDirPath);
+        if (authorDirList.size() == 0) {
+            authorDirList.add(new File(trainingDirPath));
+        }
+
+        int dirSize = authorDirList.size();
+        for (int i = 0; i < dirSize; i++) {
+            File authorDir = authorDirList.remove(0);
+            System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));
+            List<File> trainingFileList = FileUtil.getFileListR(authorDir.getPath());
+            List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType);
+            trainingFileList.clear();
             FileUtil.makeIfNotExist(outputDirPath);
             boolean first = i == 0;
             for (File testFile : testFileList) {
@@ -147,10 +144,8 @@ public class AuthorEstimator {
         CommandLine cl = MiscUtil.setParams("AuthorEstimator", options, args);
         String trainingDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);
         String testDirPath = cl.getOptionValue(TEST_DIR_OPTION);
-        int splitSize = cl.hasOption(SPLIT_SIZE_OPTION) ? Integer.parseInt(cl.getOptionValue(SPLIT_SIZE_OPTION))
-                : DEFAULT_SPLIT_SIZE;
         String modelType = cl.getOptionValue(MODEL_TYPE_OPTION);
         String outputDirPath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        estimate(trainingDirPath, testDirPath, splitSize, modelType, outputDirPath);
+        estimate(trainingDirPath, testDirPath, modelType, outputDirPath);
     }
 }

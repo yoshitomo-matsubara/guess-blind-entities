@@ -23,7 +23,6 @@ public class HistogramMaker {
     private static final String REF_AUTHOR_HIST_FILE_NAME = "refauthor-histogram.csv";
     private static final int INVALID_VALUE = -1;
     private static final int DEFAULT_ARRAY_SIZE = 5000;
-    private static final int PRINT_SPLIT_SIZE = 20;
 
     private static Options setOptions() {
         Options options = new Options();
@@ -139,45 +138,48 @@ public class HistogramMaker {
             int[] authorCounts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
             TreeMap<Integer, Integer> exRefAuthorCountMap = new TreeMap<>();
             TreeMap<Integer, Integer> exAuthorCountMap = new TreeMap<>();
-            List<File> authorFileList = FileUtil.getFileListR(authorDirPath);
-            int size = authorFileList.size();
-            int unitSize = size / PRINT_SPLIT_SIZE;
-            int unitPer = 100 / PRINT_SPLIT_SIZE;
-            for (int i = 0; i < size; i++) {
-                if (size % unitSize == 0 && i > 0) {
-                    int percent = size / unitSize * unitPer;
-                    System.out.println("\t" + String.valueOf(percent) + "%");
-                }
+            List<File> authorDirList = FileUtil.getDirList(authorDirPath);
+            if (authorDirList.size() == 0) {
+                authorDirList.add(new File(authorDirPath));
+            }
 
-                File authorFile = authorFileList.remove(0);
-                int totalCount = 0;
-                HashSet<String> refPaperIdSet = new HashSet<>();
-                BufferedReader br = new BufferedReader(new FileReader(authorFile));
-                String line;
-                while ((line = br.readLine()) != null) {
-                    Paper paper = new Paper(line);
-                    for (String refPaperId : paper.refPaperIds) {
-                        refPaperIdSet.add(refPaperId);
+            int dirSize = authorDirList.size();
+            for (int i = 0; i < dirSize; i++) {
+                System.out.println("\tStage " + String.valueOf(i + 1) + " / " + String.valueOf(dirSize));
+                File authorDir = authorDirList.remove(0);
+                List<File> authorFileList = FileUtil.getFileListR(authorDir.getPath());
+                int size = authorFileList.size();
+                for (int j = 0; j < size; j++) {
+                    File authorFile = authorFileList.remove(0);
+                    int totalCount = 0;
+                    HashSet<String> refPaperIdSet = new HashSet<>();
+                    BufferedReader br = new BufferedReader(new FileReader(authorFile));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        Paper paper = new Paper(line);
+                        for (String refPaperId : paper.refPaperIds) {
+                            refPaperIdSet.add(refPaperId);
+                        }
+                        totalCount++;
                     }
-                    totalCount++;
-                }
 
-                br.close();
-                if (totalCount < authorCounts.length) {
-                    authorCounts[totalCount]++;
-                } else if (!exAuthorCountMap.containsKey(totalCount)) {
-                    exAuthorCountMap.put(totalCount, 1);
-                } else {
-                    exAuthorCountMap.put(totalCount, exAuthorCountMap.get(totalCount) + 1);
-                }
+                    br.close();
+                    if (totalCount < authorCounts.length) {
+                        authorCounts[totalCount]++;
+                    } else if (!exAuthorCountMap.containsKey(totalCount)) {
+                        exAuthorCountMap.put(totalCount, 1);
+                    } else {
+                        exAuthorCountMap.put(totalCount, exAuthorCountMap.get(totalCount) + 1);
+                    }
 
-                int refPaperSize = refPaperIdSet.size();
-                if (refPaperSize < refAuthorCounts.length) {
-                    refAuthorCounts[refPaperSize]++;
-                } else if (!exRefAuthorCountMap.containsKey(refPaperSize)) {
-                    exRefAuthorCountMap.put(refPaperSize, 1);
-                } else {
-                    exRefAuthorCountMap.put(refPaperSize, exRefAuthorCountMap.get(refPaperSize) + 1);
+                    int refPaperSize = refPaperIdSet.size();
+                    if (refPaperSize < refAuthorCounts.length) {
+                        refAuthorCounts[refPaperSize]++;
+                    } else if (!exRefAuthorCountMap.containsKey(refPaperSize)) {
+                        exRefAuthorCountMap.put(refPaperSize, 1);
+                    } else {
+                        exRefAuthorCountMap.put(refPaperSize, exRefAuthorCountMap.get(refPaperSize) + 1);
+                    }
                 }
             }
 
