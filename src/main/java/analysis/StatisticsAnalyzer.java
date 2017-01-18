@@ -31,17 +31,17 @@ public class StatisticsAnalyzer {
         options.addOption(Option.builder(PAPERS_FILE_OPTION)
                 .hasArg(true)
                 .required(false)
-                .desc("[input, optional] Papers file")
+                .desc("[input, optional] min-Papers file")
                 .build());
         options.addOption(Option.builder(AFFILS_FILE_OPTION)
                 .hasArg(true)
                 .required(false)
-                .desc("[input, optional] PaperAuthorAffiliations file")
+                .desc("[input, optional] min-PaperAuthorAffiliations file")
                 .build());
         options.addOption(Option.builder(REFS_FILE_OPTION)
                 .hasArg(true)
                 .required(false)
-                .desc("[input, optional] PaperReferences file")
+                .desc("[input, optional] min-PaperReferences file")
                 .build());
         options.addOption(Option.builder(AUTHOR_DIR_OPTION)
                 .hasArg(true)
@@ -51,7 +51,7 @@ public class StatisticsAnalyzer {
         return options;
     }
 
-    private static void analyzeOriginalFile(String orgFilePath, int index, String title) {
+    private static void analyzeMinFile(String orgFilePath, int index, String title) {
         try {
             HashSet<String> idSet = new HashSet<>();
             File orgFile = new File(orgFilePath);
@@ -67,7 +67,31 @@ public class StatisticsAnalyzer {
             br.close();
             System.out.println(title + ": \t" + String.valueOf(idSet.size()));
         } catch (Exception e) {
-            System.err.println("Exception @ analyzeOriginalFile");
+            System.err.println("Exception @ analyzeMinFile");
+            e.printStackTrace();
+        }
+    }
+
+    private static void analyzeMinListFile(String orgFilePath, int index, String title) {
+        try {
+            HashSet<String> idSet = new HashSet<>();
+            File orgFile = new File(orgFilePath);
+            BufferedReader br = new BufferedReader(new FileReader(orgFile));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String idStr = line.split(Config.FIRST_DELIMITER)[index];
+                String[] ids = idStr.split(Config.SECOND_DELIMITER);
+                for (String id : ids) {
+                    if (!idSet.contains(id)) {
+                        idSet.add(id);
+                    }
+                }
+            }
+
+            br.close();
+            System.out.println(title + ": \t" + String.valueOf(idSet.size()));
+        } catch (Exception e) {
+            System.err.println("Exception @ analyzeMinListFile");
             e.printStackTrace();
         }
     }
@@ -180,15 +204,15 @@ public class StatisticsAnalyzer {
     private static void analyze(String papersFilePath, String affilsFilePath,
                                 String refsFilePath, String authorDirPath) {
         if (papersFilePath != null) {
-            analyzeOriginalFile(papersFilePath, PAPER_ID_INDEX, "# of unique paper IDs in " + papersFilePath);
+            analyzeMinFile(papersFilePath, PAPER_ID_INDEX, "# of unique paper IDs in " + papersFilePath);
         }
 
         if (affilsFilePath != null) {
-            analyzeOriginalFile(affilsFilePath, AFFIL_ID_INDEX, "# of unique affilation IDs in " + affilsFilePath);
+            analyzeMinListFile(affilsFilePath, AFFIL_ID_INDEX, "# of unique affilation IDs in " + affilsFilePath);
         }
 
         if (refsFilePath != null) {
-            analyzeOriginalFile(refsFilePath, PAPER_REF_ID_INDEX, "# of unique reference paper IDs in " + refsFilePath);
+            analyzeMinListFile(refsFilePath, PAPER_REF_ID_INDEX, "# of unique reference paper IDs in " + refsFilePath);
         }
 
         if (authorDirPath != null) {
