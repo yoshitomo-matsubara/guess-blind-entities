@@ -9,25 +9,71 @@ import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 
 public class StatisticsAnalyzer {
+    private static final String PAPERS_FILE_OPTION = "p";
+    private static final String AFFILS_FILE_OPTION = "af";
+    private static final String REFS_FILE_OPTION = "r";
+    private static final String AUTHOR_DIR_OPTION = "au";
+    private static final int PAPER_ID_INDEX = 0;
+    private static final int AFFIL_ID_INDEX = 1;
+    private static final int PAPER_REF_ID_INDEX = 1;
+
     private static Options setOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(Config.INPUT_DIR_OPTION)
+        options.addOption(Option.builder(PAPERS_FILE_OPTION)
                 .hasArg(true)
-                .required(true)
-                .desc("[input] author directory")
+                .required(false)
+                .desc("[input, optional] Papers file")
+                .build());
+        options.addOption(Option.builder(AFFILS_FILE_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[input, optional] PaperAuthorAffiliations file")
+                .build());
+        options.addOption(Option.builder(REFS_FILE_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[input, optional] PaperReferences file")
+                .build());
+        options.addOption(Option.builder(AUTHOR_DIR_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[input, optional] author directory")
                 .build());
         return options;
     }
 
-    private static List<Author> getAuthorList(String inputDirPath) {
-        List<File> fileList = FileUtil.getFileList(inputDirPath);
+    private static void analyzeOriginalFile(String orgFilePath, int index, String title) {
+        try {
+            HashSet<String> idSet = new HashSet<>();
+            File orgFile = new File(orgFilePath);
+            BufferedReader br = new BufferedReader(new FileReader(orgFile));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String id = line.split(Config.FIRST_DELIMITER)[index];
+                if (!idSet.contains(id)) {
+                    idSet.add(id);
+                }
+            }
+
+            br.close();
+            System.out.println(title + ": \t" + String.valueOf(idSet.size()));
+        } catch (Exception e) {
+            System.err.println("Exception @ analyzeOriginalFile");
+            e.printStackTrace();
+        }
+    }
+
+    private static List<Author> getAuthorList(String authorDirPath) {
+        List<File> fileList = FileUtil.getFileList(authorDirPath);
         List<Author> authorList = new ArrayList<>();
         for (File file : fileList) {
             String authorId = file.getName();
@@ -122,19 +168,41 @@ public class StatisticsAnalyzer {
         }
     }
 
-    private static void analyze(String inputDirPath) {
+    private static void analyzeAuthors(String authorDirPath) {
         HashSet<String> authorIdSet = new HashSet<>();
         HashSet<String> paperIdSet = new HashSet<>();
         HashSet<String> refPaperIdSet = new HashSet<>();
-        List<Author> authorList = getAuthorList(inputDirPath);
+        List<Author> authorList = getAuthorList(authorDirPath);
         analyzeBasicMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);
         analyzeAveMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);
+    }
+
+    private static void analyze(String papersFilePath, String affilsFilePath,
+                                String refsFilePath, String authorDirPath) {
+        if (papersFilePath != null) {
+            analyzeOriginalFile(papersFilePath, PAPER_ID_INDEX, "# of unique paper IDs in " + papersFilePath);
+        }
+
+        if (affilsFilePath != null) {
+            analyzeOriginalFile(affilsFilePath, AFFIL_ID_INDEX, "# of unique affilation IDs in " + affilsFilePath);
+        }
+
+        if (refsFilePath != null) {
+            analyzeOriginalFile(refsFilePath, PAPER_REF_ID_INDEX, "# of unique reference paper IDs in " + refsFilePath);
+        }
+
+        if (authorDirPath != null) {
+            analyzeAuthors(authorDirPath);
+        }
     }
 
     public static void main(String[] args) {
         Options options = setOptions();
         CommandLine cl = MiscUtil.setParams("StatisticsAnalyzer", options, args);
-        String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
-        analyze(inputDirPath);
+        String papersFilePath = cl.hasOption(PAPERS_FILE_OPTION) ? cl.getOptionValue(PAPERS_FILE_OPTION) : null;
+        String affilsFilePath = cl.hasOption(AFFILS_FILE_OPTION) ? cl.getOptionValue(AFFILS_FILE_OPTION) : null;
+        String refsFilePath = cl.hasOption(REFS_FILE_OPTION) ? cl.getOptionValue(REFS_FILE_OPTION) : null;
+        String authorDirPath = cl.hasOption(AUTHOR_DIR_OPTION) ? cl.getOptionValue(AUTHOR_DIR_OPTION) : null;
+        analyze(papersFilePath, affilsFilePath, refsFilePath, authorDirPath);
     }
 }
