@@ -85,7 +85,7 @@ public class HistogramMaker {
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int i = 0; i < array.length; i++) {
                 if (array[i] > 0) {
-                    bw.write(String.valueOf(i + 1) + Config.FIRST_DELIMITER + String.valueOf(array[i]));
+                    bw.write(String.valueOf(i) + Config.FIRST_DELIMITER + String.valueOf(array[i]));
                     bw.newLine();
                 }
             }
