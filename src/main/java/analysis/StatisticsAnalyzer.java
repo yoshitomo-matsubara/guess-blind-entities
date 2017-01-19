@@ -58,9 +58,9 @@ public class StatisticsAnalyzer {
             BufferedReader br = new BufferedReader(new FileReader(orgFile));
             String line;
             while ((line = br.readLine()) != null) {
-                String id = line.split(Config.FIRST_DELIMITER)[index];
-                if (!idSet.contains(id)) {
-                    idSet.add(id);
+                String[] elements = line.split(Config.FIRST_DELIMITER);
+                if (!idSet.contains(elements[index])) {
+                    idSet.add(elements[index]);
                 }
             }
 
@@ -79,8 +79,8 @@ public class StatisticsAnalyzer {
             BufferedReader br = new BufferedReader(new FileReader(orgFile));
             String line;
             while ((line = br.readLine()) != null) {
-                String idStr = line.split(Config.FIRST_DELIMITER)[index];
-                String[] ids = idStr.split(Config.SECOND_DELIMITER);
+                String[] elements = line.split(Config.FIRST_DELIMITER);
+                String[] ids = elements[index].split(Config.SECOND_DELIMITER);
                 for (String id : ids) {
                     if (!idSet.contains(id)) {
                         idSet.add(id);
