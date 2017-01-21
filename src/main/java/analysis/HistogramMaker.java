@@ -134,9 +134,9 @@ public class HistogramMaker {
         System.out.println("End:\treading " + paperFilePath);
     }
 
-    private static boolean checkIfCompleted(File authorDir, String outputDirPath) {
-        File tmpFileA = new File(outputDirPath + COMPLETE_PREFIX + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir);
-        File tmpFileR = new File(outputDirPath + COMPLETE_PREFIX + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir);
+    private static boolean checkIfCompleted(String authorDirName, String outputDirPath) {
+        File tmpFileA = new File(outputDirPath + COMPLETE_PREFIX + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
+        File tmpFileR = new File(outputDirPath + COMPLETE_PREFIX + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
         return tmpFileA.exists() && tmpFileR.exists();
     }
 
@@ -154,7 +154,7 @@ public class HistogramMaker {
                     int value = Integer.parseInt(elements[1]);
 
                     if (key < counts.length) {
-                        counts[key]++;
+                        counts[key] += value;
                     } else if (!countMap.containsKey(key)) {
                         countMap.put(key, value);
                     } else {
@@ -184,7 +184,7 @@ public class HistogramMaker {
             for (int i = 0; i < dirSize; i++) {
                 System.out.println("\tStage " + String.valueOf(i + 1) + " / " + String.valueOf(dirSize));
                 File authorDir = authorDirList.remove(0);
-                if (checkIfCompleted(authorDir, outputDirPath)) {
+                if (checkIfCompleted(authorDir.getName(), outputDirPath)) {
                     System.out.println("\t" + authorDir.getName() + " has been already completed");
                     continue;
                 }
@@ -232,6 +232,12 @@ public class HistogramMaker {
                         + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir.getName());
                 writeHistogramFile(authorCounts, exAuthorCountMap, outputDirPath
                         + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir.getName());
+                File tmpFileA = new File(outputDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir.getName());
+                tmpFileA.renameTo(new File(outputDirPath + COMPLETE_PREFIX
+                        + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir.getName()));
+                File tmpFileR = new File(outputDirPath + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir.getName());
+                tmpFileR.renameTo(new File(outputDirPath + COMPLETE_PREFIX
+                        + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir.getName()));
             }
 
             mergeHistogramFiles(outputDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX,
