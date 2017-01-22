@@ -8,7 +8,6 @@ public class CountUpModel extends BaseModel {
     public static final String NAME = "Count Up Model";
     private int maxScore;
 
-
     public CountUpModel(Author author) {
         super(author);
         this.maxScore = 0;
