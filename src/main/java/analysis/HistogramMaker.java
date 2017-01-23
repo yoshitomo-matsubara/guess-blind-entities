@@ -246,9 +246,9 @@ public class HistogramMaker {
                         + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDir.getName()));
             }
 
-            mergeHistogramFiles(outputDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX,
+            mergeHistogramFiles(outputTmpDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX,
                     dirSize, outputDirPath + AUTHOR_HIST_FILE_NAME);
-            mergeHistogramFiles(outputDirPath + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX,
+            mergeHistogramFiles(outputTmpDirPath + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX,
                     dirSize, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
         } catch (Exception e) {
             System.err.println("Exception @ makeAuthorHistogram");
