@@ -5,7 +5,7 @@ import common.FileUtil;
 import common.MiscUtil;
 import model.BaseModel;
 import model.CountUpModel;
-import model.NaiveBayesModel;
+import model.GeometricMealModel;
 import model.RandomModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -21,7 +21,6 @@ public class AuthorEstimator {
     private static final String TRAIN_DIR_OPTION = "train";
     private static final String TEST_DIR_OPTION = "test";
     private static final String MODEL_TYPE_OPTION = "mt";
-    private static final String SPLIT_SIZE_OPTION = "s";
     private static final double ZERO_SCORE = 0.0d;
 
     private static Options setOptions() {
@@ -52,8 +51,8 @@ public class AuthorEstimator {
     private static BaseModel selectModel(String modelType, Author author) {
         if (modelType.equals(RandomModel.TYPE)) {
             return new RandomModel(author);
-        } else if (modelType.equals(NaiveBayesModel.TYPE)) {
-            return new NaiveBayesModel(author);
+        } else if (modelType.equals(GeometricMealModel.TYPE)) {
+            return new GeometricMealModel(author);
         } else if (modelType.equals(CountUpModel.TYPE)) {
             return new CountUpModel(author);
         }
