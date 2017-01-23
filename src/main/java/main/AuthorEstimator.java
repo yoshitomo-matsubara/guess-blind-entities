@@ -3,10 +3,7 @@ package main;
 import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
-import model.BaseModel;
-import model.CountUpModel;
-import model.GeometricMealModel;
-import model.RandomModel;
+import model.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -48,18 +45,22 @@ public class AuthorEstimator {
         return options;
     }
 
-    private static BaseModel selectModel(String modelType, Author author) {
-        if (modelType.equals(RandomModel.TYPE)) {
+    private static void setModelOptions(Options options) {
+        NaiveBayesModel.setOptions(options);
+    }
+
+    private static BaseModel selectModel(String modelType, Author author, CommandLine cl) {
+        if (RandomModel.checkIfValid(modelType, cl)) {
             return new RandomModel(author);
-        } else if (modelType.equals(GeometricMealModel.TYPE)) {
+        } else if (GeometricMealModel.checkIfValid(modelType, cl)) {
             return new GeometricMealModel(author);
-        } else if (modelType.equals(CountUpModel.TYPE)) {
+        } else if (CountUpModel.checkIfValid(modelType, cl)) {
             return new CountUpModel(author);
         }
         return null;
     }
 
-    public static List<BaseModel> readAuthorFiles(List<File> trainingFileList, String modelType) {
+    public static List<BaseModel> readAuthorFiles(List<File> trainingFileList, String modelType, CommandLine cl) {
         System.out.println("\tStart:\treading author files");
         List<BaseModel> modelList = new ArrayList<>();
         try {
@@ -73,7 +74,7 @@ public class AuthorEstimator {
 
                 br.close();
                 Author author = new Author(trainingFile.getName(), lineList);
-                BaseModel model = selectModel(modelType, author);
+                BaseModel model = selectModel(modelType, author, cl);
                 model.train();
                 modelList.add(model);
             }
@@ -119,7 +120,8 @@ public class AuthorEstimator {
         }
     }
 
-    private static void estimate(String trainingDirPath, String testDirPath, String modelType, String outputDirPath) {
+    private static void estimate(String trainingDirPath, String testDirPath,
+                                 String modelType, CommandLine cl, String outputDirPath) {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         List<File> authorDirList = FileUtil.getDirList(trainingDirPath);
         if (authorDirList.size() == 0) {
@@ -131,7 +133,7 @@ public class AuthorEstimator {
             File authorDir = authorDirList.remove(0);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));
             List<File> trainingFileList = FileUtil.getFileListR(authorDir.getPath());
-            List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType);
+            List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType, cl);
             trainingFileList.clear();
             FileUtil.makeIfNotExist(outputDirPath);
             boolean first = i == 0;
@@ -143,11 +145,12 @@ public class AuthorEstimator {
 
     public static void main(String[] args) {
         Options options = setOptions();
+        setModelOptions(options);
         CommandLine cl = MiscUtil.setParams("AuthorEstimator", options, args);
         String trainingDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);
         String testDirPath = cl.getOptionValue(TEST_DIR_OPTION);
         String modelType = cl.getOptionValue(MODEL_TYPE_OPTION);
         String outputDirPath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        estimate(trainingDirPath, testDirPath, modelType, outputDirPath);
+        estimate(trainingDirPath, testDirPath, modelType, cl, outputDirPath);
     }
 }
