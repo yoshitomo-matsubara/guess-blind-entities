@@ -37,6 +37,11 @@ public class MinimumMerger {
                 .required(true)
                 .desc("[input] min-PaperReferences file")
                 .build());
+        options.addOption(Option.builder(Config.TMP_DIR_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[output, optional] temporary output dir")
+                .build());
         options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
                 .hasArg(true)
                 .required(true)
@@ -111,31 +116,32 @@ public class MinimumMerger {
         }
     }
 
-    private static void merge(String papersFilePath, String affilsFilePath, String refsFilePath, String outputFilePath) {
-        String tmpDirPath = (new File(outputFilePath)).getParent();
-        if (tmpDirPath == null) {
-            tmpDirPath = "./";
+    private static void merge(String papersFilePath, String affilsFilePath,
+                              String refsFilePath, String tmpDirPath, String outputFilePath) {
+        String outputTmpDirPath = tmpDirPath == null ? (new File(outputFilePath)).getParent() : tmpDirPath;
+        if (outputTmpDirPath == null) {
+            outputTmpDirPath = "./";
         }
 
         HashSet<String> prefixSetP = FileUtil.splitFile(papersFilePath,
-                PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, tmpDirPath);
+                PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, outputTmpDirPath);
         HashSet<String> prefixSetA = FileUtil.splitFile(affilsFilePath,
-                PREFIX_SIZE, BUFFER_SIZE, TMP_AFFILS_FILE_PREFIX, tmpDirPath);
+                PREFIX_SIZE, BUFFER_SIZE, TMP_AFFILS_FILE_PREFIX, outputTmpDirPath);
         HashSet<String> prefixSetR = FileUtil.splitFile(refsFilePath,
-                PREFIX_SIZE, BUFFER_SIZE, TMP_REFS_FILE_PREFIX, tmpDirPath);
+                PREFIX_SIZE, BUFFER_SIZE, TMP_REFS_FILE_PREFIX, outputTmpDirPath);
         Iterator<String> ite = prefixSetP.iterator();
         boolean first = true;
         while (ite.hasNext()) {
             String prefix = ite.next();
             if (prefixSetA.contains(prefix) && prefixSetR.contains(prefix)) {
-                merge(tmpDirPath, first, prefix, outputFilePath);
+                merge(outputTmpDirPath, first, prefix, outputFilePath);
                 first = false;
             }
         }
 
-        deleteUnusedFiles(tmpDirPath, TMP_PAPERS_FILE_PREFIX, prefixSetP);
-        deleteUnusedFiles(tmpDirPath, TMP_AFFILS_FILE_PREFIX, prefixSetA);
-        deleteUnusedFiles(tmpDirPath, TMP_REFS_FILE_PREFIX, prefixSetR);
+        deleteUnusedFiles(outputTmpDirPath, TMP_PAPERS_FILE_PREFIX, prefixSetP);
+        deleteUnusedFiles(outputTmpDirPath, TMP_AFFILS_FILE_PREFIX, prefixSetA);
+        deleteUnusedFiles(outputTmpDirPath, TMP_REFS_FILE_PREFIX, prefixSetR);
     }
 
     public static void main(String[] args) {
@@ -144,7 +150,8 @@ public class MinimumMerger {
         String papersFilePath = cl.getOptionValue(PAPERS_FILE_OPTION);
         String affilsFilePath = cl.getOptionValue(AFFILS_FILE_OPTION);
         String refsFilePath = cl.getOptionValue(REFS_FILE_OPTION);
+        String tmpDirPath = cl.hasOption(Config.TMP_DIR_OPTION) ? cl.getOptionValue(Config.TMP_DIR_OPTION) : null;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        merge(papersFilePath, affilsFilePath, refsFilePath, outputFilePath);
+        merge(papersFilePath, affilsFilePath, refsFilePath, tmpDirPath, outputFilePath);
     }
 }

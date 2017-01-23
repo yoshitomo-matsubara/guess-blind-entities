@@ -8,6 +8,7 @@ import java.util.HashMap;
 public abstract class BaseModel {
     public static final String TYPE = "ab";
     public static final String NAME = "Abstract Model";
+
     public static final double INVALID_VALUE = -Double.MAX_VALUE;
     public final String authorId;
     protected Author author;
@@ -32,4 +33,11 @@ public abstract class BaseModel {
     }
 
     public abstract double estimate(Paper paper);
+
+    public static boolean checkIfValid(String modelType) {
+        if (!modelType.equals(TYPE)) {
+            return false;
+        }
+        return true;
+    }
 }
