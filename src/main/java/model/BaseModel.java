@@ -1,6 +1,5 @@
 package model;
 
-import org.apache.commons.cli.CommandLine;
 import structure.Author;
 import structure.Paper;
 
@@ -35,7 +34,7 @@ public abstract class BaseModel {
 
     public abstract double estimate(Paper paper);
 
-    public static boolean checkIfValid(String modelType, CommandLine cl) {
+    public static boolean checkIfValid(String modelType) {
         if (!modelType.equals(TYPE)) {
             return false;
         }

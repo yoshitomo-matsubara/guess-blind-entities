@@ -50,12 +50,14 @@ public class AuthorEstimator {
     }
 
     private static BaseModel selectModel(String modelType, Author author, CommandLine cl) {
-        if (RandomModel.checkIfValid(modelType, cl)) {
+        if (RandomModel.checkIfValid(modelType)) {
             return new RandomModel(author);
-        } else if (GeometricMealModel.checkIfValid(modelType, cl)) {
+        } else if (GeometricMealModel.checkIfValid(modelType)) {
             return new GeometricMealModel(author);
-        } else if (CountUpModel.checkIfValid(modelType, cl)) {
+        } else if (CountUpModel.checkIfValid(modelType)) {
             return new CountUpModel(author);
+        } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
+            return new NaiveBayesModel(author, cl);
         }
         return null;
     }
