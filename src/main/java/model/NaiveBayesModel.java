@@ -9,14 +9,14 @@ import structure.Paper;
 public class NaiveBayesModel extends BaseModel {
     public static final String TYPE = "nb";
     public static final String NAME = "Naive Bayes Based Model";
-    public static final String TOTAL_OVERLAP_PAPER_SIZE_OPTION = "tops";
+    public static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
     private final int totalOverlapPaperSize;
     private final double pa;
     private int totalCitationCount;
 
     public NaiveBayesModel(Author author, CommandLine cl) {
         super(author);
-        this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_SIZE_OPTION));
+        this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
         this.pa = (double) this.author.papers.length / (double) this.totalOverlapPaperSize;
         this.totalCitationCount = 0;
     }
@@ -48,7 +48,7 @@ public class NaiveBayesModel extends BaseModel {
     }
 
     public static void setOptions(Options options) {
-        options.addOption(Option.builder(TOTAL_OVERLAP_PAPER_SIZE_OPTION)
+        options.addOption(Option.builder(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION)
                 .hasArg(true)
                 .required(false)
                 .desc("[param, optional] total number of overlap papers in training for " + NAME)
@@ -56,6 +56,6 @@ public class NaiveBayesModel extends BaseModel {
     }
 
     public static boolean checkIfValid(String modelType, CommandLine cl) {
-        return modelType.equals(TYPE) && cl.hasOption(TOTAL_OVERLAP_PAPER_SIZE_OPTION);
+        return modelType.equals(TYPE) && cl.hasOption(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION);
     }
 }
