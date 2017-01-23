@@ -33,6 +33,11 @@ public class PublisherMerger {
                 .required(true)
                 .desc("[input] min-PaperKeywords file")
                 .build());
+        options.addOption(Option.builder(Config.TMP_DIR_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[output, optional] temporary output dir")
+                .build());
         options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
                 .hasArg(true)
                 .required(true)
@@ -73,6 +78,7 @@ public class PublisherMerger {
                 tmpFiles[i].delete();
             }
 
+            FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
             for (String paperId : mergedMap.keySet()) {
@@ -106,28 +112,29 @@ public class PublisherMerger {
         }
     }
 
-    private static void merge(String papersFilePath, String paperKeysFilePath, String outputFilePath) {
-        String tmpDirPath = (new File(outputFilePath)).getParent();
-        if (tmpDirPath == null) {
-            tmpDirPath = "./";
+    private static void merge(String papersFilePath, String paperKeysFilePath,
+                              String tmpDirPath, String outputFilePath) {
+        String tmpOutputDirPath = tmpDirPath == null ? (new File(outputFilePath)).getParent() : tmpDirPath;
+        if (tmpOutputDirPath == null) {
+            tmpOutputDirPath = "./";
         }
 
         HashSet<String> prefixSetP = FileUtil.splitFile(papersFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
-                FIELD_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, tmpDirPath);
+                FIELD_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, tmpOutputDirPath);
         HashSet<String> prefixSetK = FileUtil.splitFile(paperKeysFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
-                PUBLISHER_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPER_KEYWORDS_FILE_PREFIX, tmpDirPath);
+                PUBLISHER_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPER_KEYWORDS_FILE_PREFIX, tmpOutputDirPath);
         Iterator<String> ite = prefixSetP.iterator();
         boolean first = true;
         while (ite.hasNext()) {
             String prefix = ite.next();
             if (prefixSetK.contains(prefix)) {
-                merge(tmpDirPath, first, prefix, outputFilePath);
+                merge(tmpOutputDirPath, first, prefix, outputFilePath);
                 first = false;
             }
         }
 
-        deleteUnusedFiles(tmpDirPath, TMP_PAPERS_FILE_PREFIX, prefixSetP);
-        deleteUnusedFiles(tmpDirPath, TMP_PAPER_KEYWORDS_FILE_PREFIX, prefixSetK);
+        deleteUnusedFiles(tmpOutputDirPath, TMP_PAPERS_FILE_PREFIX, prefixSetP);
+        deleteUnusedFiles(tmpOutputDirPath, TMP_PAPER_KEYWORDS_FILE_PREFIX, prefixSetK);
     }
 
     public static void main(String[] args) {
@@ -135,7 +142,8 @@ public class PublisherMerger {
         CommandLine cl = MiscUtil.setParams("PublisherMerger for KDD Cup 2016 dataset", options, args);
         String papersFilePath = cl.getOptionValue(PAPERS_FILE_OPTION);
         String paperKeysFilePath = cl.getOptionValue(PAPER_KEYWORDS_FILE_OPTION);
+        String tmpDirPath = cl.hasOption(Config.TMP_DIR_OPTION) ? cl.getOptionValue(Config.TMP_DIR_OPTION) : null;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        merge(papersFilePath, paperKeysFilePath, outputFilePath);
+        merge(papersFilePath, paperKeysFilePath, tmpDirPath, outputFilePath);
     }
 }

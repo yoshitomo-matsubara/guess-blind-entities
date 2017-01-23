@@ -6,6 +6,7 @@ import common.MiscUtil;
 import model.BaseModel;
 import model.CountUpModel;
 import model.NaiveBayesModel;
+import model.RandomModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -49,7 +50,9 @@ public class AuthorEstimator {
     }
 
     private static BaseModel selectModel(String modelType, Author author) {
-        if (modelType.equals(NaiveBayesModel.TYPE)) {
+        if (modelType.equals(RandomModel.TYPE)) {
+            return new RandomModel(author);
+        } else if (modelType.equals(NaiveBayesModel.TYPE)) {
             return new NaiveBayesModel(author);
         } else if (modelType.equals(CountUpModel.TYPE)) {
             return new CountUpModel(author);
