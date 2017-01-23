@@ -113,28 +113,28 @@ public class PublisherMerger {
     }
 
     private static void merge(String papersFilePath, String paperKeysFilePath,
-                              String tmpOutputDirPath, String outputFilePath) {
-        String tmpDirPath = tmpOutputDirPath == null ? (new File(outputFilePath)).getParent() : tmpOutputDirPath;
-        if (tmpDirPath == null) {
-            tmpDirPath = "./";
+                              String tmpDirPath, String outputFilePath) {
+        String tmpOutputDirPath = tmpDirPath == null ? (new File(outputFilePath)).getParent() : tmpDirPath;
+        if (tmpOutputDirPath == null) {
+            tmpOutputDirPath = "./";
         }
 
         HashSet<String> prefixSetP = FileUtil.splitFile(papersFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
-                FIELD_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, tmpDirPath);
+                FIELD_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, tmpOutputDirPath);
         HashSet<String> prefixSetK = FileUtil.splitFile(paperKeysFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
-                PUBLISHER_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPER_KEYWORDS_FILE_PREFIX, tmpDirPath);
+                PUBLISHER_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPER_KEYWORDS_FILE_PREFIX, tmpOutputDirPath);
         Iterator<String> ite = prefixSetP.iterator();
         boolean first = true;
         while (ite.hasNext()) {
             String prefix = ite.next();
             if (prefixSetK.contains(prefix)) {
-                merge(tmpDirPath, first, prefix, outputFilePath);
+                merge(tmpOutputDirPath, first, prefix, outputFilePath);
                 first = false;
             }
         }
 
-        deleteUnusedFiles(tmpDirPath, TMP_PAPERS_FILE_PREFIX, prefixSetP);
-        deleteUnusedFiles(tmpDirPath, TMP_PAPER_KEYWORDS_FILE_PREFIX, prefixSetK);
+        deleteUnusedFiles(tmpOutputDirPath, TMP_PAPERS_FILE_PREFIX, prefixSetP);
+        deleteUnusedFiles(tmpOutputDirPath, TMP_PAPER_KEYWORDS_FILE_PREFIX, prefixSetK);
     }
 
     public static void main(String[] args) {
