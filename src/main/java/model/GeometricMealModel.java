@@ -3,11 +3,11 @@ package model;
 import structure.Author;
 import structure.Paper;
 
-public class NaiveBayesModel extends BaseModel {
-    public static final String TYPE = "nb";
-    public static final String NAME = "Naive Bayes Based Model";
+public class GeometricMealModel extends BaseModel {
+    public static final String TYPE = "gm";
+    public static final String NAME = "Geometric Mean Based Model";
 
-    public NaiveBayesModel(Author author) {
+    public GeometricMealModel(Author author) {
         super(author);
     }
 
