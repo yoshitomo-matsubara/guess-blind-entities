@@ -33,6 +33,11 @@ public class PublisherMerger {
                 .required(true)
                 .desc("[input] min-PaperKeywords file")
                 .build());
+        options.addOption(Option.builder(Config.TMP_DIR_OPTION)
+                .hasArg(true)
+                .required(false)
+                .desc("[output, optional] temporary output dir")
+                .build());
         options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
                 .hasArg(true)
                 .required(true)
@@ -73,6 +78,7 @@ public class PublisherMerger {
                 tmpFiles[i].delete();
             }
 
+            FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
             for (String paperId : mergedMap.keySet()) {
@@ -106,8 +112,9 @@ public class PublisherMerger {
         }
     }
 
-    private static void merge(String papersFilePath, String paperKeysFilePath, String outputFilePath) {
-        String tmpDirPath = (new File(outputFilePath)).getParent();
+    private static void merge(String papersFilePath, String paperKeysFilePath,
+                              String tmpOutputDirPath, String outputFilePath) {
+        String tmpDirPath = tmpOutputDirPath == null ? (new File(outputFilePath)).getParent() : tmpOutputDirPath;
         if (tmpDirPath == null) {
             tmpDirPath = "./";
         }
@@ -135,7 +142,8 @@ public class PublisherMerger {
         CommandLine cl = MiscUtil.setParams("PublisherMerger for KDD Cup 2016 dataset", options, args);
         String papersFilePath = cl.getOptionValue(PAPERS_FILE_OPTION);
         String paperKeysFilePath = cl.getOptionValue(PAPER_KEYWORDS_FILE_OPTION);
+        String tmpDirPath = cl.hasOption(Config.TMP_DIR_OPTION) ? cl.getOptionValue(Config.TMP_DIR_OPTION) : null;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        merge(papersFilePath, paperKeysFilePath, outputFilePath);
+        merge(papersFilePath, paperKeysFilePath, tmpDirPath, outputFilePath);
     }
 }
