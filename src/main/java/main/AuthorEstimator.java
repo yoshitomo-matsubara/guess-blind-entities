@@ -21,7 +21,6 @@ public class AuthorEstimator {
     private static final String TRAIN_DIR_OPTION = "train";
     private static final String TEST_DIR_OPTION = "test";
     private static final String MODEL_TYPE_OPTION = "mt";
-    private static final String SPLIT_SIZE_OPTION = "s";
     private static final double ZERO_SCORE = 0.0d;
 
     private static Options setOptions() {
