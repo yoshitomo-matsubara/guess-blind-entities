@@ -97,7 +97,7 @@ public class StatisticsAnalyzer {
     }
 
     private static List<Author> getAuthorList(String authorDirPath) {
-        List<File> fileList = FileUtil.getFileList(authorDirPath);
+        List<File> fileList = FileUtil.getFileListR(authorDirPath);
         List<Author> authorList = new ArrayList<>();
         for (File file : fileList) {
             String authorId = file.getName();
