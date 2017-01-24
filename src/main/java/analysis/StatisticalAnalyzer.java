@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
 
-public class StatisticsAnalyzer {
+public class StatisticalAnalyzer {
     private static final String PAPERS_FILE_OPTION = "p";
     private static final String AFFILS_FILE_OPTION = "af";
     private static final String REFS_FILE_OPTION = "r";
@@ -222,7 +222,7 @@ public class StatisticsAnalyzer {
 
     public static void main(String[] args) {
         Options options = setOptions();
-        CommandLine cl = MiscUtil.setParams("StatisticsAnalyzer", options, args);
+        CommandLine cl = MiscUtil.setParams("StatisticalAnalyzer", options, args);
         String papersFilePath = cl.hasOption(PAPERS_FILE_OPTION) ? cl.getOptionValue(PAPERS_FILE_OPTION) : null;
         String affilsFilePath = cl.hasOption(AFFILS_FILE_OPTION) ? cl.getOptionValue(AFFILS_FILE_OPTION) : null;
         String refsFilePath = cl.hasOption(REFS_FILE_OPTION) ? cl.getOptionValue(REFS_FILE_OPTION) : null;
