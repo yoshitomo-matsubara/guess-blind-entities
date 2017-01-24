@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Evaluator {
-    private static final String RECALL_AT_M_OPTION = "m";
+    private static final String TOP_M_OPTION = "m";
 
     private static Options setOptions() {
         Options options = new Options();
@@ -25,10 +25,10 @@ public class Evaluator {
                 .required(true)
                 .desc("[input] input dir")
                 .build());
-        options.addOption(Option.builder(RECALL_AT_M_OPTION)
+        options.addOption(Option.builder(TOP_M_OPTION)
                 .hasArg(true)
                 .required(true)
-                .desc("[param] Recall@M")
+                .desc("[param] top M authors in rankings used for evaluation [can be plural, separate with comma]")
                 .build());
         options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
                 .hasArg(true)
@@ -36,6 +36,21 @@ public class Evaluator {
                 .desc("[output] output file")
                 .build());
         return options;
+    }
+
+    private static int[] convertToIntArray(String str) {
+        String[] elements = str.split(Config.OPTION_DELIMITER);
+        List<Integer> list = new ArrayList<>();
+        for (String element : elements) {
+            list.add(Integer.parseInt(element));
+        }
+
+        Collections.sort(list);
+        int[] array = new int[list.size()];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = list.get(i);
+        }
+        return array;
     }
 
     private static Pair<Paper, List<Result>> readScoreFile(File file) {
@@ -65,13 +80,13 @@ public class Evaluator {
         return new Pair(paper, resultList);
     }
 
-    private static String evaluate(List<Result> resultList, int recallSize, Paper paper) {
+    private static String evaluate(List<Result> resultList, int[] topMs, Paper paper) {
         Collections.sort(resultList);
         int trueAuthorSize = paper.getAuthorSize();
         int resultSize = resultList.size();
         int authorSizeX = 0;
-        int authorSizeM = 0;
-        int size = recallSize > trueAuthorSize ? recallSize : trueAuthorSize;
+        int[] authorSizeMs = MiscUtil.initIntArray(topMs.length, 0);
+        int size = topMs[topMs.length - 1] > trueAuthorSize ? topMs[topMs.length - 1] : trueAuthorSize;
         if (resultSize < size) {
             size = resultSize;
         }
@@ -83,28 +98,44 @@ public class Evaluator {
                     authorSizeX++;
                 }
 
-                if (i < recallSize) {
-                    authorSizeM++;
+                for (int j = 0; j < authorSizeMs.length; j++) {
+                    if (i < topMs[j]) {
+                        authorSizeMs[j]++;
+                    }
                 }
             }
         }
 
+        StringBuilder sb = new StringBuilder();
         int overOneAtX = authorSizeX > 0 ? 1 : 0;
-        int overOneAtM = authorSizeM > 0 ? 1 : 0;
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
-        double recallAtM = (double) authorSizeX / (double) recallSize;
-        return paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
+        sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
-                + Config.FIRST_DELIMITER + String.valueOf(recallAtX) + Config.FIRST_DELIMITER
-                + String.valueOf(authorSizeM) + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
-                + Config.FIRST_DELIMITER + String.valueOf(recallAtM);
+                + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
+
+        for (int i = 0; i < authorSizeMs.length; i++) {
+            int overOneAtM = authorSizeMs[i] > 0 ? 1 : 0;
+            double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
+            sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + String.valueOf(authorSizeMs[i])
+                    + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
+                    + Config.FIRST_DELIMITER + String.valueOf(recallAtM));
+        }
+        return sb.toString();
     }
 
-    private static void evaluate(String inputDirPath, int recallSize, String outputFilePath) {
+    private static void evaluate(String inputDirPath, String topMsStr, String outputFilePath) {
         try {
+            int[] topMs = convertToIntArray(topMsStr);
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
+            bw.write("paper ID\ttrue author count\thit author count\tHAL@X\tRecall@X\t");
+            for (int i = 0; i < topMs.length; i++) {
+                String mStr = String.valueOf(topMs[i]);
+                bw.write("\tauthor hit count@" + mStr + "\tHAL@" + String.valueOf(topMs[i]) + "\tRecall@" + mStr + "\t");
+            }
+            
+            bw.newLine();
             List<File> inputFileList = FileUtil.getFileList(inputDirPath);
             int size = inputFileList.size();
             for (int i = 0; i < size; i++) {
@@ -116,7 +147,7 @@ public class Evaluator {
 
                 Paper paper = resultPair.key;
                 List<Result> resultList = resultPair.value;
-                String outputLine = evaluate(resultList, recallSize, paper);
+                String outputLine = evaluate(resultList, topMs, paper);
                 bw.write(outputLine);
                 bw.newLine();
             }
@@ -131,8 +162,8 @@ public class Evaluator {
         Options options = setOptions();
         CommandLine cl = MiscUtil.setParams("Evaluator", options, args);
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
-        int recallSize = Integer.parseInt(cl.getOptionValue(RECALL_AT_M_OPTION));
+        String topMsStr = cl.getOptionValue(TOP_M_OPTION);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        evaluate(inputDirPath, recallSize, outputFilePath);
+        evaluate(inputDirPath, topMsStr, outputFilePath);
     }
 }

@@ -36,4 +36,11 @@ public class GeometricMealModel extends BaseModel {
         }
         return INVALID_VALUE;
     }
+
+    public static boolean checkIfValid(String modelType) {
+        if (!modelType.equals(TYPE)) {
+            return false;
+        }
+        return true;
+    }
 }

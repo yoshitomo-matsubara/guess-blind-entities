@@ -22,4 +22,11 @@ public class RandomModel extends BaseModel {
     public double estimate(Paper paper) {
         return this.rand.nextDouble();
     }
+
+    public static boolean checkIfValid(String modelType) {
+        if (!modelType.equals(TYPE)) {
+            return false;
+        }
+        return true;
+    }
 }
