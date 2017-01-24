@@ -134,7 +134,7 @@ public class Evaluator {
                 String mStr = String.valueOf(topMs[i]);
                 bw.write("\tauthor hit count@" + mStr + "\tHAL@" + String.valueOf(topMs[i]) + "\tRecall@" + mStr + "\t");
             }
-
+            
             bw.newLine();
             List<File> inputFileList = FileUtil.getFileList(inputDirPath);
             int size = inputFileList.size();
