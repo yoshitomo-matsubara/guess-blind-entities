@@ -9,7 +9,7 @@ import structure.Paper;
 public class NaiveBayesModel extends BaseModel {
     public static final String TYPE = "nb";
     public static final String NAME = "Naive Bayes Based Model";
-    public static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
+    private static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
     private final int totalOverlapPaperSize;
     private final double pa;
     private int totalCitationCount;

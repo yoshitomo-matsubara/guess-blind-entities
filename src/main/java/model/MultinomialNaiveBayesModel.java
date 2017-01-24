@@ -9,9 +9,9 @@ import structure.Paper;
 public class MultinomialNaiveBayesModel extends BaseModel {
     public static final String TYPE = "mnb";
     public static final String NAME = "Multinomial Naive Bayes Based Model";
-    public static final String TOTAL_OVERLAP_PAPER_SIZE_OPTION = "tops";
-    public static final String TOTAL_CITATION_ID_SIZE_OPTION = "tcs";
-    public static final String SMOOTHING_PRIOR_OPTION = "sp";
+    private static final String TOTAL_OVERLAP_PAPER_SIZE_OPTION = "tops";
+    private static final String TOTAL_CITATION_ID_SIZE_OPTION = "tcis";
+    private static final String SMOOTHING_PRIOR_OPTION = "sp";
     private final int totalOverlapPaperSize, totalCitationIdSize;
     private final double alpha, pa;
     private int totalCitationCount;
