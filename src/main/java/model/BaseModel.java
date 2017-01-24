@@ -33,11 +33,4 @@ public abstract class BaseModel {
     }
 
     public abstract double estimate(Paper paper);
-
-    public static boolean checkIfValid(String modelType) {
-        if (!modelType.equals(TYPE)) {
-            return false;
-        }
-        return true;
-    }
 }
