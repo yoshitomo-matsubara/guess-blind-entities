@@ -52,7 +52,7 @@ public class AuthorEstimator {
 
     private static BaseModel selectModel(String modelType, Author author, CommandLine cl) {
         if (RandomModel.checkIfValid(modelType)) {
-            return new RandomModel(author);
+            return new RandomModel(author, cl);
         } else if (GeometricMealModel.checkIfValid(modelType)) {
             return new GeometricMealModel(author);
         } else if (CountUpModel.checkIfValid(modelType)) {
