@@ -31,11 +31,7 @@ public class CountUpModel extends BaseModel {
                 hitCount++;
             }
         }
-
-        if (hitCount > 0) {
-            return (double) score / (double) this.maxScore;
-        }
-        return INVALID_VALUE;
+        return hitCount > 0 ? (double) score / (double) this.maxScore : INVALID_VALUE;
     }
 
     public static boolean checkIfValid(String modelType) {
