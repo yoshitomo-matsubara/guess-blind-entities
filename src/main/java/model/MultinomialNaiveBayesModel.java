@@ -10,7 +10,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
     public static final String TYPE = "mnb";
     public static final String NAME = "Multinomial Naive Bayes Based Model";
     private static final String TOTAL_OVERLAP_PAPER_SIZE_OPTION = "tops";
-    private static final String TOTAL_CITATION_ID_SIZE_OPTION = "tcis";
+    private static final String TOTAL_UNIQUE_CITATION_SIZE_OPTION = "tucs";
     private static final String SMOOTHING_PRIOR_OPTION = "sp";
     private final int totalOverlapPaperSize, totalCitationIdSize;
     private final double alpha, pa;
@@ -20,7 +20,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
     public MultinomialNaiveBayesModel(Author author, CommandLine cl) {
         super(author);
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_SIZE_OPTION));
-        this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_CITATION_ID_SIZE_OPTION));
+        this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_UNIQUE_CITATION_SIZE_OPTION));
         this.alpha = Double.parseDouble(cl.getOptionValue(SMOOTHING_PRIOR_OPTION));
         this.pa = (double) this.author.papers.length / (double) this.totalOverlapPaperSize;
         this.totalCitationCount = 0;
@@ -68,7 +68,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
                 .required(false)
                 .desc("[param, optional] total number of overlap papers in training for " + NAME)
                 .build());
-        options.addOption(Option.builder(TOTAL_CITATION_ID_SIZE_OPTION)
+        options.addOption(Option.builder(TOTAL_UNIQUE_CITATION_SIZE_OPTION)
                 .hasArg(true)
                 .required(false)
                 .desc("[param, optional] total number of unique reference IDs in training for " + NAME)
@@ -83,6 +83,6 @@ public class MultinomialNaiveBayesModel extends BaseModel {
 
     public static boolean checkIfValid(String modelType, CommandLine cl) {
         return modelType.equals(TYPE) && cl.hasOption(TOTAL_OVERLAP_PAPER_SIZE_OPTION)
-                && cl.hasOption(TOTAL_CITATION_ID_SIZE_OPTION) && cl.hasOption(SMOOTHING_PRIOR_OPTION);
+                && cl.hasOption(TOTAL_UNIQUE_CITATION_SIZE_OPTION) && cl.hasOption(SMOOTHING_PRIOR_OPTION);
     }
 }
