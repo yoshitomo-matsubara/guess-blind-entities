@@ -71,7 +71,7 @@ public class HistogramMaker {
     private static void writeHistogramFile(TreeMap<Integer, Integer> treeMap, String outputFilePath) {
         System.out.println("\tStart:\twriting " + outputFilePath);
         try {
-            FileUtil.makeIfNotExist(outputFilePath);
+            FileUtil.makeDirIfNotExist(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int key : treeMap.keySet()) {
                 bw.write(String.valueOf(key) + Config.FIRST_DELIMITER
@@ -181,6 +181,7 @@ public class HistogramMaker {
         System.out.println("Start:\treading author files");
         try {
             String outputTmpDirPath = tmpDirPath == null ? outputDirPath : tmpDirPath;
+            FileUtil.makeDirIfNotExist(outputDirPath);
             List<File> authorDirList = FileUtil.getDirList(authorDirPath);
             if (authorDirList.size() == 0) {
                 authorDirList.add(new File(authorDirPath));
@@ -262,7 +263,7 @@ public class HistogramMaker {
 
     private static void analyze(String paperFilePath, int startYear, int endYear,
                                 String authorDirPath, String tmpDirPath, String outputDirPath) {
-        FileUtil.makeIfNotExist(outputDirPath);
+        FileUtil.makeDirIfNotExist(outputDirPath);
         if (checkIfPaperMode(paperFilePath, startYear, endYear)) {
             makePaperHistogram(paperFilePath, startYear, endYear, outputDirPath);
         }

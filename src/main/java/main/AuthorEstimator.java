@@ -140,7 +140,7 @@ public class AuthorEstimator {
             List<File> trainingFileList = FileUtil.getFileListR(authorDir.getPath());
             List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType, cl);
             trainingFileList.clear();
-            FileUtil.makeIfNotExist(outputDirPath);
+            FileUtil.makeDirIfNotExist(outputDirPath);
             boolean first = i == 0;
             for (File testFile : testFileList) {
                 estimate(testFile, modelList, first, outputDirPath);
