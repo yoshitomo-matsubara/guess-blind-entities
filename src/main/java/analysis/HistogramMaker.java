@@ -71,7 +71,7 @@ public class HistogramMaker {
     private static void writeHistogramFile(TreeMap<Integer, Integer> treeMap, String outputFilePath) {
         System.out.println("\tStart:\twriting " + outputFilePath);
         try {
-            FileUtil.makeIfNotExist(outputFilePath);
+            FileUtil.makeParentDir(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int key : treeMap.keySet()) {
                 bw.write(String.valueOf(key) + Config.FIRST_DELIMITER
@@ -89,6 +89,7 @@ public class HistogramMaker {
     private static void writeHistogramFile(int[] array, TreeMap<Integer, Integer> treeMap, String outputFilePath) {
         System.out.println("\tStart:\twriting " + outputFilePath);
         try {
+            FileUtil.makeParentDir(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int i = 0; i < array.length; i++) {
                 if (array[i] > 0) {
@@ -144,20 +145,18 @@ public class HistogramMaker {
         return tmpFileA.exists() && tmpFileR.exists();
     }
 
-    private static void mergeHistogramFiles(String prefix, List<String> prefixList, String outputFilePath) {
+    private static void mergeHistogramFiles(String prefix, List<String> suffixList, String outputFilePath) {
         try {
             int[] counts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
             TreeMap<Integer, Integer> countMap = new TreeMap<>();
-            int size = prefixList.size();
-            for (int i = 0; i < size; i++) {
-                File file = new File(prefix + prefixList.remove(0));
+            for (String suffix : suffixList) {
+                File file = new File(prefix + suffix);
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] elements = line.split(Config.FIRST_DELIMITER);
                     int key = Integer.parseInt(elements[0]);
                     int value = Integer.parseInt(elements[1]);
-
                     if (key < counts.length) {
                         counts[key] += value;
                     } else if (!countMap.containsKey(key)) {
@@ -181,18 +180,20 @@ public class HistogramMaker {
         System.out.println("Start:\treading author files");
         try {
             String outputTmpDirPath = tmpDirPath == null ? outputDirPath : tmpDirPath;
+            String compTmpPrefixA = outputTmpDirPath + COMPLETE_PREFIX + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX;
+            String compTmpPrefixR = outputTmpDirPath + COMPLETE_PREFIX + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX;
             List<File> authorDirList = FileUtil.getDirList(authorDirPath);
             if (authorDirList.size() == 0) {
                 authorDirList.add(new File(authorDirPath));
             }
 
-            List<String> prefixList = new ArrayList<>();
+            List<String> suffixList = new ArrayList<>();
             int dirSize = authorDirList.size();
             for (int i = 0; i < dirSize; i++) {
                 System.out.println("\tStage " + String.valueOf(i + 1) + " / " + String.valueOf(dirSize));
                 File authorDir = authorDirList.remove(0);
                 String authorDirName = authorDir.getName();
-                prefixList.add(authorDirName);
+                suffixList.add(authorDirName);
                 if (checkIfCompleted(authorDirName, outputTmpDirPath)) {
                     System.out.println("\t" + authorDirName + " has been already completed");
                     continue;
@@ -237,22 +238,18 @@ public class HistogramMaker {
                     }
                 }
 
-                writeHistogramFile(refAuthorCounts, exRefAuthorCountMap, outputTmpDirPath
-                        + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
                 writeHistogramFile(authorCounts, exAuthorCountMap, outputTmpDirPath
+                        + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
+                writeHistogramFile(refAuthorCounts, exRefAuthorCountMap, outputTmpDirPath
                         + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
                 File tmpFileA = new File(outputTmpDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
-                tmpFileA.renameTo(new File(outputTmpDirPath + COMPLETE_PREFIX
-                        + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName));
+                tmpFileA.renameTo(new File(compTmpPrefixA + authorDirName));
                 File tmpFileR = new File(outputTmpDirPath + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
-                tmpFileR.renameTo(new File(outputTmpDirPath + COMPLETE_PREFIX
-                        + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName));
+                tmpFileR.renameTo(new File(compTmpPrefixR + authorDirName));
             }
 
-            mergeHistogramFiles(outputTmpDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX,
-                    prefixList, outputDirPath + AUTHOR_HIST_FILE_NAME);
-            mergeHistogramFiles(outputTmpDirPath + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX,
-                    prefixList, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
+            mergeHistogramFiles(compTmpPrefixA, suffixList, outputDirPath + AUTHOR_HIST_FILE_NAME);
+            mergeHistogramFiles(compTmpPrefixR, suffixList, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
         } catch (Exception e) {
             System.err.println("Exception @ makeAuthorHistogram");
             e.printStackTrace();
@@ -262,7 +259,7 @@ public class HistogramMaker {
 
     private static void analyze(String paperFilePath, int startYear, int endYear,
                                 String authorDirPath, String tmpDirPath, String outputDirPath) {
-        FileUtil.makeIfNotExist(outputDirPath);
+        FileUtil.makeDirIfNotExist(outputDirPath);
         if (checkIfPaperMode(paperFilePath, startYear, endYear)) {
             makePaperHistogram(paperFilePath, startYear, endYear, outputDirPath);
         }

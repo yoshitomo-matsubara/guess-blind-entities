@@ -105,7 +105,7 @@ public class FileUtil {
         return hashMap;
     }
 
-    public static void makeIfNotExist(String dirPath) {
+    public static void makeDirIfNotExist(String dirPath) {
         File dir = new File(dirPath);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -118,7 +118,7 @@ public class FileUtil {
         if (parentDirPath == null || parentDirPath.length() == 0) {
             return;
         }
-        makeIfNotExist(parentDirPath);
+        makeDirIfNotExist(parentDirPath);
     }
 
     public static boolean overwriteFile(String line, boolean first, String filePath) {

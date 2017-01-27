@@ -62,7 +62,7 @@ public class SeenFilter {
         List<File> trainingFileList = FileUtil.getFileListR(trainingDirPath);
         HashSet<String> authorIdSet = MiscUtil.buildAuthorIdSet(trainingFileList);
         List<File> testFileList = FileUtil.getFileList(testDirPath);
-        FileUtil.makeIfNotExist(outputDirPath);
+        FileUtil.makeDirIfNotExist(outputDirPath);
         for (File testFile : testFileList) {
             filter(testFile, authorIdSet, outputDirPath);
         }

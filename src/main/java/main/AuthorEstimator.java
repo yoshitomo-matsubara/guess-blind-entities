@@ -18,6 +18,8 @@ public class AuthorEstimator {
     private static final String TRAIN_DIR_OPTION = "train";
     private static final String TEST_DIR_OPTION = "test";
     private static final String MODEL_TYPE_OPTION = "mt";
+    private static final String MIN_PAPER_SIZE_OPTION = "mps";
+    private static final int DEFAULT_MIN_PAPER_SIZE = 1;
     private static final double ZERO_SCORE = 0.0d;
 
     private static Options setOptions() {
@@ -37,6 +39,12 @@ public class AuthorEstimator {
                 .required(true)
                 .desc("[param] model type")
                 .build());
+        options.addOption(Option.builder(MIN_PAPER_SIZE_OPTION)
+                .hasArg(true)
+                .required(true)
+                .desc("[param, optional] minimum number of papers each author requires to have, default = "
+                        + String.valueOf(DEFAULT_MIN_PAPER_SIZE))
+                .build());
         options.addOption(Option.builder(Config.OUTPUT_DIR_OPTION)
                 .hasArg(true)
                 .required(true)
@@ -52,7 +60,7 @@ public class AuthorEstimator {
 
     private static BaseModel selectModel(String modelType, Author author, CommandLine cl) {
         if (RandomModel.checkIfValid(modelType)) {
-            return new RandomModel(author);
+            return new RandomModel(author, cl);
         } else if (GeometricMealModel.checkIfValid(modelType)) {
             return new GeometricMealModel(author);
         } else if (CountUpModel.checkIfValid(modelType)) {
@@ -65,7 +73,8 @@ public class AuthorEstimator {
         return null;
     }
 
-    public static List<BaseModel> readAuthorFiles(List<File> trainingFileList, String modelType, CommandLine cl) {
+    public static List<BaseModel> readAuthorFiles(List<File> trainingFileList, String modelType,
+                                                  CommandLine cl, int minPaperSize) {
         System.out.println("\tStart:\treading author files");
         List<BaseModel> modelList = new ArrayList<>();
         try {
@@ -79,9 +88,11 @@ public class AuthorEstimator {
 
                 br.close();
                 Author author = new Author(trainingFile.getName(), lineList);
-                BaseModel model = selectModel(modelType, author, cl);
-                model.train();
-                modelList.add(model);
+                if (author.papers.length >= minPaperSize) {
+                    BaseModel model = selectModel(modelType, author, cl);
+                    model.train();
+                    modelList.add(model);
+                }
             }
         } catch (Exception e) {
             System.err.println("Exception @ readAuthorFiles");
@@ -125,8 +136,8 @@ public class AuthorEstimator {
         }
     }
 
-    private static void estimate(String trainingDirPath, String testDirPath,
-                                 String modelType, CommandLine cl, String outputDirPath) {
+    private static void estimate(String trainingDirPath, String testDirPath, String modelType,
+                                 CommandLine cl, int minPaperSize, String outputDirPath) {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         List<File> authorDirList = FileUtil.getDirList(trainingDirPath);
         if (authorDirList.size() == 0) {
@@ -138,9 +149,9 @@ public class AuthorEstimator {
             File authorDir = authorDirList.remove(0);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));
             List<File> trainingFileList = FileUtil.getFileListR(authorDir.getPath());
-            List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType, cl);
+            List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType, cl, minPaperSize);
             trainingFileList.clear();
-            FileUtil.makeIfNotExist(outputDirPath);
+            FileUtil.makeDirIfNotExist(outputDirPath);
             boolean first = i == 0;
             for (File testFile : testFileList) {
                 estimate(testFile, modelList, first, outputDirPath);
@@ -155,7 +166,9 @@ public class AuthorEstimator {
         String trainingDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);
         String testDirPath = cl.getOptionValue(TEST_DIR_OPTION);
         String modelType = cl.getOptionValue(MODEL_TYPE_OPTION);
+        int minPaperSize = cl.hasOption(MIN_PAPER_SIZE_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(MIN_PAPER_SIZE_OPTION)) : DEFAULT_MIN_PAPER_SIZE;
         String outputDirPath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        estimate(trainingDirPath, testDirPath, modelType, cl, outputDirPath);
+        estimate(trainingDirPath, testDirPath, modelType, cl, minPaperSize, outputDirPath);
     }
 }

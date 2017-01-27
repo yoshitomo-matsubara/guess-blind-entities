@@ -40,11 +40,7 @@ public class NaiveBayesModel extends BaseModel {
                 hitCount++;
             }
         }
-
-        if (hitCount > 0) {
-            return Math.exp(logProb);
-        }
-        return INVALID_VALUE;
+        return hitCount > 0 ? Math.exp(logProb) : INVALID_VALUE;
     }
 
     public static void setOptions(Options options) {
