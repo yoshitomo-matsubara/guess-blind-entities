@@ -71,7 +71,7 @@ public class HistogramMaker {
     private static void writeHistogramFile(TreeMap<Integer, Integer> treeMap, String outputFilePath) {
         System.out.println("\tStart:\twriting " + outputFilePath);
         try {
-            FileUtil.makeDirIfNotExist(outputFilePath);
+            FileUtil.makeParentDir(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int key : treeMap.keySet()) {
                 bw.write(String.valueOf(key) + Config.FIRST_DELIMITER
@@ -89,6 +89,7 @@ public class HistogramMaker {
     private static void writeHistogramFile(int[] array, TreeMap<Integer, Integer> treeMap, String outputFilePath) {
         System.out.println("\tStart:\twriting " + outputFilePath);
         try {
+            FileUtil.makeParentDir(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
             for (int i = 0; i < array.length; i++) {
                 if (array[i] > 0) {
@@ -181,7 +182,8 @@ public class HistogramMaker {
         System.out.println("Start:\treading author files");
         try {
             String outputTmpDirPath = tmpDirPath == null ? outputDirPath : tmpDirPath;
-            FileUtil.makeDirIfNotExist(outputDirPath);
+            String compTmpPrefixA = outputTmpDirPath + COMPLETE_PREFIX + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX;
+            String compTmpPrefixR = outputTmpDirPath + COMPLETE_PREFIX + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX;
             List<File> authorDirList = FileUtil.getDirList(authorDirPath);
             if (authorDirList.size() == 0) {
                 authorDirList.add(new File(authorDirPath));
@@ -238,22 +240,18 @@ public class HistogramMaker {
                     }
                 }
 
-                writeHistogramFile(refAuthorCounts, exRefAuthorCountMap, outputTmpDirPath
-                        + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
                 writeHistogramFile(authorCounts, exAuthorCountMap, outputTmpDirPath
+                        + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
+                writeHistogramFile(refAuthorCounts, exRefAuthorCountMap, outputTmpDirPath
                         + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
                 File tmpFileA = new File(outputTmpDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
-                tmpFileA.renameTo(new File(outputTmpDirPath + COMPLETE_PREFIX
-                        + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName));
+                tmpFileA.renameTo(new File(compTmpPrefixA + authorDirName));
                 File tmpFileR = new File(outputTmpDirPath + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName);
-                tmpFileR.renameTo(new File(outputTmpDirPath + COMPLETE_PREFIX
-                        + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX + authorDirName));
+                tmpFileR.renameTo(new File(compTmpPrefixR + authorDirName));
             }
 
-            mergeHistogramFiles(outputTmpDirPath + TMP_AUTHOR_HISTOGRAM_FILE_PREFIX,
-                    prefixList, outputDirPath + AUTHOR_HIST_FILE_NAME);
-            mergeHistogramFiles(outputTmpDirPath + TMP_REF_AUTHOR_HISTOGRAM_FILE_PREFIX,
-                    prefixList, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
+            mergeHistogramFiles(compTmpPrefixA, prefixList, outputDirPath + AUTHOR_HIST_FILE_NAME);
+            mergeHistogramFiles(compTmpPrefixR, prefixList, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
         } catch (Exception e) {
             System.err.println("Exception @ makeAuthorHistogram");
             e.printStackTrace();
