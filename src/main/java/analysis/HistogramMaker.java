@@ -145,13 +145,12 @@ public class HistogramMaker {
         return tmpFileA.exists() && tmpFileR.exists();
     }
 
-    private static void mergeHistogramFiles(String prefix, List<String> prefixList, String outputFilePath) {
+    private static void mergeHistogramFiles(String prefix, List<String> suffixList, String outputFilePath) {
         try {
             int[] counts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
             TreeMap<Integer, Integer> countMap = new TreeMap<>();
-            int size = prefixList.size();
-            for (int i = 0; i < size; i++) {
-                File file = new File(prefix + prefixList.remove(0));
+            for (String suffix : suffixList) {
+                File file = new File(prefix + suffix);
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -189,13 +188,13 @@ public class HistogramMaker {
                 authorDirList.add(new File(authorDirPath));
             }
 
-            List<String> prefixList = new ArrayList<>();
+            List<String> suffixList = new ArrayList<>();
             int dirSize = authorDirList.size();
             for (int i = 0; i < dirSize; i++) {
                 System.out.println("\tStage " + String.valueOf(i + 1) + " / " + String.valueOf(dirSize));
                 File authorDir = authorDirList.remove(0);
                 String authorDirName = authorDir.getName();
-                prefixList.add(authorDirName);
+                suffixList.add(authorDirName);
                 if (checkIfCompleted(authorDirName, outputTmpDirPath)) {
                     System.out.println("\t" + authorDirName + " has been already completed");
                     continue;
@@ -250,8 +249,8 @@ public class HistogramMaker {
                 tmpFileR.renameTo(new File(compTmpPrefixR + authorDirName));
             }
 
-            mergeHistogramFiles(compTmpPrefixA, prefixList, outputDirPath + AUTHOR_HIST_FILE_NAME);
-            mergeHistogramFiles(compTmpPrefixR, prefixList, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
+            mergeHistogramFiles(compTmpPrefixA, suffixList, outputDirPath + AUTHOR_HIST_FILE_NAME);
+            mergeHistogramFiles(compTmpPrefixR, suffixList, outputDirPath + REF_AUTHOR_HIST_FILE_NAME);
         } catch (Exception e) {
             System.err.println("Exception @ makeAuthorHistogram");
             e.printStackTrace();
