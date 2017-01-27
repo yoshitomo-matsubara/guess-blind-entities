@@ -157,7 +157,6 @@ public class HistogramMaker {
                     String[] elements = line.split(Config.FIRST_DELIMITER);
                     int key = Integer.parseInt(elements[0]);
                     int value = Integer.parseInt(elements[1]);
-
                     if (key < counts.length) {
                         counts[key] += value;
                     } else if (!countMap.containsKey(key)) {
