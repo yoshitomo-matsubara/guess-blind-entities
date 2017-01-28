@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Paper;
 
@@ -16,23 +15,11 @@ public class SeenFilter {
     private static final String TRAIN_DIR_OPTION = "train";
     private static final String TEST_DIR_OPTION = "test";
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(TRAIN_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] training dir")
-                .build());
-        options.addOption(Option.builder(TEST_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] test dir")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output dir")
-                .build());
+        MiscUtil.setOption(TRAIN_DIR_OPTION, true, true, "[input] training dir", options);
+        MiscUtil.setOption(TEST_DIR_OPTION, true, true, "[input] test dir", options);
+        MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output dir", options);
         return options;
     }
 
@@ -69,7 +56,7 @@ public class SeenFilter {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("SeenFilter", options, args);
         String trainingDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);
         String testDirPath = cl.getOptionValue(TEST_DIR_OPTION);

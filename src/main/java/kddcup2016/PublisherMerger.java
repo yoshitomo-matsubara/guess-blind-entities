@@ -23,26 +23,10 @@ public class PublisherMerger {
 
     private static Options setOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(PAPERS_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] min-Papers file")
-                .build());
-        options.addOption(Option.builder(PAPER_KEYWORDS_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] min-PaperKeywords file")
-                .build());
-        options.addOption(Option.builder(Config.TMP_DIR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[output, optional] temporary output dir")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output file")
-                .build());
+        MiscUtil.setOption(PAPERS_FILE_OPTION, true, true, "[input] min-Papers file", options);
+        MiscUtil.setOption(PAPER_KEYWORDS_FILE_OPTION, true, true, "[input] min-PaperKeywords file", options);
+        MiscUtil.setOption(Config.TMP_DIR_OPTION, true, false, "[output, optional] temporary output dir", options);
+        MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
 

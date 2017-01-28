@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.*;
@@ -26,50 +25,25 @@ public class PaperSeparator {
     private static final int SUFFIX_SIZE = 3;
     private static final float INVALID_RATE = -Float.MAX_VALUE;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(Config.INPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] input file")
-                .build());
-        options.addOption(Option.builder(TRAIN_START_YEAR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] start year for training, -" + TRAIN_END_YEAR_OPTION + " is required")
-                .build());
-        options.addOption(Option.builder(TRAIN_END_YEAR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] end year for training, -" + TRAIN_START_YEAR_OPTION + " is required")
-                .build());
-        options.addOption(Option.builder(TRAIN_OUTPUT_DIR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[output, optional] output training dir, -" + TRAIN_START_YEAR_OPTION + " and -"
-                        + TRAIN_END_YEAR_OPTION + " are required")
-                .build());
-        options.addOption(Option.builder(TEST_START_YEAR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] start year for testing, -" + TEST_END_YEAR_OPTION + " is required")
-                .build());
-        options.addOption(Option.builder(TEST_END_YEAR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] end year for testing, -" + TEST_START_YEAR_OPTION + " is required")
-                .build());
-        options.addOption(Option.builder(TEST_OUTPUT_DIR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[output, optional] output test dir, -" + TEST_START_YEAR_OPTION + " and -"
-                        + TEST_END_YEAR_OPTION + " are required")
-                .build());
-        options.addOption(Option.builder(SAMPLE_RATE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] random sampling rate (0 < rate <= 1)")
-                .build());
+        MiscUtil.setOption(Config.INPUT_FILE_OPTION, true, true, "[input] input file", options);
+        MiscUtil.setOption(TRAIN_START_YEAR_OPTION, true, false,
+                "[param, optional] start year for training, -" + TRAIN_END_YEAR_OPTION + " is required", options);
+        MiscUtil.setOption(TRAIN_END_YEAR_OPTION, true, false,
+                "[param, optional] end year for training, -" + TRAIN_START_YEAR_OPTION + " is required", options);
+        MiscUtil.setOption(TRAIN_OUTPUT_DIR_OPTION, true, false,
+                "[output, optional] output training dir, -" + TRAIN_START_YEAR_OPTION + " and -"
+                        + TRAIN_END_YEAR_OPTION + " are required", options);
+        MiscUtil.setOption(TEST_START_YEAR_OPTION, true, false,
+                "[param, optional] start year for testing, -" + TEST_END_YEAR_OPTION + " is required", options);
+        MiscUtil.setOption(TEST_END_YEAR_OPTION, true, false,
+                "[param, optional] end year for testing, -" + TEST_START_YEAR_OPTION + " is required", options);
+        MiscUtil.setOption(TEST_OUTPUT_DIR_OPTION, true, false,
+                "[output, optional] output test dir, -" + TEST_START_YEAR_OPTION + " and -"
+                        + TEST_END_YEAR_OPTION + " are required", options);
+        MiscUtil.setOption(SAMPLE_RATE_OPTION, true, false,
+                "[param, optional] random sampling rate (0 < rate <= 1)", options);
         return options;
     }
 
@@ -209,7 +183,7 @@ public class PaperSeparator {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("PaperSeparator", options, args);
         String inputFilePath = cl.getOptionValue(Config.INPUT_FILE_OPTION);
         int trainStartYear = cl.hasOption(TRAIN_START_YEAR_OPTION) ?

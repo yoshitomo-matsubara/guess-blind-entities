@@ -5,7 +5,6 @@ import common.FileUtil;
 import common.MiscUtil;
 import model.*;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
@@ -22,34 +21,15 @@ public class AuthorEstimator {
     private static final int DEFAULT_MIN_PAPER_SIZE = 1;
     private static final double ZERO_SCORE = 0.0d;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(TRAIN_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] training dir")
-                .build());
-        options.addOption(Option.builder(TEST_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] test dir")
-                .build());
-        options.addOption(Option.builder(MODEL_TYPE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[param] model type")
-                .build());
-        options.addOption(Option.builder(MIN_PAPER_SIZE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] minimum number of papers each author requires to have, default = "
-                        + String.valueOf(DEFAULT_MIN_PAPER_SIZE))
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output dir")
-                .build());
+        MiscUtil.setOption(TRAIN_DIR_OPTION, true, true, "[input] training dir", options);
+        MiscUtil.setOption(TEST_DIR_OPTION, true, true, "[input] test dir", options);
+        MiscUtil.setOption(MODEL_TYPE_OPTION, true, true, "[param] model type", options);
+        MiscUtil.setOption(MIN_PAPER_SIZE_OPTION, true, false,
+                "[param, optional] minimum number of papers each author requires to have, default = "
+                + String.valueOf(DEFAULT_MIN_PAPER_SIZE), options);
+        MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output dir", options);
         return options;
     }
 
@@ -160,7 +140,7 @@ public class AuthorEstimator {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         setModelOptions(options);
         CommandLine cl = MiscUtil.setParams("AuthorEstimator", options, args);
         String trainingDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);

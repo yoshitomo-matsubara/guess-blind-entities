@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
@@ -26,28 +25,13 @@ public class StatisticalAnalyzer {
     private static final int AFFIL_ID_INDEX = 1;
     private static final int PAPER_REF_ID_INDEX = 1;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(PAPERS_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] min-Papers file")
-                .build());
-        options.addOption(Option.builder(AFFILS_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] min-PaperAuthorAffiliations file")
-                .build());
-        options.addOption(Option.builder(REFS_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] min-PaperReferences file")
-                .build());
-        options.addOption(Option.builder(AUTHOR_DIR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] author directory")
-                .build());
+        MiscUtil.setOption(PAPERS_FILE_OPTION, true, false, "[input, optional] min-Papers file", options);
+        MiscUtil.setOption(AFFILS_FILE_OPTION, true, false,
+                "[input, optional] min-PaperAuthorAffiliations file", options);
+        MiscUtil.setOption(REFS_FILE_OPTION, true, false, "[input, optional] min-PaperReferences file", options);
+        MiscUtil.setOption(AUTHOR_DIR_OPTION, true, false, "[input, optional] author directory", options);
         return options;
     }
 
@@ -221,7 +205,7 @@ public class StatisticalAnalyzer {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("StatisticalAnalyzer", options, args);
         String papersFilePath = cl.hasOption(PAPERS_FILE_OPTION) ? cl.getOptionValue(PAPERS_FILE_OPTION) : null;
         String affilsFilePath = cl.hasOption(AFFILS_FILE_OPTION) ? cl.getOptionValue(AFFILS_FILE_OPTION) : null;

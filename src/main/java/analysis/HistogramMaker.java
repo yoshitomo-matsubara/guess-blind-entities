@@ -4,12 +4,14 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Paper;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.TreeMap;
 
 public class HistogramMaker {
     private static final String PAPER_FILE_OPTION = "p";
@@ -25,38 +27,15 @@ public class HistogramMaker {
     private static final int INVALID_VALUE = -1;
     private static final int DEFAULT_ARRAY_SIZE = 5000;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(PAPER_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] paper file")
-                .build());
-        options.addOption(Option.builder(START_YEAR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] start year, -" + PAPER_FILE_OPTION + " is required")
-                .build());
-        options.addOption(Option.builder(END_YEAR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] end year, -" + PAPER_FILE_OPTION + " is required")
-                .build());
-        options.addOption(Option.builder(AUTHOR_DIR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] author directory")
-                .build());
-        options.addOption(Option.builder(Config.TMP_DIR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[output, optional] temporary output dir")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output directory")
-                .build());
+        MiscUtil.setOption(PAPER_FILE_OPTION, true, false, "[input, optional] paper file", options);
+        MiscUtil.setOption(START_YEAR_OPTION, true, false,
+                "[param, optional] start year, -" + PAPER_FILE_OPTION + " is required", options);
+        MiscUtil.setOption(END_YEAR_OPTION, true, false,
+                "[param, optional] end year, -" + PAPER_FILE_OPTION + " is required", options);
+        MiscUtil.setOption(AUTHOR_DIR_OPTION, true, false, "[input, optional] author directory", options);
+        MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output directory", options);
         return options;
     }
 
@@ -270,7 +249,7 @@ public class HistogramMaker {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("HistogramMaker", options, args);
         String paperFilePath = cl.hasOption(PAPER_FILE_OPTION) ? cl.getOptionValue(PAPER_FILE_OPTION) : null;
         int startYear = cl.hasOption(START_YEAR_OPTION) ?

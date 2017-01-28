@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Pair;
 import structure.Paper;
@@ -18,23 +17,12 @@ import java.util.List;
 public class Evaluator {
     private static final String TOP_M_OPTION = "m";
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(Config.INPUT_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] input dir")
-                .build());
-        options.addOption(Option.builder(TOP_M_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[param] top M authors in rankings used for evaluation [can be plural, separate with comma]")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output file")
-                .build());
+        MiscUtil.setOption(Config.INPUT_DIR_OPTION, true, true, "[input] input dir", options);
+        MiscUtil.setOption(TOP_M_OPTION, true, true,
+                "[param] top M authors in rankings used for evaluation [can be plural, separate with comma]", options);
+        MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
 
@@ -159,7 +147,7 @@ public class Evaluator {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("Evaluator", options, args);
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
         String topMsStr = cl.getOptionValue(TOP_M_OPTION);
