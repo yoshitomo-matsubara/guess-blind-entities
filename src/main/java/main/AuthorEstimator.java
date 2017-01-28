@@ -41,7 +41,7 @@ public class AuthorEstimator {
                 .build());
         options.addOption(Option.builder(MIN_PAPER_SIZE_OPTION)
                 .hasArg(true)
-                .required(true)
+                .required(false)
                 .desc("[param, optional] minimum number of papers each author requires to have, default = "
                         + String.valueOf(DEFAULT_MIN_PAPER_SIZE))
                 .build());
