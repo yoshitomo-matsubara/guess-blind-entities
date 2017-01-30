@@ -1,5 +1,6 @@
 package model;
 
+import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -11,13 +12,13 @@ public class NaiveBayesModel extends BaseModel {
     public static final String NAME = "Naive Bayes Based Model";
     private static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
     private final int totalOverlapPaperSize;
-    private final double pa;
+    private final double logPa;
     private int totalCitationCount;
 
     public NaiveBayesModel(Author author, CommandLine cl) {
         super(author);
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
-        this.pa = (double) this.author.papers.length / (double) this.totalOverlapPaperSize;
+        this.logPa = Math.log((double) this.author.papers.length / (double) this.totalOverlapPaperSize);
         this.totalCitationCount = 0;
     }
 
@@ -31,7 +32,7 @@ public class NaiveBayesModel extends BaseModel {
 
     @Override
     public double estimate(Paper paper) {
-        double logProb = this.pa;
+        double logProb = this.logPa;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
             if (this.citeCountMap.containsKey(refPaperId)) {
@@ -44,11 +45,8 @@ public class NaiveBayesModel extends BaseModel {
     }
 
     public static void setOptions(Options options) {
-        options.addOption(Option.builder(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] total number of overlap papers in training for " + NAME)
-                .build());
+        MiscUtil.setOption(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION, true, false,
+                "[param, optional] total number of overlap papers in training for " + NAME, options);
     }
 
     public static boolean checkIfValid(String modelType, CommandLine cl) {

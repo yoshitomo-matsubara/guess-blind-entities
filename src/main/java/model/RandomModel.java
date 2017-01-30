@@ -1,5 +1,6 @@
 package model;
 
+import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -36,13 +37,10 @@ public class RandomModel extends BaseModel {
     }
 
     public static void setOptions(Options options) {
-        options.addOption(Option.builder(PRUNING_RATE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] pruning rate for reducing the cost of evaluation" +
+        MiscUtil.setOption(PRUNING_RATE_OPTION, true, false,
+                "[param, optional] pruning rate for reducing the cost of evaluation" +
                         " ( (1 - this rate) should be greater than the rate of top authors you will use in evaluation," +
-                        " default rate = " + String.valueOf(DEFAULT_PRUNING_RATE))
-                .build());
+                        " default rate = " + String.valueOf(DEFAULT_PRUNING_RATE), options);
     }
 
     public static boolean checkIfValid(String modelType) {
