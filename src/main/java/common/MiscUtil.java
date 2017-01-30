@@ -9,6 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MiscUtil {
+    public static void setOption(String optionArg, boolean hasArg, boolean required, String desc, Options options) {
+        options.addOption(Option.builder(optionArg)
+                .hasArg(hasArg)
+                .required(required)
+                .desc(desc)
+                .build());
+    }
+
     public static HashMap<String, String> getMonthMap() {
         HashMap<String, String> monthMap = new HashMap<>();
         monthMap.put("JAN", "01");
@@ -33,7 +41,7 @@ public class MiscUtil {
             cl = clp.parse(options, args);
         } catch (ParseException pe) {
             HelpFormatter help = new HelpFormatter();
-            help.printHelp("Blindness Evaluation: " + className, options, true);
+            help.printHelp(Config.PROJECT_NAME + ": " + className, options, true);
         }
         return cl;
     }

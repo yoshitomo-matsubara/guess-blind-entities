@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.*;
@@ -26,26 +25,11 @@ public class LevelUpConverter {
 
     private static Options setOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(Config.INPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] input file")
-                .build());
-        options.addOption(Option.builder(FOS_HIERARCHY_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] FieldOfStudyHierarchy file")
-                .build());
-        options.addOption(Option.builder(MIN_COUNT_THRESHOLD_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] minimum count threshold for each bag of fields")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output file")
-                .build());
+        MiscUtil.setOption(Config.INPUT_FILE_OPTION, true, true, "[input] input file", options);
+        MiscUtil.setOption(FOS_HIERARCHY_FILE_OPTION, true, true, "[input] FieldOfStudyHierarchy file", options);
+        MiscUtil.setOption(MIN_COUNT_THRESHOLD_OPTION, true, false,
+                "[param, optional] minimum count threshold for each bag of fields", options);
+        MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
 

@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.*;
@@ -16,16 +15,8 @@ public class BagOfFieldsMaker {
 
     private static Options setOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(Config.INPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] input file")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output file")
-                .build());
+        MiscUtil.setOption(Config.INPUT_FILE_OPTION, true, true, "[input] input file", options);
+        MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
 

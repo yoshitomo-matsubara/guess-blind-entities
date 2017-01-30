@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.*;
@@ -22,31 +21,11 @@ public class MinimumMerger {
 
     private static Options setOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(PAPERS_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] min-Papers file")
-                .build());
-        options.addOption(Option.builder(AFFILS_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] min-PaperAuthorAffiliations file")
-                .build());
-        options.addOption(Option.builder(REFS_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] min-PaperReferences file")
-                .build());
-        options.addOption(Option.builder(Config.TMP_DIR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[output, optional] temporary output dir")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output file")
-                .build());
+        MiscUtil.setOption(PAPERS_FILE_OPTION, true, true, "[input] min-Papers file", options);
+        MiscUtil.setOption(AFFILS_FILE_OPTION, true, true, "[input] min-PaperAuthorAffiliations file", options);
+        MiscUtil.setOption(REFS_FILE_OPTION, true, true, "[input] min-PaperReferences file", options);
+        MiscUtil.setOption(Config.TMP_DIR_OPTION, true, false, "[output, optional] temporary output dir", options);
+        MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
 

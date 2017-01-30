@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.File;
@@ -29,28 +28,12 @@ public class FeatureExtractor {
     private static final Pattern PTN = Pattern.compile("^[a-zA-Z].*");
     private static final int FORMAT_SIZE = 7;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(ABSTRACTS_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] cit-HepTh-abstracts directory")
-                .build());
-        options.addOption(Option.builder(REF_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[input] cit-HepTh file")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_FILE_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output file")
-                .build());
-        options.addOption(Option.builder(AUTHOR_ID_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[output, optional] author id file")
-                .build());
+        MiscUtil.setOption(ABSTRACTS_DIR_OPTION, true, true, "[input] cit-HepTh-abstracts directory", options);
+        MiscUtil.setOption(REF_FILE_OPTION, true, true, "[input] cit-HepTh file", options);
+        MiscUtil.setOption(AUTHOR_ID_FILE_OPTION, true, false, "[output, optional] author id file", options);
+        MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
 
@@ -347,7 +330,7 @@ public class FeatureExtractor {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("FeatureExtractor for KDD Cup 2003 dataset", options, args);
         String refFilePath = cl.getOptionValue(REF_FILE_OPTION);
         String abstractsDirPath = cl.getOptionValue(ABSTRACTS_DIR_OPTION);

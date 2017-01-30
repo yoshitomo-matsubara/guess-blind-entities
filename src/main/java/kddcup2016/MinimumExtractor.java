@@ -4,7 +4,6 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.io.*;
@@ -36,31 +35,11 @@ public class MinimumExtractor {
 
     private static Options setOptions() {
         Options options = new Options();
-        options.addOption(Option.builder(PAPERS_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] Papers file")
-                .build());
-        options.addOption(Option.builder(AFFILS_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] PaperAuthorAffiliations file")
-                .build());
-        options.addOption(Option.builder(REFS_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] PaperReferences file")
-                .build());
-        options.addOption(Option.builder(PAPER_KEYWORDS_FILE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[input, optional] PaperKeywords file")
-                .build());
-        options.addOption(Option.builder(Config.OUTPUT_DIR_OPTION)
-                .hasArg(true)
-                .required(true)
-                .desc("[output] output directory")
-                .build());
+        MiscUtil.setOption(PAPERS_FILE_OPTION, true, false, "[input, optional] Papers file", options);
+        MiscUtil.setOption(AFFILS_FILE_OPTION, true, false, "[input, optional] PaperAuthorAffiliations file", options);
+        MiscUtil.setOption(REFS_FILE_OPTION, true, false, "[input, optional] PaperReferences file", options);
+        MiscUtil.setOption(PAPER_KEYWORDS_FILE_OPTION, true, false, "[input, optional] PaperKeywords file", options);
+        MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output directory", options);
         return options;
     }
 
