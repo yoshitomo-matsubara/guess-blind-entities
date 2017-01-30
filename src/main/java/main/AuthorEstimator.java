@@ -19,6 +19,7 @@ public class AuthorEstimator {
     private static final String MODEL_TYPE_OPTION = "mt";
     private static final String MIN_PAPER_SIZE_OPTION = "mps";
     private static final int DEFAULT_MIN_PAPER_SIZE = 1;
+    private static final int SUFFIX_SIZE = 3;
     private static final double ZERO_SCORE = 0.0d;
 
     private static Options getOptions() {
@@ -89,7 +90,9 @@ public class AuthorEstimator {
             String line;
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
-                File outputFile = new File(outputDirPath + "/" + paper.id);
+                String suffix = paper.id.substring(paper.id.length() - SUFFIX_SIZE);
+                File outputFile = new File(outputDirPath + "/" + suffix + "/" + paper.id);
+                FileUtil.makeParentDir(outputFile.getPath());
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
                 if (first) {
                     bw.write(line);
