@@ -256,8 +256,8 @@ public class FileUtil {
         try {
             File publisherFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(publisherFile));
-            for (String publisherId : hashMap.keySet()) {
-                bw.write(publisherId + Config.FIRST_DELIMITER + String.valueOf(hashMap.get(publisherId)));
+            for (String venueId : hashMap.keySet()) {
+                bw.write(venueId + Config.FIRST_DELIMITER + String.valueOf(hashMap.get(venueId)));
                 bw.newLine();
             }
             bw.close();

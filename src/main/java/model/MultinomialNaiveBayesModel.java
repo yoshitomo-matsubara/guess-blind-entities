@@ -1,5 +1,6 @@
 package model;
 
+import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -13,7 +14,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
     private static final String TOTAL_UNIQUE_CITATION_SIZE_OPTION = "tucs";
     private static final String SMOOTHING_PRIOR_OPTION = "sp";
     private final int totalOverlapPaperSize, totalCitationIdSize;
-    private final double alpha, pa;
+    private final double alpha, logPa;
     private int totalCitationCount;
     private double nonHitLogProb;
 
@@ -22,7 +23,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
         this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_UNIQUE_CITATION_SIZE_OPTION));
         this.alpha = Double.parseDouble(cl.getOptionValue(SMOOTHING_PRIOR_OPTION));
-        this.pa = (double) this.author.papers.length / (double) this.totalOverlapPaperSize;
+        this.logPa = Math.log((double) this.author.papers.length / (double) this.totalOverlapPaperSize);
         this.totalCitationCount = 0;
         this.nonHitLogProb = 0.0d;
     }
@@ -44,7 +45,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
 
     @Override
     public double estimate(Paper paper) {
-        double logProb = this.pa;
+        double logProb = this.logPa;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
             if (this.citeCountMap.containsKey(refPaperId)) {
@@ -59,22 +60,13 @@ public class MultinomialNaiveBayesModel extends BaseModel {
     }
 
     public static void setOptions(Options options) {
-        options.addOption(Option.builder(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] total number of overlap papers in training for " + NAME)
-                .build());
-        options.addOption(Option.builder(TOTAL_UNIQUE_CITATION_SIZE_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] total number of unique reference IDs in training for " + NAME)
-                .build());
-        options.addOption(Option.builder(SMOOTHING_PRIOR_OPTION)
-                .hasArg(true)
-                .required(false)
-                .desc("[param, optional] smoothing prior alpha(0 <= alpha <= 1) for " + NAME
-                        + ", Laplace smoothing: alpha = 1, Lidstone smoothing: alpha < 1")
-                .build());
+        MiscUtil.setOption(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION, true, false,
+                "[param, optional] total number of overlap papers in training for " + NAME, options);
+        MiscUtil.setOption(TOTAL_UNIQUE_CITATION_SIZE_OPTION, true, false,
+                "[param, optional] total number of unique reference IDs in training for " + NAME, options);
+        MiscUtil.setOption(SMOOTHING_PRIOR_OPTION, true, false,
+                "[param, optional] smoothing prior alpha(0 <= alpha <= 1) for " + NAME
+                        + ", Laplace smoothing: alpha = 1, Lidstone smoothing: alpha < 1", options);
     }
 
     public static boolean checkIfValid(String modelType, CommandLine cl) {

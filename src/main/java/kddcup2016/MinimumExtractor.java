@@ -57,11 +57,11 @@ public class MinimumExtractor {
         return true;
     }
 
-    private static void updateCountMap(HashMap<String, Integer> countMap, String publisherId) {
-        if (!countMap.containsKey(publisherId)) {
-            countMap.put(publisherId, 1);
+    private static void updateCountMap(HashMap<String, Integer> countMap, String venueId) {
+        if (!countMap.containsKey(venueId)) {
+            countMap.put(venueId, 1);
         } else {
-            countMap.put(publisherId, countMap.get(publisherId) + 1);
+            countMap.put(venueId, countMap.get(venueId) + 1);
         }
     }
 
@@ -83,15 +83,15 @@ public class MinimumExtractor {
                 String[] elements = line.split(delimiter);
                 // Skip line which misses some information
                 if (checkIfValidPaper(elements)) {
-                    String  publisherId = elements[JOURNAL_ID_INDEX].length() >= ID_MIN_LENGTH ? elements[JOURNAL_ID_INDEX]
+                    String  venueId = elements[JOURNAL_ID_INDEX].length() >= ID_MIN_LENGTH ? elements[JOURNAL_ID_INDEX]
                             : elements[CONFERENCE_ID_INDEX];
                     bw.write(elements[PAPER_ID_INDEX] + delimiter
-                            + elements[PUB_DATE_INDEX].substring(0, PUB_DATE_MIN_LENGTH) + delimiter + publisherId);
+                            + elements[PUB_DATE_INDEX].substring(0, PUB_DATE_MIN_LENGTH) + delimiter + venueId);
                     bw.newLine();
                     if (elements[JOURNAL_ID_INDEX].length() >= ID_MIN_LENGTH) {
-                        updateCountMap(jpaperCountMap, publisherId);
+                        updateCountMap(jpaperCountMap, venueId);
                     } else {
-                        updateCountMap(cpaperCountMap, publisherId);
+                        updateCountMap(cpaperCountMap, venueId);
                     }
                 }
             }

@@ -10,7 +10,7 @@ import java.io.*;
 import java.util.HashMap;
 
 public class BagOfFieldsMaker {
-    private static final int PUBLISHER_ID_INDEX = 1;
+    private static final int VENUE_ID_INDEX = 1;
     private static final int FIELD_ID_INDEX = 2;
 
     private static Options setOptions() {
@@ -28,14 +28,14 @@ public class BagOfFieldsMaker {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(Config.FIRST_DELIMITER);
-                if (!bofMap.containsKey(elements[PUBLISHER_ID_INDEX])) {
-                    if (!bofMap.containsKey(elements[PUBLISHER_ID_INDEX])) {
-                        bofMap.put(elements[PUBLISHER_ID_INDEX], new BagOfFields(elements[PUBLISHER_ID_INDEX]));
+                if (!bofMap.containsKey(elements[VENUE_ID_INDEX])) {
+                    if (!bofMap.containsKey(elements[VENUE_ID_INDEX])) {
+                        bofMap.put(elements[VENUE_ID_INDEX], new BagOfFields(elements[VENUE_ID_INDEX]));
                     }
 
                     String[] fieldIds = elements[FIELD_ID_INDEX].split(Config.SECOND_DELIMITER);
                     for (String fieldId : fieldIds) {
-                        bofMap.get(elements[PUBLISHER_ID_INDEX]).countUp(fieldId);
+                        bofMap.get(elements[VENUE_ID_INDEX]).countUp(fieldId);
                     }
                 }
             }
@@ -54,8 +54,8 @@ public class BagOfFieldsMaker {
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            for (String publisherId : bofMap.keySet()) {
-                BagOfFields bof = bofMap.get(publisherId);
+            for (String venueId : bofMap.keySet()) {
+                BagOfFields bof = bofMap.get(venueId);
                 bw.write(bof.toString());
                 bw.newLine();
             }

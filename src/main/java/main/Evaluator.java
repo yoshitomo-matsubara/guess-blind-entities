@@ -123,22 +123,32 @@ public class Evaluator {
             }
             
             bw.newLine();
-            List<File> inputFileList = FileUtil.getFileList(inputDirPath);
-            int size = inputFileList.size();
-            for (int i = 0; i < size; i++) {
-                File inputFile = inputFileList.remove(0);
-                Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
-                if (resultPair == null || resultPair.key == null || resultPair.value.size() == 0) {
-                    continue;
-                }
-
-                Paper paper = resultPair.key;
-                List<Result> resultList = resultPair.value;
-                String outputLine = evaluate(resultList, topMs, paper);
-                bw.write(outputLine);
-                bw.newLine();
+            List<File> inputDirList = FileUtil.getDirList(inputDirPath);
+            if (inputDirList.size() == 0) {
+                inputDirList.add(new File(inputDirPath));
             }
-            bw.close();
+
+            int dirSize = inputDirList.size();
+            for (int i = 0; i < dirSize; i++) {
+                File inputDir = inputDirList.remove(0);
+
+                List<File> inputFileList = FileUtil.getFileListR(inputDir.getPath());
+                int fileSize = inputFileList.size();
+                for (int j = 0; j < fileSize; j++) {
+                    File inputFile = inputFileList.remove(0);
+                    Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
+                    if (resultPair == null || resultPair.key == null || resultPair.value.size() == 0) {
+                        continue;
+                    }
+
+                    Paper paper = resultPair.key;
+                    List<Result> resultList = resultPair.value;
+                    String outputLine = evaluate(resultList, topMs, paper);
+                    bw.write(outputLine);
+                    bw.newLine();
+                }
+                bw.close();
+            }
         } catch (Exception e) {
             System.err.println("Exception @ evaluate");
             e.printStackTrace();
