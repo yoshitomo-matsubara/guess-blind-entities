@@ -100,7 +100,6 @@ public class Evaluator {
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
                 + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
-
         for (int i = 0; i < authorSizeMs.length; i++) {
             int overOneAtM = authorSizeMs[i] > 0 ? 1 : 0;
             double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
