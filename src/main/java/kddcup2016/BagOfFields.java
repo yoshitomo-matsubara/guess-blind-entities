@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class BagOfFields {
-    public final String publisherId;
+    public final String venueId;
     private int totalCount;
     private HashMap<String, Integer> countMap;
 
-    public BagOfFields(String publisherId) {
-        this.publisherId = publisherId;
+    public BagOfFields(String venueId) {
+        this.venueId = venueId;
         this.totalCount = 0;
         this.countMap = new HashMap<>();
     }
@@ -62,6 +62,6 @@ public class BagOfFields {
                 sb.append(Config.SECOND_DELIMITER + formatField(fieldIdList.get(i), countStr));
             }
         }
-        return this.publisherId + Config.FIRST_DELIMITER + sb.toString();
+        return this.venueId + Config.FIRST_DELIMITER + sb.toString();
     }
 }

@@ -20,7 +20,7 @@ public class LevelUpConverter {
     private static final int CHILD_FOS_LEVEL_INDEX = 1;
     private static final int PARENT_FOS_ID_INDEX = 2;
     private static final int PARENT_FOS_LEVEL_INDEX = 3;
-    private static final int PUBLISHER_ID_INDEX = 0;
+    private static final int VENUE_ID_INDEX = 0;
     private static final int FOS_LIST_INDEX = 1;
 
     private static Options setOptions() {
@@ -107,10 +107,10 @@ public class LevelUpConverter {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(Config.FIRST_DELIMITER);
-                String publisherId = elements[PUBLISHER_ID_INDEX];
+                String venueId = elements[VENUE_ID_INDEX];
                 String fosListStr = elements[FOS_LIST_INDEX];
                 String[] bofStrs = fosListStr.split(Config.SECOND_DELIMITER);
-                BagOfFields bof = new BagOfFields(publisherId);
+                BagOfFields bof = new BagOfFields(venueId);
                 for (String bofStr : bofStrs) {
                     String[] keyValue = bofStr.split(Config.KEY_VALUE_DELIMITER);
                     String fosId = keyValue[0];
