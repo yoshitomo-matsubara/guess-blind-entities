@@ -127,12 +127,16 @@ public class AuthorEstimator {
             authorDirList.add(new File(trainingDirPath));
         }
 
+        int fileCount = 0;
+        int availableCount = 0;
         int dirSize = authorDirList.size();
         for (int i = 0; i < dirSize; i++) {
             File authorDir = authorDirList.remove(0);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));
             List<File> trainingFileList = FileUtil.getFileListR(authorDir.getPath());
+            fileCount += trainingFileList.size();
             List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType, cl, minPaperSize);
+            availableCount += modelList.size();
             trainingFileList.clear();
             FileUtil.makeDirIfNotExist(outputDirPath);
             boolean first = i == 0;
@@ -140,6 +144,9 @@ public class AuthorEstimator {
                 estimate(testFile, modelList, first, outputDirPath);
             }
         }
+
+        System.out.println(String.valueOf(availableCount) + " available authors");
+        System.out.println(String.valueOf(fileCount - availableCount) + " ignored authors");
     }
 
     public static void main(String[] args) {
