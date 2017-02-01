@@ -147,8 +147,8 @@ public class Evaluator {
                     bw.write(outputLine);
                     bw.newLine();
                 }
-                bw.close();
             }
+            bw.close();
         } catch (Exception e) {
             System.err.println("Exception @ evaluate");
             e.printStackTrace();
