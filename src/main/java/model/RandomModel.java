@@ -24,6 +24,13 @@ public class RandomModel extends BaseModel {
                 : DEFAULT_PRUNING_RATE;
     }
 
+    public RandomModel(String line, CommandLine cl) {
+        super(line);
+        this.rand = new Random();
+        this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ? Double.parseDouble(PRUNING_RATE_OPTION)
+                : DEFAULT_PRUNING_RATE;
+    }
+
     @Override
     public void train() {}
 

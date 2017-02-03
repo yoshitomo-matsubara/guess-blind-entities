@@ -23,7 +23,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
         this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_UNIQUE_CITATION_SIZE_OPTION));
         this.alpha = Double.parseDouble(cl.getOptionValue(SMOOTHING_PRIOR_OPTION));
-        this.logPa = Math.log((double) this.author.papers.length / (double) this.totalOverlapPaperSize);
+        this.logPa = Math.log((double) this.paperIds.length / (double) this.totalOverlapPaperSize);
         this.totalCitationCount = 0;
         this.nonHitLogProb = 0.0d;
     }
