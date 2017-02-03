@@ -8,13 +8,14 @@ import java.util.HashMap;
 
 public abstract class BaseModel {
     public static final String TYPE = "ab";
-    public static final String NAME = "Abstract Model";
+    public static final String NAME = "Base Model";
 
     public static final double INVALID_VALUE = -Double.MAX_VALUE;
     public final String authorId;
     protected Author author;
     protected String[] paperIds;
     protected HashMap<String, Integer> citeCountMap;
+    protected int totalCitationCount;
 
     public BaseModel(Author author) {
         this.authorId = author.id;
@@ -23,7 +24,9 @@ public abstract class BaseModel {
         for (int i = 0; i < this.paperIds.length; i++) {
             this.paperIds[i] = author.papers[i].id;
         }
+
         this.citeCountMap = new HashMap<>();
+        this.totalCitationCount = 0;
     }
 
     public BaseModel(String line) {
@@ -37,11 +40,12 @@ public abstract class BaseModel {
         }
 
         this.citeCountMap = new HashMap<>();
-        String[] refStrs = elements[3].split(Config.SECOND_DELIMITER);
+        String[] refStrs = elements[4].split(Config.SECOND_DELIMITER);
         for (String refStr : refStrs) {
             String[] keyValue = refStr.split(Config.KEY_VALUE_DELIMITER);
             this.citeCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
         }
+        this.totalCitationCount = Integer.parseInt(elements[5]);
     }
 
     public void train() {
@@ -59,7 +63,7 @@ public abstract class BaseModel {
     public abstract double estimate(Paper paper);
 
     public String toString() {
-        // author ID, # of papers, paper IDs, [refID:count]
+        // author ID, # of paper IDs, paper IDs, # of ref IDs, [refID:count], # of citations
         StringBuilder sb = new StringBuilder(this.authorId + Config.FIRST_DELIMITER
                 + String.valueOf(this.author.papers.length) + Config.FIRST_DELIMITER);
         for (int i = 0; i < this.paperIds.length; i++) {
@@ -67,14 +71,19 @@ public abstract class BaseModel {
             sb.append(str);
         }
 
-        int sbSize = sb.length();
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()));
+        int sum = 0;
         for (String refId : this.citeCountMap.keySet()) {
-            if (sb.length() != sbSize) {
+            if (sum > 0) {
                 sb.append(Config.SECOND_DELIMITER);
             }
-            sb.append(Config.FIRST_DELIMITER + refId + Config.KEY_VALUE_DELIMITER
-                    + String.valueOf(this.citeCountMap.get(refId)));
+
+            int count = this.citeCountMap.get(this.citeCountMap.get(refId));
+            sum += count;
+            sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(count));
         }
+
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(sum));
         return sb.toString();
     }
 }
