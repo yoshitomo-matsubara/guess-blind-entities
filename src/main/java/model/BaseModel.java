@@ -78,7 +78,7 @@ public abstract class BaseModel {
                 sb.append(Config.SECOND_DELIMITER);
             }
 
-            int count = this.citeCountMap.get(this.citeCountMap.get(refId));
+            int count = this.citeCountMap.get(refId);
             sum += count;
             sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(count));
         }
