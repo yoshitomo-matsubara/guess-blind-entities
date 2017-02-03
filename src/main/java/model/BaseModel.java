@@ -33,4 +33,6 @@ public abstract class BaseModel {
     }
 
     public abstract double estimate(Paper paper);
+
+    public abstract String toString();
 }
