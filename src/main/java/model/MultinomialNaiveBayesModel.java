@@ -2,7 +2,6 @@ package model;
 
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
@@ -15,7 +14,6 @@ public class MultinomialNaiveBayesModel extends BaseModel {
     private static final String SMOOTHING_PRIOR_OPTION = "sp";
     private final int totalOverlapPaperSize, totalCitationIdSize;
     private final double alpha, logPa;
-    private int totalCitationCount;
     private double nonHitLogProb;
 
     public MultinomialNaiveBayesModel(Author author, CommandLine cl) {
@@ -23,9 +21,17 @@ public class MultinomialNaiveBayesModel extends BaseModel {
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
         this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_UNIQUE_CITATION_SIZE_OPTION));
         this.alpha = Double.parseDouble(cl.getOptionValue(SMOOTHING_PRIOR_OPTION));
-        this.logPa = Math.log((double) this.author.papers.length / (double) this.totalOverlapPaperSize);
-        this.totalCitationCount = 0;
+        this.logPa = Math.log((double) this.paperIds.length / (double) this.totalOverlapPaperSize);
         this.nonHitLogProb = 0.0d;
+    }
+
+    public MultinomialNaiveBayesModel(String line, CommandLine cl) {
+        super(line);
+        this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
+        this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_UNIQUE_CITATION_SIZE_OPTION));
+        this.alpha = Double.parseDouble(cl.getOptionValue(SMOOTHING_PRIOR_OPTION));
+        this.logPa = Math.log((double) this.paperIds.length / (double) this.totalOverlapPaperSize);
+        this.nonHitLogProb = Math.log(calcProb(0));
     }
 
     private double calcProb(int count) {

@@ -2,7 +2,6 @@ package model;
 
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
@@ -19,6 +18,13 @@ public class RandomModel extends BaseModel {
 
     public RandomModel(Author author, CommandLine cl) {
         super(author);
+        this.rand = new Random();
+        this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ? Double.parseDouble(PRUNING_RATE_OPTION)
+                : DEFAULT_PRUNING_RATE;
+    }
+
+    public RandomModel(String line, CommandLine cl) {
+        super(line);
         this.rand = new Random();
         this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ? Double.parseDouble(PRUNING_RATE_OPTION)
                 : DEFAULT_PRUNING_RATE;

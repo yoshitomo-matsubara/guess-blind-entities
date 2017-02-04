@@ -9,7 +9,7 @@ import org.apache.commons.cli.Options;
 import java.io.*;
 import java.util.*;
 
-public class PublisherMerger {
+public class VenueMerger {
     private static final String PAPERS_FILE_OPTION = "p";
     private static final String PAPER_KEYWORDS_FILE_OPTION = "k";
     private static final String TMP_PAPERS_FILE_PREFIX = "tmp-p-";
@@ -122,7 +122,7 @@ public class PublisherMerger {
 
     public static void main(String[] args) {
         Options options = setOptions();
-        CommandLine cl = MiscUtil.setParams("PublisherMerger for KDD Cup 2016 dataset", options, args);
+        CommandLine cl = MiscUtil.setParams("VenueMerger for KDD Cup 2016 dataset", options, args);
         String papersFilePath = cl.getOptionValue(PAPERS_FILE_OPTION);
         String paperKeysFilePath = cl.getOptionValue(PAPER_KEYWORDS_FILE_OPTION);
         String tmpDirPath = cl.hasOption(Config.TMP_DIR_OPTION) ? cl.getOptionValue(Config.TMP_DIR_OPTION) : null;

@@ -2,7 +2,6 @@ package model;
 
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
@@ -13,13 +12,17 @@ public class NaiveBayesModel extends BaseModel {
     private static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
     private final int totalOverlapPaperSize;
     private final double logPa;
-    private int totalCitationCount;
 
     public NaiveBayesModel(Author author, CommandLine cl) {
         super(author);
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
-        this.logPa = Math.log((double) this.author.papers.length / (double) this.totalOverlapPaperSize);
-        this.totalCitationCount = 0;
+        this.logPa = Math.log((double) this.paperIds.length / (double) this.totalOverlapPaperSize);
+    }
+
+    public NaiveBayesModel(String line, CommandLine cl) {
+        super(line);
+        this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
+        this.logPa = Math.log((double) this.paperIds.length / (double) this.totalOverlapPaperSize);
     }
 
     @Override

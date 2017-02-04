@@ -11,6 +11,10 @@ public class GeometricMealModel extends BaseModel {
         super(author);
     }
 
+    public GeometricMealModel(String line) {
+        super(line);
+    }
+
     @Override
     public void train() {
         super.train();
@@ -22,7 +26,7 @@ public class GeometricMealModel extends BaseModel {
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
             if (this.citeCountMap.containsKey(refPaperId)) {
-                double prob = (double) this.citeCountMap.get(refPaperId) / (double) this.author.papers.length;
+                double prob = (double) this.citeCountMap.get(refPaperId) / (double) this.paperIds.length;
                 logScore += Math.log(prob);
                 hitCount++;
             }
