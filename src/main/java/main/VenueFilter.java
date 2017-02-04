@@ -19,6 +19,7 @@ public class VenueFilter {
     private static final String TRAIN_OUTPUT_DIR_OPTION = "otrain";
     private static final String TEST_OUTPUT_DIR_OPTION = "otest";
     private static final int VENUE_ID_INDEX = 0;
+    private static final int SUFFIX_SIZE = 3;
 
     private static Options getOptions() {
         Options options = new Options();
@@ -79,7 +80,9 @@ public class VenueFilter {
 
                     br.close();
                     if (isHit) {
-                        File outputFile = new File(trainOutputDirPath + inputFile.getName());
+                        String fileName = inputFile.getName();
+                        String suffix = fileName.substring(fileName.length() - SUFFIX_SIZE);
+                        File outputFile = new File(trainOutputDirPath + suffix + "/" + fileName);
                         FileUtil.makeParentDir(outputFile.getPath());
                         BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
                         for (String outputLine : lineList) {
