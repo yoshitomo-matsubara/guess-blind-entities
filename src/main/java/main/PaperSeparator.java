@@ -121,11 +121,14 @@ public class PaperSeparator {
 
             Random rand = new Random();
             boolean isSampled = sampleRate != INVALID_RATE;
-            int trainCount = 0;
+            int trainCountP = 0;
+            int trainCountA = 0;
             int testCount = 0;
-            HashMap<String, List<String>> trainListMap = new HashMap<>();
+            HashMap<String, List<String>> trainListMapP = new HashMap<>();
+            HashMap<String, List<String>> trainListMapA = new HashMap<>();
             HashMap<String, List<String>> testListMap = new HashMap<>();
-            HashSet<String> trainFileNameSet = new HashSet<>();
+            HashSet<String> trainFileNameSetP = new HashSet<>();
+            HashSet<String> trainFileNameSetA = new HashSet<>();
             HashSet<String> testFileNameSet = new HashSet<>();
             BufferedReader br = new BufferedReader(new FileReader(new File(inputFilePath)));
             String line;
@@ -142,17 +145,28 @@ public class PaperSeparator {
                         continue;
                     }
 
+                    // key: year
+                    if (!trainListMapP.containsKey(yearStr)) {
+                        trainListMapP.put(yearStr, new ArrayList<>());
+                    }
+
+                    trainListMapP.get(yearStr).add(line);
+                    trainCountP++;
+                    if (trainCountP % TRAIN_BUFFER_SIZE == 0) {
+                        distributeFiles(trainListMapP, trainFileNameSetP, false, outputTrainDirPath);
+                    }
+
                     // key: author ID
                     String[] authorIds = elements[AUTHOR_ID_INDEX].split(Config.SECOND_DELIMITER);
                     for (String authorId : authorIds) {
-                        if (!trainListMap.containsKey(authorId)) {
-                            trainListMap.put(authorId, new ArrayList<>());
+                        if (!trainListMapA.containsKey(authorId)) {
+                            trainListMapA.put(authorId, new ArrayList<>());
                         }
 
-                        trainListMap.get(authorId).add(line);
-                        trainCount++;
-                        if (trainCount % TRAIN_BUFFER_SIZE == 0) {
-                            distributeFiles(trainListMap, trainFileNameSet, true, outputTrainDirPath);
+                        trainListMapA.get(authorId).add(line);
+                        trainCountA++;
+                        if (trainCountA % TRAIN_BUFFER_SIZE == 0) {
+                            distributeFiles(trainListMapA, trainFileNameSetA, true, outputTrainDirPath);
                         }
                     }
                 } else if (checkIfValidMode(testMode, testStartYear, testEndYear, year)) {
@@ -174,7 +188,8 @@ public class PaperSeparator {
             }
 
             br.close();
-            distributeFiles(trainListMap, trainFileNameSet, true, outputTrainDirPath);
+            distributeFiles(trainListMapP, trainFileNameSetP, false, outputTrainDirPath);
+            distributeFiles(trainListMapA, trainFileNameSetA, true, outputTrainDirPath);
             distributeFiles(testListMap, testFileNameSet, false, outputTestDirPath);
         } catch (Exception e) {
             System.err.println("Exception @ separate");
