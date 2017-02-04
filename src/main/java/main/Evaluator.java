@@ -65,7 +65,7 @@ public class Evaluator {
             System.err.println("Exception @ readScoreFile");
             e.printStackTrace();
         }
-        return new Pair(paper, resultList);
+        return new Pair<>(paper, resultList);
     }
 
     private static String evaluate(List<Result> resultList, int[] topMs, Paper paper) {
