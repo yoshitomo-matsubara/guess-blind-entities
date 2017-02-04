@@ -14,16 +14,20 @@ import java.util.List;
 
 public class VenueFilter {
     private static final String VENUE_ID_LIST_FILE_OPTION = "vid";
+    private static final String MIN_HIT_COUNT_OPTION = "mhc";
     private static final String TRAIN_INPUT_DIR_OPTION = "itrain";
     private static final String TEST_INPUT_DIR_OPTION = "itest";
     private static final String TRAIN_OUTPUT_DIR_OPTION = "otrain";
     private static final String TEST_OUTPUT_DIR_OPTION = "otest";
     private static final int VENUE_ID_INDEX = 0;
     private static final int SUFFIX_SIZE = 3;
+    private static final int DEFAULT_MIN_HIT_COUNT = 1;
 
     private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(VENUE_ID_LIST_FILE_OPTION, true, true, "[param] venue ID list file", options);
+        MiscUtil.setOption(MIN_HIT_COUNT_OPTION, true, false,
+                "[param, option] min hit count for training", options);
         MiscUtil.setOption(TRAIN_INPUT_DIR_OPTION, true, false,
                 "[input, optional] training dir, -" + TRAIN_OUTPUT_DIR_OPTION + " is required", options);
         MiscUtil.setOption(TEST_INPUT_DIR_OPTION, true, false,
@@ -52,7 +56,8 @@ public class VenueFilter {
         return vidSet;
     }
 
-    private static void filterTrainData(String trainInputDirPath, HashSet<String> vidSet, String trainOutputDirPath) {
+    private static void filterTrainData(String trainInputDirPath, HashSet<String> vidSet,
+                                        int minHitCount, String trainOutputDirPath) {
         try {
             List<File> inputDirList = FileUtil.getDirList(trainInputDirPath);
             if (inputDirList.size() == 0) {
@@ -66,7 +71,7 @@ public class VenueFilter {
                 int fileSize = inputFileList.size();
                 for (int j = 0; j < fileSize; j++) {
                     File inputFile = inputFileList.remove(0);
-                    boolean isHit = false;
+                    int hitCount = 0;
                     List<String> lineList = new ArrayList<>();
                     BufferedReader br = new BufferedReader(new FileReader(inputFile));
                     String line;
@@ -74,12 +79,12 @@ public class VenueFilter {
                         lineList.add(line);
                         Paper paper = new Paper(line);
                         if (vidSet.contains(paper.venueId)) {
-                            isHit = true;
+                            hitCount++;
                         }
                     }
 
                     br.close();
-                    if (isHit) {
+                    if (hitCount >= minHitCount) {
                         String fileName = inputFile.getName();
                         String suffix = fileName.substring(fileName.length() - SUFFIX_SIZE);
                         File outputFile = new File(trainOutputDirPath + suffix + "/" + fileName);
@@ -136,15 +141,15 @@ public class VenueFilter {
         }
     }
 
-    private static void filter(String vidListFilePath, String trainInputDirPath, String testInputDirPath,
-                               String trainOutputDirPath, String testOutputDirPath) {
+    private static void filter(String vidListFilePath, int minHitCount, String trainInputDirPath,
+                               String testInputDirPath, String trainOutputDirPath, String testOutputDirPath) {
         HashSet<String> vidSet = readVenueIdListFile(vidListFilePath);
         if (vidSet.size() == 0) {
             return;
         }
 
         if (trainInputDirPath != null && trainOutputDirPath != null) {
-            filterTrainData(trainInputDirPath, vidSet, trainOutputDirPath);
+            filterTrainData(trainInputDirPath, vidSet, minHitCount, trainOutputDirPath);
         }
 
         if (testInputDirPath != null && testOutputDirPath != null) {
@@ -156,6 +161,8 @@ public class VenueFilter {
         Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("VenueFilter", options, args);
         String vidListFilePath = cl.getOptionValue(VENUE_ID_LIST_FILE_OPTION);
+        int minHitCount = cl.hasOption(MIN_HIT_COUNT_OPTION) ?
+                Integer.parseInt(MIN_HIT_COUNT_OPTION) : DEFAULT_MIN_HIT_COUNT;
         String trainInputDirPath = cl.hasOption(TRAIN_INPUT_DIR_OPTION) ?
                 cl.getOptionValue(TRAIN_INPUT_DIR_OPTION) : null;
         String testInputDirPath = cl.hasOption(TEST_INPUT_DIR_OPTION) ?
@@ -164,6 +171,6 @@ public class VenueFilter {
                 cl.getOptionValue(TRAIN_OUTPUT_DIR_OPTION) : null;
         String testOutputDirPath = cl.hasOption(TEST_OUTPUT_DIR_OPTION) ?
                 cl.getOptionValue(TEST_OUTPUT_DIR_OPTION) : null;
-        filter(vidListFilePath, trainInputDirPath, testInputDirPath, trainOutputDirPath, testOutputDirPath);
+        filter(vidListFilePath, minHitCount, trainInputDirPath, testInputDirPath, trainOutputDirPath, testOutputDirPath);
     }
 }
