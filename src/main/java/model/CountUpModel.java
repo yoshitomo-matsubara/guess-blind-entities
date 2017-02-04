@@ -13,6 +13,10 @@ public class CountUpModel extends BaseModel {
         this.maxScore = 0;
     }
 
+    public CountUpModel(String line) {
+        super(line);
+    }
+
     @Override
     public void train() {
         super.train();

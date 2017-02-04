@@ -11,6 +11,10 @@ public class GeometricMealModel extends BaseModel {
         super(author);
     }
 
+    public GeometricMealModel(String line) {
+        super(line);
+    }
+
     @Override
     public void train() {
         super.train();

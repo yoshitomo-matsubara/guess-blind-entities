@@ -19,6 +19,12 @@ public class NaiveBayesModel extends BaseModel {
         this.logPa = Math.log((double) this.paperIds.length / (double) this.totalOverlapPaperSize);
     }
 
+    public NaiveBayesModel(String line, CommandLine cl) {
+        super(line);
+        this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
+        this.logPa = Math.log((double) this.paperIds.length / (double) this.totalOverlapPaperSize);
+    }
+
     @Override
     public void train() {
         super.train();

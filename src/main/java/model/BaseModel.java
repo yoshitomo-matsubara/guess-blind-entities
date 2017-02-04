@@ -12,8 +12,8 @@ public abstract class BaseModel {
 
     public static final double INVALID_VALUE = -Double.MAX_VALUE;
     public final String authorId;
+    public final String[] paperIds;
     protected Author author;
-    protected String[] paperIds;
     protected HashMap<String, Integer> citeCountMap;
     protected int totalCitationCount;
 
