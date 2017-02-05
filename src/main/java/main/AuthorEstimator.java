@@ -6,7 +6,6 @@ import common.MiscUtil;
 import model.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import structure.Author;
 import structure.Pair;
 import structure.Paper;
 
@@ -36,6 +35,7 @@ public class AuthorEstimator {
     }
 
     private static void setModelOptions(Options options) {
+        RandomModel.setOptions(options);
         NaiveBayesModel.setOptions(options);
         MultinomialNaiveBayesModel.setOptions(options);
     }
@@ -72,7 +72,7 @@ public class AuthorEstimator {
             }
             br.close();
         } catch (Exception e) {
-            System.err.println("Exception @ readAuthorFiles");
+            System.err.println("Exception @ readModelFile");
             e.printStackTrace();
         }
 

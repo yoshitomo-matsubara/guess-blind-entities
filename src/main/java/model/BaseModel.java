@@ -71,7 +71,7 @@ public abstract class BaseModel {
             sb.append(str);
         }
 
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()));
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()) + Config.FIRST_DELIMITER );
         int sum = 0;
         for (String refId : this.citeCountMap.keySet()) {
             if (sum > 0) {
