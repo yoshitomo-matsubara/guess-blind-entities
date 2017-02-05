@@ -124,7 +124,7 @@ public class ModelBuilder {
     public static void main(String[] args) {
         Options options = getOptions();
         setModelOptions(options);
-        CommandLine cl = MiscUtil.setParams("AuthorEstimator", options, args);
+        CommandLine cl = MiscUtil.setParams("ModelBuilder", options, args);
         String trainingDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);
         String modelType = cl.getOptionValue(MODEL_TYPE_OPTION);
         int minPaperSize = cl.hasOption(MIN_PAPER_SIZE_OPTION) ?
