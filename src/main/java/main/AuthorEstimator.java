@@ -11,6 +11,7 @@ import structure.Paper;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AuthorEstimator {
@@ -18,8 +19,12 @@ public class AuthorEstimator {
     private static final String TEST_DIR_OPTION = "test";
     private static final String MODEL_TYPE_OPTION = "mt";
     private static final String MIN_PAPER_SIZE_OPTION = "mps";
+    private static final String START_INDEX_OPTION = "sidx";
+    private static final String END_INDEX_OPTION = "eidx";
     private static final int DEFAULT_MIN_PAPER_SIZE = 1;
     private static final int SUFFIX_SIZE = 3;
+    private static final int DEFAULT_START_INDEX = 0;
+    private static final int INVALID_INDEX = -1;
     private static final double ZERO_SCORE = 0.0d;
 
     private static Options getOptions() {
@@ -30,6 +35,11 @@ public class AuthorEstimator {
         MiscUtil.setOption(MIN_PAPER_SIZE_OPTION, true, false,
                 "[param, optional] minimum number of papers each author requires to have, default = "
                 + String.valueOf(DEFAULT_MIN_PAPER_SIZE), options);
+        MiscUtil.setOption(START_INDEX_OPTION, true, false,
+                "[param, optional] start index (0 - (# of model files - 1))," +
+                        "default = " + String.valueOf(DEFAULT_START_INDEX), options);
+        MiscUtil.setOption(END_INDEX_OPTION, true, false,
+                "[param, optional] end index (0 - (# of model files - 1)), default = # of model files", options);
         MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output dir", options);
         return options;
     }
@@ -116,14 +126,16 @@ public class AuthorEstimator {
     }
 
     private static void estimate(String modelDirPath, String testDirPath, String modelType,
-                                 CommandLine cl, int minPaperSize, String outputDirPath) {
+                                 CommandLine cl, int minPaperSize, int startIdx, int endIdx, String outputDirPath) {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
+        Collections.sort(modelFileList);
         int modelCount = 0;
         int availableCount = 0;
         int listSize = modelFileList.size();
-        for (int i = 0; i < listSize; i++) {
-            File modelFile = modelFileList.remove(0);
+        endIdx = endIdx != INVALID_INDEX ? endIdx : listSize;
+        for (int i = startIdx; i < endIdx + 1; i++) {
+            File modelFile = modelFileList.remove(startIdx);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
             Pair<Integer, List<BaseModel>> pair = readModelFile(modelFile, modelType, cl, minPaperSize);
             List<BaseModel> modelList = pair.value;
@@ -149,7 +161,11 @@ public class AuthorEstimator {
         String modelType = cl.getOptionValue(MODEL_TYPE_OPTION);
         int minPaperSize = cl.hasOption(MIN_PAPER_SIZE_OPTION) ?
                 Integer.parseInt(cl.getOptionValue(MIN_PAPER_SIZE_OPTION)) : DEFAULT_MIN_PAPER_SIZE;
+        int startIdx = cl.hasOption(START_INDEX_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(START_INDEX_OPTION)) : DEFAULT_START_INDEX;
+        int endIdx = cl.hasOption(END_INDEX_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(END_INDEX_OPTION)) : INVALID_INDEX;
         String outputDirPath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        estimate(modelDirPath, testDirPath, modelType, cl, minPaperSize, outputDirPath);
+        estimate(modelDirPath, testDirPath, modelType, cl, minPaperSize, startIdx, endIdx, outputDirPath);
     }
 }
