@@ -134,7 +134,7 @@ public class AuthorEstimator {
         int availableCount = 0;
         int listSize = modelFileList.size();
         endIdx = endIdx != INVALID_INDEX ? endIdx : listSize;
-        for (int i = startIdx; i < endIdx + 1; i++) {
+        for (int i = startIdx; i <= endIdx; i++) {
             File modelFile = modelFileList.remove(startIdx);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
             Pair<Integer, List<BaseModel>> pair = readModelFile(modelFile, modelType, cl, minPaperSize);
