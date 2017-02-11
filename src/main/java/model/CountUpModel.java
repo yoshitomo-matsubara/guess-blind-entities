@@ -15,6 +15,10 @@ public class CountUpModel extends BaseModel {
 
     public CountUpModel(String line) {
         super(line);
+        this.maxScore = 0;
+        for (String refPaperId : this.citeCountMap.keySet()) {
+            this.maxScore += this.citeCountMap.get(refPaperId);
+        }
     }
 
     @Override
