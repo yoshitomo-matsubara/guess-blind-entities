@@ -39,7 +39,7 @@ public class AuthorEstimator {
                 "[param, optional] start index (0 - (# of model files - 1))," +
                         "default = " + String.valueOf(DEFAULT_START_INDEX), options);
         MiscUtil.setOption(END_INDEX_OPTION, true, false,
-                "[param, optional] end index (0 - (# of model files - 1)), default = # of model files", options);
+                "[param, optional] end index (0 - # of model files), default = # of model files", options);
         MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output dir", options);
         return options;
     }
@@ -134,7 +134,7 @@ public class AuthorEstimator {
         int availableCount = 0;
         int listSize = modelFileList.size();
         endIdx = endIdx != INVALID_INDEX ? endIdx : listSize;
-        for (int i = startIdx; i <= endIdx; i++) {
+        for (int i = startIdx; i < endIdx; i++) {
             File modelFile = modelFileList.remove(startIdx);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
             Pair<Integer, List<BaseModel>> pair = readModelFile(modelFile, modelType, cl, minPaperSize);

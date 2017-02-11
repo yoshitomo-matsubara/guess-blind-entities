@@ -117,8 +117,8 @@ public class StatisticalAnalyzer {
                 + String.valueOf((double)dupRefPaperCount / (double)dupPaperCount));
         System.out.println("# of reference paper IDs / a unique author ID:\t"
                 + String.valueOf((double)dupRefPaperCount / (double)authorIdSet.size()));
-        System.out.println("# of duplicate unique paper IDs:\t" + String.valueOf(dupPaperCount));
-        System.out.println("# of duplicate reference paper IDs:\t" + String.valueOf(dupRefPaperCount));
+        System.out.println("# of paper IDs (including overlapped):\t" + String.valueOf(dupPaperCount));
+        System.out.println("# of reference paper IDs (including overlapped):\t" + String.valueOf(dupRefPaperCount));
     }
 
     private static void analyzeAveMetrics(List<Author> authorList, HashSet<String> authorIdSet,
