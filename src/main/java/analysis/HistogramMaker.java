@@ -35,6 +35,7 @@ public class HistogramMaker {
         MiscUtil.setOption(END_YEAR_OPTION, true, false,
                 "[param, optional] end year, -" + PAPER_FILE_OPTION + " is required", options);
         MiscUtil.setOption(AUTHOR_DIR_OPTION, true, false, "[input, optional] author directory", options);
+        MiscUtil.setOption(Config.TMP_DIR_OPTION, true, false, "[param, optional] temporary directory", options);
         MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output directory", options);
         return options;
     }

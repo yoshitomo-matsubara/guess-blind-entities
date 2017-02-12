@@ -86,4 +86,12 @@ public class MiscUtil {
         }
         return array;
     }
+
+    public static double[] initDoubleArray(int size, double init) {
+        double[] array = new double[size];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = init;
+        }
+        return array;
+    }
 }
