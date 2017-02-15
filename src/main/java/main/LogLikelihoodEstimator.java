@@ -67,7 +67,7 @@ public class LogLikelihoodEstimator {
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
                 for (MultinomialNaiveBayesModel model : modelList) {
-                    double score = model.estimate(paper, true);
+                    double score = Math.exp(model.estimate(paper, true));
                     double totalProb = !totalProbMap.containsKey(paper.id) ? score : score + totalProbMap.get(paper.id);
                     totalProbMap.put(paper.id, totalProb);
                     modelMap.put(model.authorId, model);
@@ -92,9 +92,12 @@ public class LogLikelihoodEstimator {
                 Iterator<String> ite = authorIdSet.iterator();
                 while (ite.hasNext()) {
                     String authorId = ite.next();
-                    if (modelMap.containsKey(authorId)) {
-                        MultinomialNaiveBayesModel model = modelMap.get(authorId);
-                        logLikelihood += Math.log(model.estimate(paper) / totalProbMap.get(paper.id));
+                    if (modelMap.containsKey(authorId) && totalProbMap.containsKey(paper.id)) {
+                        double totalProb = totalProbMap.get(paper.id);
+                        if (totalProb > 0.0d) {
+                            MultinomialNaiveBayesModel model = modelMap.get(authorId);
+                            logLikelihood += model.estimate(paper, true) - Math.log(totalProb);
+                        }
                     }
                 }
             }
