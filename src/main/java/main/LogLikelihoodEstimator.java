@@ -94,7 +94,7 @@ public class LogLikelihoodEstimator {
                     String authorId = ite.next();
                     if (modelMap.containsKey(authorId)) {
                         MultinomialNaiveBayesModel model = modelMap.get(authorId);
-                        logLikelihood += model.estimate(paper) / totalProbMap.get(paper.id);
+                        logLikelihood += Math.log(model.estimate(paper) / totalProbMap.get(paper.id));
                     }
                 }
             }
