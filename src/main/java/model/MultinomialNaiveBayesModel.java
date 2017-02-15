@@ -49,8 +49,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
         this.nonHitLogProb = Math.log(calcProb(0));
     }
 
-    @Override
-    public double estimate(Paper paper) {
+    public double estimate(Paper paper, boolean llMode) {
         double logProb = this.logPa;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
@@ -62,7 +61,16 @@ public class MultinomialNaiveBayesModel extends BaseModel {
                 logProb += this.nonHitLogProb;
             }
         }
+
+        if (llMode) {
+            return logProb;
+        }
         return hitCount > 0 ? Math.exp(logProb) : INVALID_VALUE;
+    }
+
+    @Override
+    public double estimate(Paper paper) {
+        return estimate(paper, false);
     }
 
     public static void setOptions(Options options) {
