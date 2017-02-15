@@ -1,6 +1,5 @@
 package main;
 
-import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import model.MultinomialNaiveBayesModel;
@@ -27,7 +26,6 @@ public class LogLikelihoodEstimator {
         MiscUtil.setOption(MIN_PAPER_SIZE_OPTION, true, false,
                 "[param, optional] minimum number of papers each author requires to have, default = "
                         + String.valueOf(DEFAULT_MIN_PAPER_SIZE), options);
-        MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[output] output dir", options);
         return options;
     }
 
@@ -108,8 +106,7 @@ public class LogLikelihoodEstimator {
         return logLikelihood;
     }
 
-    private static void estimate(String modelDirPath, String testDirPath, CommandLine cl,
-                                 int minPaperSize, String outputDirPath) {
+    private static void estimate(String modelDirPath, String testDirPath, CommandLine cl, int minPaperSize) {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
         Collections.sort(modelFileList);
@@ -136,7 +133,6 @@ public class LogLikelihoodEstimator {
             List<MultinomialNaiveBayesModel> modelList = pair.value;
             modelCount += pair.key;
             availableCount += modelList.size();
-            FileUtil.makeDirIfNotExist(outputDirPath);
             for (File testFile : testFileList) {
                 logLikelihood += calcLogLikelihood(testFile, totalProbMap, modelMap);
             }
@@ -155,7 +151,6 @@ public class LogLikelihoodEstimator {
         String testDirPath = cl.getOptionValue(TEST_DIR_OPTION);
         int minPaperSize = cl.hasOption(MIN_PAPER_SIZE_OPTION) ?
                 Integer.parseInt(cl.getOptionValue(MIN_PAPER_SIZE_OPTION)) : DEFAULT_MIN_PAPER_SIZE;
-        String outputDirPath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
-        estimate(modelDirPath, testDirPath, cl, minPaperSize, outputDirPath);
+        estimate(modelDirPath, testDirPath, cl, minPaperSize);
     }
 }
