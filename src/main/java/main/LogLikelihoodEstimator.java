@@ -3,16 +3,15 @@ package main;
 import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
-import model.BaseModel;
-import model.GeometricMealModel;
 import model.MultinomialNaiveBayesModel;
-import model.NaiveBayesModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import structure.Pair;
 import structure.Paper;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.*;
 
 public class LogLikelihoodEstimator {
@@ -20,8 +19,6 @@ public class LogLikelihoodEstimator {
     private static final String TEST_DIR_OPTION = "test";
     private static final String MIN_PAPER_SIZE_OPTION = "mps";
     private static final int DEFAULT_MIN_PAPER_SIZE = 1;
-    private static final int SUFFIX_SIZE = 3;
-    private static final double ZERO_SCORE = 0.0d;
 
     private static Options getOptions() {
         Options options = new Options();
