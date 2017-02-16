@@ -1,7 +1,7 @@
 package common;
 
 public class Config {
-    public static final String PROJECT_NAME = "Blindness Evaluation";
+    public static final String PROJECT_NAME = "Guess Blind Authors";
     public static final String FIRST_DELIMITER = "\t";
     public static final String SECOND_DELIMITER = "#";
     public static final String KEY_VALUE_DELIMITER = ":";

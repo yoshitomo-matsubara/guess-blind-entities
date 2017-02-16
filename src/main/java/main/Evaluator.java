@@ -16,14 +16,12 @@ import java.util.List;
 
 public class Evaluator {
     private static final String TOP_M_OPTION = "m";
-    private static final String BLIND_PAPER_SIZE_OPTION = "bps";
 
     private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(Config.INPUT_DIR_OPTION, true, true, "[input] input dir", options);
         MiscUtil.setOption(TOP_M_OPTION, true, true,
                 "[param] top M authors in rankings used for evaluation (can be plural, separate with comma)", options);
-        MiscUtil.setOption(BLIND_PAPER_SIZE_OPTION, true, true, "[param] number of blind papers", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
@@ -61,7 +59,7 @@ public class Evaluator {
 
             br.close();
             if (!authorIncluded) {
-                return null;
+                resultList.clear();
             }
         } catch (Exception e) {
             System.err.println("Exception @ readScoreFile");
@@ -125,7 +123,7 @@ public class Evaluator {
         return list;
     }
 
-    private static void evaluate(String inputDirPath, String topMsStr, int blindPaperSize, String outputFilePath) {
+    private static void evaluate(String inputDirPath, String topMsStr, String outputFilePath) {
         try {
             int[] topMs = convertToIntArray(topMsStr);
             FileUtil.makeParentDir(outputFilePath);
@@ -143,6 +141,7 @@ public class Evaluator {
                 inputDirList.add(new File(inputDirPath));
             }
 
+            int blindPaperSize = 0;
             int trueAuthorCount = 0;
             int authorX = 0;
             int overOneAtX = 0;
@@ -155,10 +154,12 @@ public class Evaluator {
                 File inputDir = inputDirList.remove(0);
                 List<File> inputFileList = FileUtil.getFileListR(inputDir.getPath());
                 int fileSize = inputFileList.size();
+                blindPaperSize += fileSize;
                 for (int j = 0; j < fileSize; j++) {
                     File inputFile = inputFileList.remove(0);
                     Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
-                    if (resultPair == null || resultPair.key == null || resultPair.value.size() == 0) {
+                    if (resultPair.value.size() == 0) {
+                        trueAuthorCount += resultPair.key.getAuthorSize();
                         continue;
                     }
 
@@ -239,8 +240,7 @@ public class Evaluator {
         CommandLine cl = MiscUtil.setParams("Evaluator", options, args);
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
         String topMsStr = cl.getOptionValue(TOP_M_OPTION);
-        int blindPaperSize = Integer.parseInt(cl.getOptionValue(BLIND_PAPER_SIZE_OPTION));
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        evaluate(inputDirPath, topMsStr, blindPaperSize, outputFilePath);
+        evaluate(inputDirPath, topMsStr, outputFilePath);
     }
 }
