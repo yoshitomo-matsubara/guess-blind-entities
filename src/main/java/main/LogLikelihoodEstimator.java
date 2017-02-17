@@ -58,14 +58,16 @@ public class LogLikelihoodEstimator {
         return new Pair<>(modelCount, modelList);
     }
 
-    private static void buildMaps(File testFile, List<MultinomialNaiveBayesModel> modelList,
+    private static int buildMaps(File testFile, List<MultinomialNaiveBayesModel> modelList,
                                   HashMap<String, Double> totalProbMap,
                                   HashMap<String, MultinomialNaiveBayesModel> modelMap) {
+        int testPaperCount = 0;
         try {
             BufferedReader br = new BufferedReader(new FileReader(testFile));
             String line;
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
+                testPaperCount++;
                 for (MultinomialNaiveBayesModel model : modelList) {
                     double score = Math.exp(model.estimate(paper, true));
                     double totalProb = !totalProbMap.containsKey(paper.id) ? score : score + totalProbMap.get(paper.id);
@@ -78,6 +80,7 @@ public class LogLikelihoodEstimator {
             System.err.println("Exception @ score");
             e.printStackTrace();
         }
+        return testPaperCount;
     }
 
     private static double calcLogLikelihood(File testFile, HashMap<String, Double> totalProbMap,
@@ -115,6 +118,7 @@ public class LogLikelihoodEstimator {
         Collections.sort(modelFileList);
         HashMap<String, Double> totalProbMap = new HashMap<>();
         HashMap<String, MultinomialNaiveBayesModel> modelMap = new HashMap<>();
+        int testPaperCount = 0;
         int listSize = modelFileList.size();
         for (int i = 0; i < listSize; i++) {
             File modelFile = modelFileList.get(i);
@@ -122,7 +126,7 @@ public class LogLikelihoodEstimator {
             Pair<Integer, List<MultinomialNaiveBayesModel>> pair = readModelFile(modelFile, cl, minPaperSize);
             List<MultinomialNaiveBayesModel> modelList = pair.value;
             for (File testFile : testFileList) {
-                buildMaps(testFile, modelList, totalProbMap, modelMap);
+                testPaperCount += buildMaps(testFile, modelList, totalProbMap, modelMap);
             }
         }
 
@@ -142,6 +146,7 @@ public class LogLikelihoodEstimator {
         }
 
         System.out.println("log-likelihood: " + String.valueOf(logLikelihood));
+        System.out.println("Average log-likelihood: " + String.valueOf(logLikelihood / (double) testPaperCount));
         System.out.println(String.valueOf(availableCount) + " available authors");
         System.out.println(String.valueOf(modelCount - availableCount) + " ignored authors");
     }

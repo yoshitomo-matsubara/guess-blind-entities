@@ -62,6 +62,7 @@ public abstract class BaseModel {
 
     public abstract double estimate(Paper paper);
 
+    @Override
     public String toString() {
         // author ID, # of paper IDs, paper IDs, # of ref IDs, [refID:count], # of citations
         StringBuilder sb = new StringBuilder(this.authorId + Config.FIRST_DELIMITER
