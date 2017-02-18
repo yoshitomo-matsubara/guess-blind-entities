@@ -203,7 +203,8 @@ public class StatisticalAnalyzer {
             }
 
             double overlapped = (double) overlappedIdSet.size() / (double) testAuthorIdSet.size() * 100.0d;
-            System.out.println("% of overlapped authors between training and test datasets: " + String.valueOf(overlapped));
+            System.out.println("% of overlapped authors between training and test datasets: "
+                    + String.valueOf(overlapped) + "%");
         } catch (Exception e) {
             System.err.println("Exception @ analyzeOverlappedAuthor");
             e.printStackTrace();
