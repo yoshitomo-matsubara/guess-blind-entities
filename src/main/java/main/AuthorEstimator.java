@@ -47,7 +47,7 @@ public class AuthorEstimator {
     private static void setModelOptions(Options options) {
         RandomModel.setOptions(options);
         NaiveBayesModel.setOptions(options);
-        MultinomialNaiveBayesModel.setOptions(options);
+        MultiNaiveBayesModel.setOptions(options);
     }
 
     private static BaseModel selectModel(String modelType, String line, CommandLine cl) {
@@ -59,8 +59,8 @@ public class AuthorEstimator {
             return new CountUpModel(line);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
             return new NaiveBayesModel(line, cl);
-        } else if (MultinomialNaiveBayesModel.checkIfValid(modelType, cl)) {
-            return new MultinomialNaiveBayesModel(line, cl);
+        } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
+            return new MultiNaiveBayesModel(line, cl);
         }
         return null;
     }

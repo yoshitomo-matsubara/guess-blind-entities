@@ -2,7 +2,7 @@ package main;
 
 import common.FileUtil;
 import common.MiscUtil;
-import model.MultinomialNaiveBayesModel;
+import model.MultiNaiveBayesModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import structure.Pair;
@@ -30,20 +30,20 @@ public class LogLikelihoodEstimator {
     }
 
     private static void setModelOptions(Options options) {
-        MultinomialNaiveBayesModel.setOptions(options);
+        MultiNaiveBayesModel.setOptions(options);
     }
 
-    public static Pair<Integer, List<MultinomialNaiveBayesModel>> readModelFile(File modelFile,
-                                                                                CommandLine cl, int minPaperSize) {
+    public static Pair<Integer, List<MultiNaiveBayesModel>> readModelFile(File modelFile,
+                                                                          CommandLine cl, int minPaperSize) {
         System.out.println("\tStart:\treading author files");
-        List<MultinomialNaiveBayesModel> modelList = new ArrayList<>();
+        List<MultiNaiveBayesModel> modelList = new ArrayList<>();
         int modelCount = 0;
         try {
             BufferedReader br = new BufferedReader(new FileReader(modelFile));
             String line;
             while ((line = br.readLine()) != null) {
                 modelCount++;
-                MultinomialNaiveBayesModel model = new MultinomialNaiveBayesModel(line, cl);
+                MultiNaiveBayesModel model = new MultiNaiveBayesModel(line, cl);
                 if (model.paperIds.length >= minPaperSize) {
                     modelList.add(model);
                 }
@@ -58,9 +58,9 @@ public class LogLikelihoodEstimator {
         return new Pair<>(modelCount, modelList);
     }
 
-    private static int buildMaps(File testFile, List<MultinomialNaiveBayesModel> modelList,
+    private static int buildMaps(File testFile, List<MultiNaiveBayesModel> modelList,
                                   HashMap<String, Double> totalProbMap,
-                                  HashMap<String, MultinomialNaiveBayesModel> modelMap) {
+                                  HashMap<String, MultiNaiveBayesModel> modelMap) {
         int testPaperCount = 0;
         try {
             BufferedReader br = new BufferedReader(new FileReader(testFile));
@@ -68,7 +68,7 @@ public class LogLikelihoodEstimator {
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
                 testPaperCount++;
-                for (MultinomialNaiveBayesModel model : modelList) {
+                for (MultiNaiveBayesModel model : modelList) {
                     double score = Math.exp(model.estimate(paper, true));
                     double totalProb = !totalProbMap.containsKey(paper.id) ? score : score + totalProbMap.get(paper.id);
                     totalProbMap.put(paper.id, totalProb);
@@ -84,7 +84,7 @@ public class LogLikelihoodEstimator {
     }
 
     private static double calcLogLikelihood(File testFile, HashMap<String, Double> totalProbMap,
-                              HashMap<String, MultinomialNaiveBayesModel> modelMap) {
+                              HashMap<String, MultiNaiveBayesModel> modelMap) {
         double logLikelihood = 0.0d;
         try {
             BufferedReader br = new BufferedReader(new FileReader(testFile));
@@ -98,7 +98,7 @@ public class LogLikelihoodEstimator {
                     if (modelMap.containsKey(authorId) && totalProbMap.containsKey(paper.id)) {
                         double totalProb = totalProbMap.get(paper.id);
                         if (totalProb > 0.0d) {
-                            MultinomialNaiveBayesModel model = modelMap.get(authorId);
+                            MultiNaiveBayesModel model = modelMap.get(authorId);
                             logLikelihood += model.estimate(paper, true) - Math.log(totalProb);
                         }
                     }
@@ -117,14 +117,14 @@ public class LogLikelihoodEstimator {
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
         Collections.sort(modelFileList);
         HashMap<String, Double> totalProbMap = new HashMap<>();
-        HashMap<String, MultinomialNaiveBayesModel> modelMap = new HashMap<>();
+        HashMap<String, MultiNaiveBayesModel> modelMap = new HashMap<>();
         int testPaperCount = 0;
         int listSize = modelFileList.size();
         for (int i = 0; i < listSize; i++) {
             File modelFile = modelFileList.get(i);
             System.out.println("Stage A " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
-            Pair<Integer, List<MultinomialNaiveBayesModel>> pair = readModelFile(modelFile, cl, minPaperSize);
-            List<MultinomialNaiveBayesModel> modelList = pair.value;
+            Pair<Integer, List<MultiNaiveBayesModel>> pair = readModelFile(modelFile, cl, minPaperSize);
+            List<MultiNaiveBayesModel> modelList = pair.value;
             for (File testFile : testFileList) {
                 testPaperCount += buildMaps(testFile, modelList, totalProbMap, modelMap);
             }
@@ -136,8 +136,8 @@ public class LogLikelihoodEstimator {
         for (int i = 0; i < listSize; i++) {
             File modelFile = modelFileList.remove(0);
             System.out.println("Stage B " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
-            Pair<Integer, List<MultinomialNaiveBayesModel>> pair = readModelFile(modelFile, cl, minPaperSize);
-            List<MultinomialNaiveBayesModel> modelList = pair.value;
+            Pair<Integer, List<MultiNaiveBayesModel>> pair = readModelFile(modelFile, cl, minPaperSize);
+            List<MultiNaiveBayesModel> modelList = pair.value;
             modelCount += pair.key;
             availableCount += modelList.size();
             for (File testFile : testFileList) {

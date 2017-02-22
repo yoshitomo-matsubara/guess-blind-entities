@@ -31,7 +31,7 @@ public class ModelBuilder {
 
     private static void setModelOptions(Options options) {
         NaiveBayesModel.setOptions(options);
-        MultinomialNaiveBayesModel.setOptions(options);
+        MultiNaiveBayesModel.setOptions(options);
     }
 
     private static BaseModel selectModel(String modelType, Author author, CommandLine cl) {
@@ -43,8 +43,8 @@ public class ModelBuilder {
             return new CountUpModel(author);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
             return new NaiveBayesModel(author, cl);
-        } else if (MultinomialNaiveBayesModel.checkIfValid(modelType, cl)) {
-            return new MultinomialNaiveBayesModel(author, cl);
+        } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
+            return new MultiNaiveBayesModel(author, cl);
         }
         return null;
     }
