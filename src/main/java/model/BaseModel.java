@@ -56,6 +56,7 @@ public abstract class BaseModel {
                 } else {
                     this.citeCountMap.put(refPaperId, this.citeCountMap.get(refPaperId) + 1);
                 }
+                this.totalCitationCount++;
             }
         }
     }
@@ -73,18 +74,18 @@ public abstract class BaseModel {
         }
 
         sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()) + Config.FIRST_DELIMITER );
-        int sum = 0;
+        boolean first = true;
         for (String refId : this.citeCountMap.keySet()) {
-            if (sum > 0) {
+            if (first) {
                 sb.append(Config.SECOND_DELIMITER);
+                first = false;
             }
 
             int count = this.citeCountMap.get(refId);
-            sum += count;
             sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(count));
         }
 
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(sum));
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalCitationCount));
         return sb.toString();
     }
 }

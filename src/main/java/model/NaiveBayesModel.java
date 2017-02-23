@@ -28,9 +28,6 @@ public class NaiveBayesModel extends BaseModel {
     @Override
     public void train() {
         super.train();
-        for (String refPaperId : this.citeCountMap.keySet()) {
-            this.totalCitationCount += this.citeCountMap.get(refPaperId);
-        }
     }
 
     @Override

@@ -6,27 +6,18 @@ import structure.Paper;
 public class CountUpModel extends BaseModel {
     public static final String TYPE = "cu";
     public static final String NAME = "Count Up Model";
-    private int maxScore;
 
     public CountUpModel(Author author) {
         super(author);
-        this.maxScore = 0;
     }
 
     public CountUpModel(String line) {
         super(line);
-        this.maxScore = 0;
-        for (String refPaperId : this.citeCountMap.keySet()) {
-            this.maxScore += this.citeCountMap.get(refPaperId);
-        }
     }
 
     @Override
     public void train() {
         super.train();
-        for (String refPaperId : this.citeCountMap.keySet()) {
-            this.maxScore += this.citeCountMap.get(refPaperId);
-        }
     }
 
     @Override
@@ -39,7 +30,7 @@ public class CountUpModel extends BaseModel {
                 hitCount++;
             }
         }
-        return hitCount > 0 ? (double) score / (double) this.maxScore : INVALID_VALUE;
+        return hitCount > 0 ? (double) score / (double) this.totalCitationCount : INVALID_VALUE;
     }
 
     public static boolean checkIfValid(String modelType) {
