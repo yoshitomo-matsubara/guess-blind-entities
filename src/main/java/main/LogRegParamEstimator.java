@@ -19,7 +19,7 @@ public class LogRegParamEstimator {
     private static final String BATCH_SIZE_OPTION = "bsize";
     private static final String REGULATION_PARAM_OPTION = "rparam";
     private static final String LEARNING_RATE_OPTION = "lrate";
-    private static final int PARAM_SIZE = 6;
+    private static final int PARAM_SIZE = 9;
     private static final int DEFAULT_EPOCH_SIZE = 100;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
@@ -133,13 +133,29 @@ public class LogRegParamEstimator {
         return copyPaperList;
     }
 
+    private static double[] calcPairValues(CountUpModel model, Paper paper) {
+        int[] counts = model.calcCounts(paper);
+        double countUpScore = (double) counts[0] / (double) model.getTotalCitationCount();
+        double authorRefCoverage = (double) counts[1] / (double) model.getCitationIdSize();
+        double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
+        double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
+        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage};
+    }
+
     private static double[] extractFeatureValues(CountUpModel model, Paper paper) {
         double[] featureValues = new double[PARAM_SIZE];
         featureValues[0] = 1.0d;
-
-
-
-        
+        // author's attributes
+        featureValues[1] = (double) model.paperIds.length;
+        featureValues[2] = (double) model.getCitationIdSize();
+        featureValues[3] = (double) model.getTotalCitationCount();
+        // paper's attribute
+        featureValues[4] = (double) paper.refPaperIds.length;
+        // attributes from a pair of author and paper
+        double[] pairValues = calcPairValues(model, paper);
+        for (int i = 0; i < pairValues.length; i++) {
+            featureValues[i + 5] = pairValues[i];
+        }
         return featureValues;
     }
 
