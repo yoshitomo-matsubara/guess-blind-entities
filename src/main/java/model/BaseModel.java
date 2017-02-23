@@ -61,6 +61,10 @@ public abstract class BaseModel {
         }
     }
 
+    public int getTotalCitationCount() {
+        return this.totalCitationCount;
+    }
+
     public abstract double estimate(Paper paper);
 
     @Override
