@@ -6,7 +6,7 @@ import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
 
-public class MultinomialNaiveBayesModel extends BaseModel {
+public class MultiNaiveBayesModel extends BaseModel {
     public static final String TYPE = "mnb";
     public static final String NAME = "Multinomial Naive Bayes Based Model";
     private static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
@@ -16,7 +16,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
     private final double alpha, logPa;
     private double nonHitLogProb;
 
-    public MultinomialNaiveBayesModel(Author author, CommandLine cl) {
+    public MultiNaiveBayesModel(Author author, CommandLine cl) {
         super(author);
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
         this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_UNIQUE_CITATION_SIZE_OPTION));
@@ -25,7 +25,7 @@ public class MultinomialNaiveBayesModel extends BaseModel {
         this.nonHitLogProb = 0.0d;
     }
 
-    public MultinomialNaiveBayesModel(String line, CommandLine cl) {
+    public MultiNaiveBayesModel(String line, CommandLine cl) {
         super(line);
         this.totalOverlapPaperSize = Integer.parseInt(cl.getOptionValue(TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION));
         this.totalCitationIdSize = Integer.parseInt(cl.getOptionValue(TOTAL_UNIQUE_CITATION_SIZE_OPTION));
@@ -43,9 +43,6 @@ public class MultinomialNaiveBayesModel extends BaseModel {
     @Override
     public void train() {
         super.train();
-        for (String refPaperId : this.citeCountMap.keySet()) {
-            this.totalCitationCount += this.citeCountMap.get(refPaperId);
-        }
         this.nonHitLogProb = Math.log(calcProb(0));
     }
 

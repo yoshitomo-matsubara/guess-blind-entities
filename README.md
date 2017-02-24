@@ -1,4 +1,4 @@
-# Blindness Evaluation
+# Guess blind authors
 My private Maven project for guessing blind authors in a paper from their citation history.  
 
 ## Requirement

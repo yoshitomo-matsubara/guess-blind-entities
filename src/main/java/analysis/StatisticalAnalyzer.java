@@ -11,16 +11,14 @@ import structure.Paper;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 public class StatisticalAnalyzer {
     private static final String PAPERS_FILE_OPTION = "p";
     private static final String AFFILS_FILE_OPTION = "af";
     private static final String REFS_FILE_OPTION = "r";
     private static final String AUTHOR_DIR_OPTION = "au";
+    private static final String TEST_DIROPTION = "test";
     private static final int PAPER_ID_INDEX = 0;
     private static final int AFFIL_ID_INDEX = 1;
     private static final int PAPER_REF_ID_INDEX = 1;
@@ -31,6 +29,7 @@ public class StatisticalAnalyzer {
         MiscUtil.setOption(AFFILS_FILE_OPTION, true, false,
                 "[input, optional] min-PaperAuthorAffiliations file", options);
         MiscUtil.setOption(REFS_FILE_OPTION, true, false, "[input, optional] min-PaperReferences file", options);
+        MiscUtil.setOption(TEST_DIROPTION, true, false, "[input, optional] test dir", options);
         MiscUtil.setOption(AUTHOR_DIR_OPTION, true, false, "[input, optional] author directory", options);
         return options;
     }
@@ -178,17 +177,54 @@ public class StatisticalAnalyzer {
         }
     }
 
-    private static void analyzeAuthors(String authorDirPath) {
+    private static void analyzeOverlappedAuthor(String testDirPath, HashSet<String> trainingAuthorIdSet) {
+        List<File> testFileList = FileUtil.getFileList(testDirPath);
+        HashSet<String> testAuthorIdSet = new HashSet<>();
+        HashSet<String> overlappedIdSet = new HashSet<>();
+        try {
+            for (File testFile : testFileList) {
+                BufferedReader br = new BufferedReader(new FileReader(testFile));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    Paper paper = new Paper(line);
+                    Iterator<String> ite = paper.getAuthorSet().iterator();
+                    while (ite.hasNext()) {
+                        String authorId = ite.next();
+                        if (!testAuthorIdSet.contains(authorId)) {
+                            testAuthorIdSet.add(authorId);
+                        }
+
+                        if (trainingAuthorIdSet.contains(authorId) && !overlappedIdSet.contains(authorId)) {
+                            overlappedIdSet.add(authorId);
+                        }
+                    }
+                }
+                br.close();
+            }
+
+            double overlapped = (double) overlappedIdSet.size() / (double) testAuthorIdSet.size() * 100.0d;
+            System.out.println("% of overlapped authors between training and test datasets: "
+                    + String.valueOf(overlapped) + "%");
+        } catch (Exception e) {
+            System.err.println("Exception @ analyzeOverlappedAuthor");
+            e.printStackTrace();
+        }
+    }
+
+    private static void analyzeAuthors(String authorDirPath, String testDirPath) {
         HashSet<String> authorIdSet = new HashSet<>();
         HashSet<String> paperIdSet = new HashSet<>();
         HashSet<String> refPaperIdSet = new HashSet<>();
         List<Author> authorList = getAuthorList(authorDirPath);
         analyzeBasicMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);
         analyzeAveMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);
+        if (testDirPath != null) {
+            analyzeOverlappedAuthor(testDirPath, authorIdSet);
+        }
     }
 
     private static void analyze(String papersFilePath, String affilsFilePath,
-                                String refsFilePath, String authorDirPath) {
+                                String refsFilePath, String authorDirPath, String testDirPath) {
         if (papersFilePath != null) {
             analyzeMinFile(papersFilePath, PAPER_ID_INDEX, "# of unique paper IDs in " + papersFilePath);
         }
@@ -201,8 +237,8 @@ public class StatisticalAnalyzer {
             analyzeMinListFile(refsFilePath, PAPER_REF_ID_INDEX, "# of unique reference paper IDs in " + refsFilePath);
         }
 
-        if (authorDirPath != null) {
-            analyzeAuthors(authorDirPath);
+        if (authorDirPath != null && testDirPath != null) {
+            analyzeAuthors(authorDirPath, testDirPath);
         }
     }
 
@@ -213,6 +249,7 @@ public class StatisticalAnalyzer {
         String affilsFilePath = cl.hasOption(AFFILS_FILE_OPTION) ? cl.getOptionValue(AFFILS_FILE_OPTION) : null;
         String refsFilePath = cl.hasOption(REFS_FILE_OPTION) ? cl.getOptionValue(REFS_FILE_OPTION) : null;
         String authorDirPath = cl.hasOption(AUTHOR_DIR_OPTION) ? cl.getOptionValue(AUTHOR_DIR_OPTION) : null;
-        analyze(papersFilePath, affilsFilePath, refsFilePath, authorDirPath);
+        String testDirPath = cl.hasOption(TEST_DIROPTION) ? cl.getOptionValue(TEST_DIROPTION) : null;
+        analyze(papersFilePath, affilsFilePath, refsFilePath, authorDirPath, testDirPath);
     }
 }
