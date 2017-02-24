@@ -171,11 +171,16 @@ public class LogRegParamEstimator {
                                          HashMap<String, CountUpModel> modelMap, double regParam, double learnRate) {
         double[] updatedParams = MiscUtil.initDoubleArray(params.length, 0.0d);
         double[] gradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
+        int count = 0;
         while (batchPaperList.size() > 0) {
             Paper paper = batchPaperList.remove(0);
             Iterator<String> ite = paper.getAuthorSet().iterator();
             while (ite.hasNext()) {
                 String authorId = ite.next();
+                if (!modelMap.containsKey(authorId)) {
+                    continue;
+                }
+
                 double denominator = 0.0d;
                 double[] numerators = MiscUtil.initDoubleArray(params.length, 0.0d);
                 for (String trainAuthorId : modelMap.keySet()) {
@@ -191,11 +196,12 @@ public class LogRegParamEstimator {
                 for (int i = 0; i < gradParams.length; i++) {
                     gradParams[i] += featureValues[i] - numerators[i] / denominator;
                 }
+                count++;
             }
         }
 
         for (int i = 0; i < params.length; i++) {
-            gradParams[i] -= 2.0d * regParam * params[i];
+            gradParams[i] = gradParams[i] / (double) count - 2.0d * regParam * params[i];
         }
 
         for (int i = 0; i < params.length; i++) {
