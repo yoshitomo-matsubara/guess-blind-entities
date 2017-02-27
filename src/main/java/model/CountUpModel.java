@@ -20,18 +20,6 @@ public class CountUpModel extends BaseModel {
         super.train();
     }
 
-    public int[] calcCounts(Paper paper) {
-        int score = 0;
-        int hitCount = 0;
-        for (String refPaperId : paper.refPaperIds) {
-            if (this.citeCountMap.containsKey(refPaperId)) {
-                score += this.citeCountMap.get(refPaperId);
-                hitCount++;
-            }
-        }
-        return new int[]{score, hitCount};
-    }
-
     @Override
     public double estimate(Paper paper) {
         int[] counts = calcCounts(paper);
