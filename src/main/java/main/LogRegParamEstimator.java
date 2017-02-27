@@ -4,6 +4,7 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import model.CountUpModel;
+import model.LogisticRegressionModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import structure.Pair;
@@ -20,7 +21,7 @@ public class LogRegParamEstimator {
     private static final String BATCH_SIZE_OPTION = "bsize";
     private static final String REGULATION_PARAM_OPTION = "rparam";
     private static final String LEARNING_RATE_OPTION = "lrate";
-    private static final int PARAM_SIZE = 9;
+    private static final int PARAM_SIZE = LogisticRegressionModel.PARAM_SIZE;
     private static final int OPTION_PARAM_SIZE = 5;
     private static final int DEFAULT_EPOCH_SIZE = 50;
     private static final int DEFAULT_START_IDX_SIZE = 0;
@@ -151,32 +152,6 @@ public class LogRegParamEstimator {
         return copyPaperList;
     }
 
-    private static double[] calcPairValues(CountUpModel model, Paper paper) {
-        int[] counts = model.calcCounts(paper);
-        double countUpScore = (double) counts[0] / (double) model.getTotalCitationCount();
-        double authorRefCoverage = (double) counts[1] / (double) model.getCitationIdSize();
-        double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
-        double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
-        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage};
-    }
-
-    private static double[] extractFeatureValues(CountUpModel model, Paper paper) {
-        double[] featureValues = new double[PARAM_SIZE];
-        featureValues[0] = 1.0d;
-        // author's attributes
-        featureValues[1] = (double) model.paperIds.length;
-        featureValues[2] = (double) model.getCitationIdSize();
-        featureValues[3] = (double) model.getTotalCitationCount();
-        // paper's attribute
-        featureValues[4] = (double) paper.refPaperIds.length;
-        // attributes from a pair of author and paper
-        double[] pairValues = calcPairValues(model, paper);
-        for (int i = 0; i < pairValues.length; i++) {
-            featureValues[i + 5] = pairValues[i];
-        }
-        return featureValues;
-    }
-
     private static double calcInnerProduct(double[] params, double[] featureValues) {
         double ip = 0.0d;
         for (int i = 0; i < params.length; i++) {
@@ -195,7 +170,7 @@ public class LogRegParamEstimator {
             double denominator = 0.0d;
             double[] numerators = MiscUtil.initDoubleArray(params.length, 0.0d);
             for (String trainAuthorId : modelMap.keySet()) {
-                double[] featureValues = extractFeatureValues(modelMap.get(trainAuthorId), paper);
+                double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(trainAuthorId), paper);
                 double ip = calcInnerProduct(params, featureValues);
                 double expVal = Math.exp(ip);
                 denominator += expVal;
@@ -211,7 +186,7 @@ public class LogRegParamEstimator {
                     continue;
                 }
 
-                double[] featureValues = extractFeatureValues(modelMap.get(authorId), paper);
+                double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
                 for (int i = 0; i < gradParams.length; i++) {
                     gradParams[i] += featureValues[i] - numerators[i] / denominator;
                 }

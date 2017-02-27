@@ -48,6 +48,7 @@ public class AuthorEstimator {
         RandomModel.setOptions(options);
         NaiveBayesModel.setOptions(options);
         MultiNaiveBayesModel.setOptions(options);
+        LogisticRegressionModel.setOptions(options);
     }
 
     private static BaseModel selectModel(String modelType, String line, CommandLine cl) {
@@ -61,6 +62,8 @@ public class AuthorEstimator {
             return new NaiveBayesModel(line, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
             return new MultiNaiveBayesModel(line, cl);
+        } else if (LogisticRegressionModel.checkIfValid(modelType, cl)) {
+            return new LogisticRegressionModel(line, cl);
         }
         return null;
     }
