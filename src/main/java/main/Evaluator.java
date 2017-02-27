@@ -168,13 +168,13 @@ public class Evaluator {
                 for (int j = 0; j < fileSize; j++) {
                     File inputFile = inputFileList.remove(0);
                     Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
-                    if (resultPair.value.size() == 0) {
-                        trueAuthorCount += resultPair.key.getAuthorSize();
+                    if (resultPair.second.size() == 0) {
+                        trueAuthorCount += resultPair.first.getAuthorSize();
                         continue;
                     }
 
-                    Paper paper = resultPair.key;
-                    List<Result> resultList = resultPair.value;
+                    Paper paper = resultPair.first;
+                    List<Result> resultList = resultPair.second;
                     String outputLine = evaluate(resultList, topMs, hatThr, paper);
                     bw.write(outputLine);
                     bw.newLine();

@@ -138,8 +138,8 @@ public class AuthorEstimator {
             File modelFile = modelFileList.remove(startIdx);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
             Pair<Integer, List<BaseModel>> pair = readModelFile(modelFile, modelType, cl, minPaperSize);
-            List<BaseModel> modelList = pair.value;
-            modelCount += pair.key;
+            List<BaseModel> modelList = pair.second;
+            modelCount += pair.first;
             availableCount += modelList.size();
             FileUtil.makeDirIfNotExist(outputDirPath);
             boolean first = i == 0;

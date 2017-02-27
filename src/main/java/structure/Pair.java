@@ -1,11 +1,11 @@
 package structure;
 
-public class Pair<K, V> {
-    public final K key;
-    public final V value;
+public class Pair<F, S> {
+    public final F first;
+    public final S second;
 
-    public Pair(K key, V value) {
-        this.key = key;
-        this.value = value;
+    public Pair(F first, S second) {
+        this.first = first;
+        this.second = second;
     }
 }
