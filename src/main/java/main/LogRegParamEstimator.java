@@ -23,7 +23,7 @@ public class LogRegParamEstimator {
     private static final int DEFAULT_EPOCH_SIZE = 100;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
-    private static final double RANDOM_VALUE_RANGE = 1e-100d;
+    private static final double RANDOM_VALUE_RANGE = 1e-10d;
     private static final double DEFAULT_REGULATION_PARAM = 1e-3d;
     private static final double DEFAULT_LEARNING_RATE = 1e-10d;
 
@@ -208,11 +208,14 @@ public class LogRegParamEstimator {
         return updatedParams;
     }
 
-    private static void writeUpdatedParams(double[] params, int epoch, String outputFilePath) {
+    private static void writeUpdatedParams(double[] params, int epoch, int epochSize, int batchSize, double regParam,
+                                           double learnRate, String outputFilePath) {
         try {
             FileUtil.makeParentDir(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
-            bw.write("Epoch\t" + String.valueOf(epoch));
+            bw.write("Epoch\t" + String.valueOf(epoch) + "\tEpoch size\t" + String.valueOf(epochSize)
+                    + "\tBatch size\t" + String.valueOf(batchSize) + "\tRegulation param\t" + String.valueOf(regParam)
+                    + "\tLearning rate\t" + String.valueOf(learnRate));
             bw.newLine();
             for (int i = 0; i < params.length; i++) {
                 bw.write(String.valueOf(params[i]));
@@ -245,7 +248,7 @@ public class LogRegParamEstimator {
                 params = updateParams(params, batchPaperList, modelMap, regParam, learnRate / (double) t);
             }
 
-            writeUpdatedParams(params, i, outputFilePath);
+            writeUpdatedParams(params, i, epochSize, batchSize, regParam, learnRate, outputFilePath);
             System.out.println("\t\tWrote updated parameters");
         }
         System.out.println("End:\testimating parameters");
