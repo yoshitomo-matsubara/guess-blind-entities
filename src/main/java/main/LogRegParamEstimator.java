@@ -23,9 +23,9 @@ public class LogRegParamEstimator {
     private static final int DEFAULT_EPOCH_SIZE = 100;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
-    private static final double RANDOM_VALUE_RANGE = 10.0d;
-    private static final double DEFAULT_REGULATION_PARAM = 0.1;
-    private static final double DEFAULT_LEARNING_RATE = 0.01;
+    private static final double RANDOM_VALUE_RANGE = 1e-100d;
+    private static final double DEFAULT_REGULATION_PARAM = 1e-3d;
+    private static final double DEFAULT_LEARNING_RATE = 1e-10d;
 
     private static Options getOptions() {
         Options options = new Options();
@@ -64,7 +64,7 @@ public class LogRegParamEstimator {
 
     private static double[] initParams(String filePath) {
         File file = new File(filePath);
-        if (file.exists()) {
+        if (file.exists() && file.isFile()) {
             return loadParams(file);
         }
 
@@ -174,22 +174,23 @@ public class LogRegParamEstimator {
         int count = 0;
         while (batchPaperList.size() > 0) {
             Paper paper = batchPaperList.remove(0);
+            double denominator = 0.0d;
+            double[] numerators = MiscUtil.initDoubleArray(params.length, 0.0d);
+            for (String trainAuthorId : modelMap.keySet()) {
+                double[] featureValues = extractFeatureValues(modelMap.get(trainAuthorId), paper);
+                double ip = calcInnerProduct(params, featureValues);
+                double expVal = Math.exp(ip);
+                denominator += expVal;
+                for (int i = 0; i < numerators.length; i++) {
+                    numerators[i] += featureValues[i] * expVal;
+                }
+            }
+
             Iterator<String> ite = paper.getAuthorSet().iterator();
             while (ite.hasNext()) {
                 String authorId = ite.next();
                 if (!modelMap.containsKey(authorId)) {
                     continue;
-                }
-
-                double denominator = 0.0d;
-                double[] numerators = MiscUtil.initDoubleArray(params.length, 0.0d);
-                for (String trainAuthorId : modelMap.keySet()) {
-                    double[] featureValues = extractFeatureValues(modelMap.get(trainAuthorId), paper);
-                    double expVal = Math.exp(calcInnerProduct(params, featureValues));
-                    denominator += expVal;
-                    for (int i = 0; i < numerators.length; i++) {
-                        numerators[i] += featureValues[i] * expVal;
-                    }
                 }
 
                 double[] featureValues = extractFeatureValues(modelMap.get(authorId), paper);
@@ -202,9 +203,6 @@ public class LogRegParamEstimator {
 
         for (int i = 0; i < params.length; i++) {
             gradParams[i] = gradParams[i] / (double) count - 2.0d * regParam * params[i];
-        }
-
-        for (int i = 0; i < params.length; i++) {
             updatedParams[i] = params[i] + learnRate * gradParams[i];
         }
         return updatedParams;
@@ -232,17 +230,19 @@ public class LogRegParamEstimator {
         double[] params = initParams(outputFilePath);
         List<Paper> trainPaperList = readPaperFiles(trainDirPath);
         HashMap<String, CountUpModel> modelMap = readModelFiles(modelDirPath);
+        int t = 0;
         System.out.println("Start:\testimating parameters");
         for (int i = startIdx; i < epochSize; i++) {
             System.out.println("\tEpoch " + String.valueOf(i + 1) + "/" + String.valueOf(epochSize));
             List<Paper> copyTrainPaperList = deepCopyInRandomOrder(trainPaperList);
             while (copyTrainPaperList.size() > 0) {
+                t++;
                 List<Paper> batchPaperList = new ArrayList<>();
                 int size = copyTrainPaperList.size() > batchSize ? batchSize : copyTrainPaperList.size();
                 for (int j = 0; j < size; j++) {
                     batchPaperList.add(copyTrainPaperList.remove(0));
                 }
-                params = updateParams(params, batchPaperList, modelMap, regParam, learnRate);
+                params = updateParams(params, batchPaperList, modelMap, regParam, learnRate / (double) t);
             }
 
             writeUpdatedParams(params, i, outputFilePath);
