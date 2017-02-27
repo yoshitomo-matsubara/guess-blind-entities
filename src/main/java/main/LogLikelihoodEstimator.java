@@ -124,7 +124,7 @@ public class LogLikelihoodEstimator {
             File modelFile = modelFileList.get(i);
             System.out.println("Stage A " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
             Pair<Integer, List<MultiNaiveBayesModel>> pair = readModelFile(modelFile, cl, minPaperSize);
-            List<MultiNaiveBayesModel> modelList = pair.value;
+            List<MultiNaiveBayesModel> modelList = pair.second;
             for (File testFile : testFileList) {
                 testPaperCount += buildMaps(testFile, modelList, totalProbMap, modelMap);
             }
@@ -137,8 +137,8 @@ public class LogLikelihoodEstimator {
             File modelFile = modelFileList.remove(0);
             System.out.println("Stage B " + String.valueOf(i + 1) + "/" + String.valueOf(listSize));
             Pair<Integer, List<MultiNaiveBayesModel>> pair = readModelFile(modelFile, cl, minPaperSize);
-            List<MultiNaiveBayesModel> modelList = pair.value;
-            modelCount += pair.key;
+            List<MultiNaiveBayesModel> modelList = pair.second;
+            modelCount += pair.first;
             availableCount += modelList.size();
             for (File testFile : testFileList) {
                 logLikelihood += calcLogLikelihood(testFile, totalProbMap, modelMap);

@@ -4,8 +4,10 @@ import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
 import model.CountUpModel;
+import model.LogisticRegressionModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
+import structure.Pair;
 import structure.Paper;
 
 import java.io.*;
@@ -19,8 +21,9 @@ public class LogRegParamEstimator {
     private static final String BATCH_SIZE_OPTION = "bsize";
     private static final String REGULATION_PARAM_OPTION = "rparam";
     private static final String LEARNING_RATE_OPTION = "lrate";
-    private static final int PARAM_SIZE = 9;
-    private static final int DEFAULT_EPOCH_SIZE = 100;
+    private static final int PARAM_SIZE = LogisticRegressionModel.PARAM_SIZE;
+    private static final int OPTION_PARAM_SIZE = 5;
+    private static final int DEFAULT_EPOCH_SIZE = 50;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
     private static final double RANDOM_VALUE_RANGE = 1e-10d;
@@ -40,40 +43,56 @@ public class LogRegParamEstimator {
         return options;
     }
 
-    private static double[] loadParams(File file) {
+    private static Pair<List<Double>, List<String>> loadParams(File file) {
         double[] params = new double[PARAM_SIZE];
+        List<Double> paramList = new ArrayList<>();
+        List<String> optionParamList = new ArrayList<>();
+        Pair<List<Double>, List<String>> paramListPair = new Pair<>(paramList, optionParamList);
         try {
             BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            int i = 0;
-            while ((line = br.readLine()) != null) {
-                if (i == 0) {
-                    continue;
-                }
+            String line = br.readLine();
+            String[] optionParams = line.split(Config.FIRST_DELIMITER);
+            for (int i = 1; i < optionParams.length; i += 2) {
+                optionParamList.add(optionParams[i]);
+            }
 
-                params[i - 1] = Double.parseDouble(line);
-                i++;
+            int startIdx = 0;
+            while ((line = br.readLine()) != null) {
+                startIdx++;
+            }
+
+            optionParamList.add(String.valueOf(startIdx));
+            String[] elements = line.split(Config.FIRST_DELIMITER);
+            for (int i = 0; i < params.length; i++) {
+                paramList.add(Double.parseDouble(elements[i]));
             }
             br.close();
         } catch (Exception e) {
             System.err.println("Exception @ loadParams");
             e.printStackTrace();
         }
-        return params;
+        return paramListPair;
     }
 
-    private static double[] initParams(String filePath) {
+    private static void initParams(String filePath, double[] params, String[] optionParams) {
         File file = new File(filePath);
-        if (file.exists() && file.isFile()) {
-            return loadParams(file);
-        }
+        Pair<List<Double>, List<String>> paramListPair = file.exists() && file.isFile()? loadParams(file) : null;
+        if (paramListPair == null) {
+            Random rand = new Random();
+            for (int i = 0; i < params.length; i++) {
+                params[i] = (rand.nextDouble() - 0.5d) * RANDOM_VALUE_RANGE;
+            }
+        } else {
+            List<Double> paramList = paramListPair.first;
+            List<String> optionParamList = paramListPair.second;
+            for (int i = 0; i < params.length; i++) {
+                params[i] = paramList.get(i);
+            }
 
-        double[] params = new double[PARAM_SIZE];
-        Random rand = new Random();
-        for (int i = 0; i < params.length; i++) {
-            params[i] = (rand.nextDouble() - 0.5d) * RANDOM_VALUE_RANGE;
+            for (int i = 0; i < optionParams.length; i++) {
+                optionParams[i] = optionParamList.get(i);
+            }
         }
-        return params;
     }
 
     private static List<Paper> readPaperFiles(String trainDirPath) {
@@ -133,32 +152,6 @@ public class LogRegParamEstimator {
         return copyPaperList;
     }
 
-    private static double[] calcPairValues(CountUpModel model, Paper paper) {
-        int[] counts = model.calcCounts(paper);
-        double countUpScore = (double) counts[0] / (double) model.getTotalCitationCount();
-        double authorRefCoverage = (double) counts[1] / (double) model.getCitationIdSize();
-        double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
-        double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
-        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage};
-    }
-
-    private static double[] extractFeatureValues(CountUpModel model, Paper paper) {
-        double[] featureValues = new double[PARAM_SIZE];
-        featureValues[0] = 1.0d;
-        // author's attributes
-        featureValues[1] = (double) model.paperIds.length;
-        featureValues[2] = (double) model.getCitationIdSize();
-        featureValues[3] = (double) model.getTotalCitationCount();
-        // paper's attribute
-        featureValues[4] = (double) paper.refPaperIds.length;
-        // attributes from a pair of author and paper
-        double[] pairValues = calcPairValues(model, paper);
-        for (int i = 0; i < pairValues.length; i++) {
-            featureValues[i + 5] = pairValues[i];
-        }
-        return featureValues;
-    }
-
     private static double calcInnerProduct(double[] params, double[] featureValues) {
         double ip = 0.0d;
         for (int i = 0; i < params.length; i++) {
@@ -177,7 +170,7 @@ public class LogRegParamEstimator {
             double denominator = 0.0d;
             double[] numerators = MiscUtil.initDoubleArray(params.length, 0.0d);
             for (String trainAuthorId : modelMap.keySet()) {
-                double[] featureValues = extractFeatureValues(modelMap.get(trainAuthorId), paper);
+                double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(trainAuthorId), paper);
                 double ip = calcInnerProduct(params, featureValues);
                 double expVal = Math.exp(ip);
                 denominator += expVal;
@@ -193,7 +186,7 @@ public class LogRegParamEstimator {
                     continue;
                 }
 
-                double[] featureValues = extractFeatureValues(modelMap.get(authorId), paper);
+                double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
                 for (int i = 0; i < gradParams.length; i++) {
                     gradParams[i] += featureValues[i] - numerators[i] / denominator;
                 }
@@ -208,19 +201,27 @@ public class LogRegParamEstimator {
         return updatedParams;
     }
 
-    private static void writeUpdatedParams(double[] params, int epoch, int epochSize, int batchSize, double regParam,
+    private static void writeUpdatedParams(double[] params, int epochSize, int batchSize, double regParam,
                                            double learnRate, String outputFilePath) {
         try {
             FileUtil.makeParentDir(outputFilePath);
-            BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
-            bw.write("Epoch\t" + String.valueOf(epoch) + "\tEpoch size\t" + String.valueOf(epochSize)
-                    + "\tBatch size\t" + String.valueOf(batchSize) + "\tRegulation param\t" + String.valueOf(regParam)
-                    + "\tLearning rate\t" + String.valueOf(learnRate));
-            bw.newLine();
-            for (int i = 0; i < params.length; i++) {
-                bw.write(String.valueOf(params[i]));
+            File outputFile = new File(outputFilePath);
+            boolean appendMode = outputFile.exists();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, appendMode));
+            if (appendMode) {
+                bw.write("Epoch size\t" + String.valueOf(epochSize) + "\tBatch size\t" + String.valueOf(batchSize)
+                        + "\tRegulation param\t" + String.valueOf(regParam)
+                        + "\tLearning rate\t" + String.valueOf(learnRate));
                 bw.newLine();
             }
+
+            StringBuilder sb = new StringBuilder(String.valueOf(params[0]));
+            for (int i = 1; i < params.length; i++) {
+                sb.append(Config.FIRST_DELIMITER + String.valueOf(params[i]));
+            }
+
+            bw.write(sb.toString());
+            bw.newLine();
             bw.close();
         } catch (Exception e) {
             System.err.println("Exception @ writeUpdatedParams");
@@ -228,9 +229,15 @@ public class LogRegParamEstimator {
         }
     }
 
-    private static void estimate(String trainDirPath, String modelDirPath, int epochSize, int startIdx,
-                                 int batchSize, double regParam, double learnRate, String outputFilePath) {
-        double[] params = initParams(outputFilePath);
+    private static void estimate(String trainDirPath, String modelDirPath,
+                                 String[] optionParams, String outputFilePath) {
+        double[] params = new double[PARAM_SIZE];
+        initParams(outputFilePath, params, optionParams);
+        int epochSize = Integer.parseInt(optionParams[0]);
+        int batchSize = Integer.parseInt(optionParams[1]);
+        double regParam = Double.parseDouble(optionParams[2]);
+        double learnRate = Double.parseDouble(optionParams[3]);
+        int startIdx = Integer.parseInt(optionParams[4]);
         List<Paper> trainPaperList = readPaperFiles(trainDirPath);
         HashMap<String, CountUpModel> modelMap = readModelFiles(modelDirPath);
         int t = 0;
@@ -248,7 +255,7 @@ public class LogRegParamEstimator {
                 params = updateParams(params, batchPaperList, modelMap, regParam, learnRate / (double) t);
             }
 
-            writeUpdatedParams(params, i, epochSize, batchSize, regParam, learnRate, outputFilePath);
+            writeUpdatedParams(params, epochSize, batchSize, regParam, learnRate, outputFilePath);
             System.out.println("\t\tWrote updated parameters");
         }
         System.out.println("End:\testimating parameters");
@@ -259,17 +266,18 @@ public class LogRegParamEstimator {
         CommandLine cl = MiscUtil.setParams("LogRegParamEstimator", options, args);
         String trainDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);
         String modelDirPath = cl.getOptionValue(MODEL_DIR_OPTION);
-        int epochSize = cl.hasOption(EPOCH_SIZE_OPTION) ?
-                Integer.parseInt(cl.getOptionValue(EPOCH_SIZE_OPTION)) : DEFAULT_EPOCH_SIZE;
-        int startIdx = cl.hasOption(START_IDX_OPTION) ?
-                Integer.parseInt(cl.getOptionValue(START_IDX_OPTION)) : DEFAULT_START_IDX_SIZE;
-        int batchSize = cl.hasOption(BATCH_SIZE_OPTION) ?
-                Integer.parseInt(cl.getOptionValue(BATCH_SIZE_OPTION)) : DEFAULT_BATCH_SIZE;
-        double regParam = cl.hasOption(REGULATION_PARAM_OPTION) ?
-                Double.parseDouble(cl.getOptionValue(REGULATION_PARAM_OPTION)) : DEFAULT_REGULATION_PARAM;
-        double learnRate = cl.hasOption(LEARNING_RATE_OPTION) ?
-                Double.parseDouble(cl.getOptionValue(LEARNING_RATE_OPTION)) : DEFAULT_LEARNING_RATE;
+        String[] optionParams = new String[OPTION_PARAM_SIZE];
+        optionParams[0] = cl.hasOption(EPOCH_SIZE_OPTION) ?
+                cl.getOptionValue(EPOCH_SIZE_OPTION) : String.valueOf(DEFAULT_EPOCH_SIZE);
+        optionParams[1] = cl.hasOption(BATCH_SIZE_OPTION) ?
+                cl.getOptionValue(BATCH_SIZE_OPTION) : String.valueOf(DEFAULT_BATCH_SIZE);
+        optionParams[2] = cl.hasOption(REGULATION_PARAM_OPTION) ?
+               cl.getOptionValue(REGULATION_PARAM_OPTION) : String.valueOf(DEFAULT_REGULATION_PARAM);
+        optionParams[3] = cl.hasOption(LEARNING_RATE_OPTION) ?
+                cl.getOptionValue(LEARNING_RATE_OPTION) : String.valueOf(DEFAULT_LEARNING_RATE);
+        optionParams[4] = cl.hasOption(START_IDX_OPTION) ?
+                cl.getOptionValue(START_IDX_OPTION) : String.valueOf(DEFAULT_START_IDX_SIZE);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        estimate(trainDirPath, modelDirPath, epochSize, startIdx, batchSize, regParam, learnRate, outputFilePath);
+        estimate(trainDirPath, modelDirPath, optionParams, outputFilePath);
     }
 }

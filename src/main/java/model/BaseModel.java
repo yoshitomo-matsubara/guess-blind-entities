@@ -71,6 +71,18 @@ public abstract class BaseModel {
         return this.totalCitationCount;
     }
 
+    public int[] calcCounts(Paper paper) {
+        int score = 0;
+        int hitCount = 0;
+        for (String refPaperId : paper.refPaperIds) {
+            if (this.citeCountMap.containsKey(refPaperId)) {
+                score += this.citeCountMap.get(refPaperId);
+                hitCount++;
+            }
+        }
+        return new int[]{score, hitCount};
+    }
+
     @Override
     public String toString() {
         // author ID, # of paper IDs, paper IDs, # of ref IDs, [refID:count], # of citations
