@@ -16,12 +16,17 @@ import java.util.List;
 
 public class Evaluator {
     private static final String TOP_M_OPTION = "m";
+    private static final String HAT_OPTION = "hat";
+    private static final int DEFAULT_HAT_THRESHOLD = 1;
 
     private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(Config.INPUT_DIR_OPTION, true, true, "[input] input dir", options);
         MiscUtil.setOption(TOP_M_OPTION, true, true,
                 "[param] top M authors in rankings used for evaluation (can be plural, separate with comma)", options);
+        MiscUtil.setOption(HAT_OPTION, true, false,
+                "[param, optional] HAT (Hit At Least) threshold (default = " + String.valueOf(DEFAULT_HAT_THRESHOLD)
+                        + ")", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
@@ -68,7 +73,11 @@ public class Evaluator {
         return new Pair<>(paper, resultList);
     }
 
-    private static String evaluate(List<Result> resultList, int[] topMs, Paper paper) {
+    private static int calcHat(int count, int threshold) {
+        return count >= threshold ? 1 : 0;
+    }
+
+    private static String evaluate(List<Result> resultList, int[] topMs, int hatThr, Paper paper) {
         Collections.sort(resultList);
         int trueAuthorSize = paper.getAuthorSize();
         int resultSize = resultList.size();
@@ -95,13 +104,13 @@ public class Evaluator {
         }
 
         StringBuilder sb = new StringBuilder();
-        int overOneAtX = authorSizeX > 0 ? 1 : 0;
+        int overOneAtX = calcHat(hatThr, authorSizeX);
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
                 + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
         for (int i = 0; i < authorSizeMs.length; i++) {
-            int overOneAtM = authorSizeMs[i] > 0 ? 1 : 0;
+            int overOneAtM = calcHat(authorSizeMs[i], hatThr);
             double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + String.valueOf(authorSizeMs[i])
                     + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
@@ -123,7 +132,7 @@ public class Evaluator {
         return list;
     }
 
-    private static void evaluate(String inputDirPath, String topMsStr, String outputFilePath) {
+    private static void evaluate(String inputDirPath, String topMsStr, int hatThr, String outputFilePath) {
         try {
             int[] topMs = convertToIntArray(topMsStr);
             FileUtil.makeParentDir(outputFilePath);
@@ -165,7 +174,7 @@ public class Evaluator {
 
                     Paper paper = resultPair.key;
                     List<Result> resultList = resultPair.value;
-                    String outputLine = evaluate(resultList, topMs, paper);
+                    String outputLine = evaluate(resultList, topMs, hatThr, paper);
                     bw.write(outputLine);
                     bw.newLine();
                     List<String> elementList = extractElements(outputLine);
@@ -240,7 +249,8 @@ public class Evaluator {
         CommandLine cl = MiscUtil.setParams("Evaluator", options, args);
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
         String topMsStr = cl.getOptionValue(TOP_M_OPTION);
+        int hatThr = cl.hasOption(HAT_OPTION) ? Integer.parseInt(cl.getOptionValue(HAT_OPTION)) : DEFAULT_HAT_THRESHOLD;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        evaluate(inputDirPath, topMsStr, outputFilePath);
+        evaluate(inputDirPath, topMsStr, hatThr, outputFilePath);
     }
 }
