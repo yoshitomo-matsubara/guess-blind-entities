@@ -27,9 +27,6 @@ public class CountUpModel extends BaseModel {
     }
 
     public static boolean checkIfValid(String modelType) {
-        if (!modelType.equals(TYPE)) {
-            return false;
-        }
-        return true;
+        return modelType.equals(TYPE);
     }
 }
