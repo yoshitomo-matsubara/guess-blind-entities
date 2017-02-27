@@ -138,10 +138,11 @@ public class Evaluator {
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            bw.write("paper ID\ttrue author count\thit author count\tHAL1@X\tRecall@X\t");
+            bw.write("paper ID\ttrue author count\thit author count\tHAL" + String.valueOf(hatThr) + "@X\tRecall@X\t");
             for (int i = 0; i < topMs.length; i++) {
                 String mStr = String.valueOf(topMs[i]);
-                bw.write("\tauthor hit count@" + mStr + "\tHAL1@" + String.valueOf(topMs[i]) + "\tRecall@" + mStr + "\t");
+                bw.write("\tauthor hit count@" + mStr + "\tHAL" + String.valueOf(hatThr) + "@" + mStr
+                        + "\tRecall@" + mStr + "\t");
             }
             
             bw.newLine();
