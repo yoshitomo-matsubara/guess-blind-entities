@@ -14,11 +14,6 @@ public class LogisticRegressionModel extends BaseModel {
     public static final int PARAM_SIZE = 9;
     private double[] params;
 
-    public LogisticRegressionModel(Author author) {
-        super(author);
-        this.params = new double[PARAM_SIZE];
-    }
-
     public LogisticRegressionModel(String line, CommandLine cl) {
         super(line);
         String paramStr = cl.getOptionValue(PARAM_OPTION);
