@@ -33,7 +33,7 @@ public class MinimumExtractor {
     private static final int PREFIX_LENGTH = 2;
     private static final int BUFFER_SIZE = 5000000;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(PAPERS_FILE_OPTION, true, false, "[input, optional] Papers file", options);
         MiscUtil.setOption(AFFILS_FILE_OPTION, true, false, "[input, optional] PaperAuthorAffiliations file", options);
@@ -224,7 +224,7 @@ public class MinimumExtractor {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("MinimumExtractor for KDD Cup 2016 dataset", options, args);
         String papersFilePath = cl.hasOption(PAPERS_FILE_OPTION) ? cl.getOptionValue(PAPERS_FILE_OPTION) : null;
         String affilsFilePath = cl.hasOption(AFFILS_FILE_OPTION) ? cl.getOptionValue(AFFILS_FILE_OPTION) : null;

@@ -19,7 +19,7 @@ public class MinimumMerger {
     private static final int PREFIX_SIZE = 2;
     private static final int BUFFER_SIZE = 5000000;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(PAPERS_FILE_OPTION, true, true, "[input] min-Papers file", options);
         MiscUtil.setOption(AFFILS_FILE_OPTION, true, true, "[input] min-PaperAuthorAffiliations file", options);
@@ -124,7 +124,7 @@ public class MinimumMerger {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("MinimumMerger for KDD Cup 2016 dataset", options, args);
         String papersFilePath = cl.getOptionValue(PAPERS_FILE_OPTION);
         String affilsFilePath = cl.getOptionValue(AFFILS_FILE_OPTION);

@@ -13,7 +13,7 @@ public class BagOfFieldsMaker {
     private static final int VENUE_ID_INDEX = 1;
     private static final int FIELD_ID_INDEX = 2;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(Config.INPUT_FILE_OPTION, true, true, "[input] input file", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
@@ -72,7 +72,7 @@ public class BagOfFieldsMaker {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("BagOfFieldsMaker", options, args);
         String inputFilePath = cl.getOptionValue(Config.INPUT_FILE_OPTION);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
