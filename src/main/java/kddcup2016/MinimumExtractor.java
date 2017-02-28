@@ -171,7 +171,7 @@ public class MinimumExtractor {
     }
 
     private static void extractFromIdListFile(String inputFilePath, String delimiter, int keyIdx, int valueIdx,
-                                           int minIdLength, int minValueSize, String outoutDirPath) {
+                                           int minIdLength, int minValueSize, String outputDirPath) {
         if (inputFilePath == null) {
             return;
         }
@@ -180,7 +180,7 @@ public class MinimumExtractor {
         try {
             File inputFile = new File(inputFilePath);
             HashSet<String> prefixSet = readIdListFile(inputFile, delimiter, keyIdx, valueIdx, minIdLength);
-            File outputFile = new File(outoutDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
+            File outputFile = new File(outputDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
             boolean first = true;
             Iterator<String> ite = prefixSet.iterator();
             while (ite.hasNext()) {
