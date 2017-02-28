@@ -213,14 +213,14 @@ public class MinimumExtractor {
     }
 
     private static void extract(String papersFilePath, String affilsFilePath,
-                                String refsFilePath, String paperKeysFilePath, String outoutDirPath) {
-        extractFromPapersFile(papersFilePath, Config.FIRST_DELIMITER, outoutDirPath);
+                                String refsFilePath, String paperKeysFilePath, String outputDirPath) {
+        extractFromPapersFile(papersFilePath, Config.FIRST_DELIMITER, outputDirPath);
         extractFromIdListFile(affilsFilePath, Config.FIRST_DELIMITER,
-                PAPER_ID_INDEX, AUTHOR_ID_INDEX, ID_MIN_LENGTH, AUTHOR_LIST_MIN_SIZE, outoutDirPath);
+                PAPER_ID_INDEX, AUTHOR_ID_INDEX, ID_MIN_LENGTH, AUTHOR_LIST_MIN_SIZE, outputDirPath);
         extractFromIdListFile(refsFilePath, Config.FIRST_DELIMITER,
-                PAPER_ID_INDEX, PAPER_REF_ID_INDEX, ID_MIN_LENGTH, REF_LIST_MIN_SIZE, outoutDirPath);
+                PAPER_ID_INDEX, PAPER_REF_ID_INDEX, ID_MIN_LENGTH, REF_LIST_MIN_SIZE, outputDirPath);
         extractFromIdListFile(paperKeysFilePath, Config.FIRST_DELIMITER,
-                PAPER_ID_INDEX, FIELD_ID_INDEX, ID_MIN_LENGTH, FIELD_LIST_MIN_SIZE, outoutDirPath);
+                PAPER_ID_INDEX, FIELD_ID_INDEX, ID_MIN_LENGTH, FIELD_LIST_MIN_SIZE, outputDirPath);
     }
 
     public static void main(String[] args) {
