@@ -208,7 +208,7 @@ public class LogRegParamEstimator {
             File outputFile = new File(outputFilePath);
             boolean appendMode = outputFile.exists();
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, appendMode));
-            if (appendMode) {
+            if (!appendMode) {
                 bw.write("Epoch size\t" + String.valueOf(epochSize) + "\tBatch size\t" + String.valueOf(batchSize)
                         + "\tRegulation param\t" + String.valueOf(regParam)
                         + "\tLearning rate\t" + String.valueOf(learnRate));
