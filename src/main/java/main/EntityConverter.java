@@ -58,6 +58,7 @@ public class EntityConverter {
     }
 
     private static void convertPapers(String inputDirPath, HashMap<String, String> affilIdMap, String outputDirPath) {
+        System.out.println("\tStart:\tconverting paper files in " + inputDirPath);
         List<File> inputFileList = FileUtil.getFileList(inputDirPath);
         FileUtil.makeDirIfNotExist(outputDirPath);
         try {
@@ -104,9 +105,11 @@ public class EntityConverter {
             System.err.println("Exception @ convertPapers");
             e.printStackTrace();
         }
+        System.out.println("\tEnd:\tconverting paper files in " + inputDirPath);
     }
 
     private static void distributeAffiliationFiles(String outputTrainDirPath) {
+        System.out.println("\tStart:\tdistributing paper files in " + outputTrainDirPath);
         try {
             HashSet<String> fileNameSet = new HashSet<>();
             HashMap<String, List<String>> paperListMap = new HashMap<>();
@@ -137,6 +140,7 @@ public class EntityConverter {
             System.err.println("Exception @ convertPapers");
             e.printStackTrace();
         }
+        System.out.println("\tEnd:\tdistributing paper files in " + outputTrainDirPath);
     }
 
     private static void convert(String inputTrainDirPath, String inputTestDirPath, String affilsFilePath,
