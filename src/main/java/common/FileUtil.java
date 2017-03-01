@@ -152,6 +152,33 @@ public class FileUtil {
         }
     }
 
+    public static void distributeFiles(HashMap<String, List<String>> hashMap, HashSet<String> fileNameSet,
+                                       boolean subDirMode, int suffixSize, String outputDirPath) {
+        try {
+            for (String key : hashMap.keySet()) {
+                String outputFilePath = subDirMode ?
+                        outputDirPath + "/" + key.substring(key.length() - suffixSize) + "/" + key
+                        : outputDirPath + "/" + key;
+                FileUtil.makeParentDir(outputFilePath);
+                File outputFile = new File(outputFilePath);
+                String outputFileName = outputFile.getName();
+                BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
+                List<String> valueList = hashMap.get(key);
+                for (String value : valueList) {
+                    bw.write(value);
+                    bw.newLine();
+                }
+
+                bw.close();
+                fileNameSet.add(outputFileName);
+            }
+        } catch (Exception e) {
+            System.err.println("Exception @ distributeFiles");
+            e.printStackTrace();
+        }
+        hashMap.clear();
+    }
+
     public static void distributeFiles(HashMap<String, List<String>> hashMap,
                                        HashSet<String> fileNameSet, String tmpFilePrefix, String outputDirPath) {
         try {

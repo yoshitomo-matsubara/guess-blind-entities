@@ -56,33 +56,6 @@ public class PaperSeparator {
         return true;
     }
 
-    private static void distributeFiles(HashMap<String, List<String>> hashMap, HashSet<String> fileNameSet,
-                                        boolean subDirMode, String outputDirPath) {
-        try {
-            for (String key : hashMap.keySet()) {
-                String outputFilePath = subDirMode ?
-                        outputDirPath + "/" + key.substring(key.length() - SUFFIX_SIZE) + "/" + key
-                        : outputDirPath + "/" + key;
-                FileUtil.makeParentDir(outputFilePath);
-                File outputFile = new File(outputFilePath);
-                String outputFileName = outputFile.getName();
-                BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
-                List<String> valueList = hashMap.get(key);
-                for (String value : valueList) {
-                    bw.write(value);
-                    bw.newLine();
-                }
-
-                bw.close();
-                fileNameSet.add(outputFileName);
-            }
-        } catch (Exception e) {
-            System.err.println("Exception @ distributeFiles");
-            e.printStackTrace();
-        }
-        hashMap.clear();
-    }
-
     private static boolean checkIfValidPaper(String[] elements) {
         if (elements.length != PAPER_ELEMENT_SIZE) {
             return false;
@@ -153,7 +126,7 @@ public class PaperSeparator {
                     trainListMapP.get(yearStr).add(line);
                     trainCountP++;
                     if (trainCountP % TRAIN_BUFFER_SIZE == 0) {
-                        distributeFiles(trainListMapP, trainFileNameSetP, false, outputTrainDirPath);
+                        FileUtil.distributeFiles(trainListMapP, trainFileNameSetP, false, SUFFIX_SIZE, outputTrainDirPath);
                     }
 
                     // key: author ID
@@ -166,7 +139,7 @@ public class PaperSeparator {
                         trainListMapA.get(authorId).add(line);
                         trainCountA++;
                         if (trainCountA % TRAIN_BUFFER_SIZE == 0) {
-                            distributeFiles(trainListMapA, trainFileNameSetA, true, outputTrainDirPath);
+                            FileUtil.distributeFiles(trainListMapA, trainFileNameSetA, true, SUFFIX_SIZE, outputTrainDirPath);
                         }
                     }
                 } else if (checkIfValidMode(testMode, testStartYear, testEndYear, year)) {
@@ -182,15 +155,15 @@ public class PaperSeparator {
                     testListMap.get(yearStr).add(line);
                     testCount++;
                     if (testCount % TEST_BUFFER_SIZE == 0) {
-                        distributeFiles(testListMap, testFileNameSet, false, outputTestDirPath);
+                        FileUtil.distributeFiles(testListMap, testFileNameSet, false, SUFFIX_SIZE, outputTestDirPath);
                     }
                 }
             }
 
             br.close();
-            distributeFiles(trainListMapP, trainFileNameSetP, false, outputTrainDirPath);
-            distributeFiles(trainListMapA, trainFileNameSetA, true, outputTrainDirPath);
-            distributeFiles(testListMap, testFileNameSet, false, outputTestDirPath);
+            FileUtil.distributeFiles(trainListMapP, trainFileNameSetP, false, SUFFIX_SIZE, outputTrainDirPath);
+            FileUtil.distributeFiles(trainListMapA, trainFileNameSetA, true, SUFFIX_SIZE, outputTrainDirPath);
+            FileUtil.distributeFiles(testListMap, testFileNameSet, false, SUFFIX_SIZE, outputTestDirPath);
         } catch (Exception e) {
             System.err.println("Exception @ separate");
             e.printStackTrace();
