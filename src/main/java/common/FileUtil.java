@@ -157,6 +157,7 @@ public class FileUtil {
         try {
             for (String initial : hashMap.keySet()) {
                 File outputFile = new File(outputDirPath + "/" + tmpFilePrefix + initial);
+                makeParentDir(outputFile.getPath());
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
                 List<String> valueList = hashMap.get(initial);
