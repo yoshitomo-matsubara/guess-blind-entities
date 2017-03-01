@@ -180,11 +180,7 @@ public class FileUtil {
                                             int bufferSize, String tmpFilePrefix, String outputDirPath) {
         HashSet<String> prefixSet = new HashSet<>();
         try {
-            File outputDir = new File (outputDirPath);
-            if (!outputDir.exists()) {
-                outputDir.mkdir();
-            }
-
+            makeDirIfNotExist(outputDirPath);
             File inputFile = new File(inputFilePath);
             HashMap<String, List<String>> bufferMap = new HashMap<>();
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
