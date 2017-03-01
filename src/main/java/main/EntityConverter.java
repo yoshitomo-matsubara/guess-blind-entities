@@ -56,6 +56,7 @@ public class EntityConverter {
 
     private static void convertPapers(String inputDirPath, HashMap<String, String> affilIdMap, String outputDirPath) {
         List<File> inputFileList = FileUtil.getFileList(inputDirPath);
+        FileUtil.makeDirIfNotExist(outputDirPath);
         try {
             for (File inputFile : inputFileList) {
                 String fileName = inputFile.getName();
