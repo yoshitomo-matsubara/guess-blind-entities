@@ -29,7 +29,7 @@ public class LogRegParamEstimator {
     private static final int DEFAULT_BATCH_SIZE = 5000;
     private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-5d;
     private static final double DEFAULT_REGULATION_PARAM = 1e-3d;
-    private static final double DEFAULT_LEARNING_RATE = 1e-10d;
+    private static final double DEFAULT_LEARNING_RATE = 1e-5d;
 
     private static Options getOptions() {
         Options options = new Options();
@@ -78,7 +78,7 @@ public class LogRegParamEstimator {
 
     private static void initParams(String filePath, double[] params, double randomValueScale, String[] optionParams) {
         File file = new File(filePath);
-        Pair<List<Double>, List<String>> paramListPair = file.exists() && file.isFile()? loadParams(file) : null;
+        Pair<List<Double>, List<String>> paramListPair = file.exists() && file.isFile() ? loadParams(file) : null;
         if (paramListPair == null) {
             Random rand = new Random();
             for (int i = 0; i < params.length; i++) {
