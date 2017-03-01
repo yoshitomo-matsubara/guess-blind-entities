@@ -30,6 +30,7 @@ public class EntityConverter {
     }
 
     private static HashMap<String, String> buildAffiliationIdMap(String affilsFilePath) {
+        System.out.println("\tStart:\treading affiliation file");
         HashMap<String, String> affilIdMap = new HashMap<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(affilsFilePath)));
@@ -47,6 +48,8 @@ public class EntityConverter {
             System.err.println("Exception @ buildAffiliationIdMap");
             e.printStackTrace();
         }
+
+        System.out.println("\tEnd:\treading affiliation file");
         return affilIdMap;
     }
 
