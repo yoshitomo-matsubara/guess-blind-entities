@@ -93,14 +93,14 @@ public abstract class BaseModel {
             sb.append(str);
         }
 
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()) + Config.FIRST_DELIMITER );
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()) + Config.FIRST_DELIMITER);
         boolean first = true;
         for (String refId : this.citeCountMap.keySet()) {
-            if (first) {
+            if (!first) {
                 sb.append(Config.SECOND_DELIMITER);
-                first = false;
             }
 
+            first = false;
             int count = this.citeCountMap.get(refId);
             sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(count));
         }
