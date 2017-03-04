@@ -61,50 +61,6 @@ public class FileUtil {
         return readFile(new File(filePath));
     }
 
-    public static void readFile(File file, String delimiter,
-                                int keyIdx, int valueIdx, HashMap<String, String> hashMap) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] elements = line.split(delimiter);
-                if (!hashMap.containsKey(elements[keyIdx])) {
-                    hashMap.put(elements[keyIdx], elements[valueIdx]);
-                } else {
-                    String orgValue = hashMap.get(elements[keyIdx]);
-                    hashMap.put(elements[keyIdx], orgValue + delimiter + elements[valueIdx]);
-                }
-            }
-            br.close();
-        } catch (Exception e) {
-            System.err.println("Exception @ readFile");
-            e.printStackTrace();
-        }
-    }
-
-    public static HashMap<String, String> readFile(String filePath, String delimiter, int keyIdx, int valueIdx) {
-        HashMap<String, String> hashMap = new HashMap<>();
-        try {
-            File file = new File(filePath);
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] elements = line.split(delimiter);
-                if (!hashMap.containsKey(elements[keyIdx])) {
-                    hashMap.put(elements[keyIdx], elements[valueIdx]);
-                } else {
-                    String orgValue = hashMap.get(elements[keyIdx]);
-                    hashMap.put(elements[keyIdx], orgValue + delimiter + elements[valueIdx]);
-                }
-            }
-            br.close();
-        } catch (Exception e) {
-            System.err.println("Exception @ readFile");
-            e.printStackTrace();
-        }
-        return hashMap;
-    }
-
     public static void makeDirIfNotExist(String dirPath) {
         File dir = new File(dirPath);
         if (!dir.exists()) {
