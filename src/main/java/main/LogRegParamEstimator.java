@@ -27,9 +27,9 @@ public class LogRegParamEstimator {
     private static final int DEFAULT_EPOCH_SIZE = 50;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
-    private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-5d;
-    private static final double DEFAULT_REGULATION_PARAM = 1e-3d;
-    private static final double DEFAULT_LEARNING_RATE = 1e-5d;
+    private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-2d;
+    private static final double DEFAULT_REGULATION_PARAM = 1e-2d;
+    private static final double DEFAULT_LEARNING_RATE = 1e-2d;
 
     private static Options getOptions() {
         Options options = new Options();
