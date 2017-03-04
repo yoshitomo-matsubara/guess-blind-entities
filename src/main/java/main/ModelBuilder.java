@@ -91,7 +91,7 @@ public class ModelBuilder {
             }
             bw.close();
         } catch (Exception e) {
-            System.err.println("Exception @ readAuthorFiles");
+            System.err.println("Exception @ writeModelFile");
             e.printStackTrace();
         }
     }
