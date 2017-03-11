@@ -61,50 +61,6 @@ public class FileUtil {
         return readFile(new File(filePath));
     }
 
-    public static void readFile(File file, String delimiter,
-                                int keyIdx, int valueIdx, HashMap<String, String> hashMap) {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] elements = line.split(delimiter);
-                if (!hashMap.containsKey(elements[keyIdx])) {
-                    hashMap.put(elements[keyIdx], elements[valueIdx]);
-                } else {
-                    String orgValue = hashMap.get(elements[keyIdx]);
-                    hashMap.put(elements[keyIdx], orgValue + delimiter + elements[valueIdx]);
-                }
-            }
-            br.close();
-        } catch (Exception e) {
-            System.err.println("Exception @ readFile");
-            e.printStackTrace();
-        }
-    }
-
-    public static HashMap<String, String> readFile(String filePath, String delimiter, int keyIdx, int valueIdx) {
-        HashMap<String, String> hashMap = new HashMap<>();
-        try {
-            File file = new File(filePath);
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] elements = line.split(delimiter);
-                if (!hashMap.containsKey(elements[keyIdx])) {
-                    hashMap.put(elements[keyIdx], elements[valueIdx]);
-                } else {
-                    String orgValue = hashMap.get(elements[keyIdx]);
-                    hashMap.put(elements[keyIdx], orgValue + delimiter + elements[valueIdx]);
-                }
-            }
-            br.close();
-        } catch (Exception e) {
-            System.err.println("Exception @ readFile");
-            e.printStackTrace();
-        }
-        return hashMap;
-    }
-
     public static void makeDirIfNotExist(String dirPath) {
         File dir = new File(dirPath);
         if (!dir.exists()) {
@@ -152,11 +108,39 @@ public class FileUtil {
         }
     }
 
+    public static void distributeFiles(HashMap<String, List<String>> hashMap, HashSet<String> fileNameSet,
+                                       boolean subDirMode, int suffixSize, String outputDirPath) {
+        try {
+            for (String key : hashMap.keySet()) {
+                String outputFilePath = subDirMode ?
+                        outputDirPath + "/" + key.substring(key.length() - suffixSize) + "/" + key
+                        : outputDirPath + "/" + key;
+                FileUtil.makeParentDir(outputFilePath);
+                File outputFile = new File(outputFilePath);
+                String outputFileName = outputFile.getName();
+                BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
+                List<String> valueList = hashMap.get(key);
+                for (String value : valueList) {
+                    bw.write(value);
+                    bw.newLine();
+                }
+
+                bw.close();
+                fileNameSet.add(outputFileName);
+            }
+        } catch (Exception e) {
+            System.err.println("Exception @ distributeFiles");
+            e.printStackTrace();
+        }
+        hashMap.clear();
+    }
+
     public static void distributeFiles(HashMap<String, List<String>> hashMap,
                                        HashSet<String> fileNameSet, String tmpFilePrefix, String outputDirPath) {
         try {
             for (String initial : hashMap.keySet()) {
                 File outputFile = new File(outputDirPath + "/" + tmpFilePrefix + initial);
+                makeParentDir(outputFile.getPath());
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
                 List<String> valueList = hashMap.get(initial);
@@ -179,11 +163,7 @@ public class FileUtil {
                                             int bufferSize, String tmpFilePrefix, String outputDirPath) {
         HashSet<String> prefixSet = new HashSet<>();
         try {
-            File outputDir = new File (outputDirPath);
-            if (!outputDir.exists()) {
-                outputDir.mkdir();
-            }
-
+            makeDirIfNotExist(outputDirPath);
             File inputFile = new File(inputFilePath);
             HashMap<String, List<String>> bufferMap = new HashMap<>();
             BufferedReader br = new BufferedReader(new FileReader(inputFile));

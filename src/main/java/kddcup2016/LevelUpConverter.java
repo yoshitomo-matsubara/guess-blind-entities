@@ -23,7 +23,7 @@ public class LevelUpConverter {
     private static final int VENUE_ID_INDEX = 0;
     private static final int FOS_LIST_INDEX = 1;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(Config.INPUT_FILE_OPTION, true, true, "[input] input file", options);
         MiscUtil.setOption(FOS_HIERARCHY_FILE_OPTION, true, true, "[input] FieldOfStudyHierarchy file", options);
@@ -146,7 +146,7 @@ public class LevelUpConverter {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("LevelUpConverter for KDD Cup 2016 dataset", options, args);
         String inputFilePath = cl.getOptionValue(Config.INPUT_FILE_OPTION);
         String foshFilePath = cl.getOptionValue(FOS_HIERARCHY_FILE_OPTION);

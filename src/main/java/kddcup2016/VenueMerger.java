@@ -20,7 +20,7 @@ public class VenueMerger {
     private static final int PREFIX_SIZE = 2;
     private static final int BUFFER_SIZE = 5000000;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(PAPERS_FILE_OPTION, true, true, "[input] min-Papers file", options);
         MiscUtil.setOption(PAPER_KEYWORDS_FILE_OPTION, true, true, "[input] min-PaperKeywords file", options);
@@ -121,7 +121,7 @@ public class VenueMerger {
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("VenueMerger for KDD Cup 2016 dataset", options, args);
         String papersFilePath = cl.getOptionValue(PAPERS_FILE_OPTION);
         String paperKeysFilePath = cl.getOptionValue(PAPER_KEYWORDS_FILE_OPTION);

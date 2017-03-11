@@ -10,8 +10,9 @@ import structure.Paper;
 public class LogisticRegressionModel extends BaseModel {
     public static final String TYPE = "lr";
     public static final String NAME = "Logistic Regression Model";
-    private static final String PARAM_OPTION = "param";
     public static final int PARAM_SIZE = 9;
+    private static final String PARAM_OPTION = "param";
+    private static final double LOG_OFFSET = 1.0d;
     private double[] params;
 
     public LogisticRegressionModel(String line, CommandLine cl) {
@@ -50,15 +51,15 @@ public class LogisticRegressionModel extends BaseModel {
         double[] featureValues = new double[PARAM_SIZE];
         featureValues[0] = 1.0d;
         // author's attributes
-        featureValues[1] = (double) model.paperIds.length;
-        featureValues[2] = (double) model.getCitationIdSize();
-        featureValues[3] = (double) model.getTotalCitationCount();
+        featureValues[1] = Math.log((double) model.paperIds.length + LOG_OFFSET);
+        featureValues[2] = Math.log((double) model.getCitationIdSize() + LOG_OFFSET);
+        featureValues[3] = Math.log((double) model.getTotalCitationCount() + LOG_OFFSET);
         // paper's attribute
-        featureValues[4] = (double) paper.refPaperIds.length;
+        featureValues[4] = Math.log((double) paper.refPaperIds.length + LOG_OFFSET);
         // attributes from a pair of author and paper
         double[] pairValues = extractPairValues(model, paper);
         for (int i = 0; i < pairValues.length; i++) {
-            featureValues[i + 5] = pairValues[i];
+            featureValues[i + 5] = Math.log(pairValues[i] + LOG_OFFSET);
         }
         return featureValues;
     }

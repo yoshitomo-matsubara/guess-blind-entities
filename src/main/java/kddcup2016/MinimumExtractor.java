@@ -33,7 +33,7 @@ public class MinimumExtractor {
     private static final int PREFIX_LENGTH = 2;
     private static final int BUFFER_SIZE = 5000000;
 
-    private static Options setOptions() {
+    private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(PAPERS_FILE_OPTION, true, false, "[input, optional] Papers file", options);
         MiscUtil.setOption(AFFILS_FILE_OPTION, true, false, "[input, optional] PaperAuthorAffiliations file", options);
@@ -171,7 +171,7 @@ public class MinimumExtractor {
     }
 
     private static void extractFromIdListFile(String inputFilePath, String delimiter, int keyIdx, int valueIdx,
-                                           int minIdLength, int minValueSize, String outoutDirPath) {
+                                           int minIdLength, int minValueSize, String outputDirPath) {
         if (inputFilePath == null) {
             return;
         }
@@ -180,7 +180,7 @@ public class MinimumExtractor {
         try {
             File inputFile = new File(inputFilePath);
             HashSet<String> prefixSet = readIdListFile(inputFile, delimiter, keyIdx, valueIdx, minIdLength);
-            File outputFile = new File(outoutDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
+            File outputFile = new File(outputDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
             boolean first = true;
             Iterator<String> ite = prefixSet.iterator();
             while (ite.hasNext()) {
@@ -213,18 +213,18 @@ public class MinimumExtractor {
     }
 
     private static void extract(String papersFilePath, String affilsFilePath,
-                                String refsFilePath, String paperKeysFilePath, String outoutDirPath) {
-        extractFromPapersFile(papersFilePath, Config.FIRST_DELIMITER, outoutDirPath);
+                                String refsFilePath, String paperKeysFilePath, String outputDirPath) {
+        extractFromPapersFile(papersFilePath, Config.FIRST_DELIMITER, outputDirPath);
         extractFromIdListFile(affilsFilePath, Config.FIRST_DELIMITER,
-                PAPER_ID_INDEX, AUTHOR_ID_INDEX, ID_MIN_LENGTH, AUTHOR_LIST_MIN_SIZE, outoutDirPath);
+                PAPER_ID_INDEX, AUTHOR_ID_INDEX, ID_MIN_LENGTH, AUTHOR_LIST_MIN_SIZE, outputDirPath);
         extractFromIdListFile(refsFilePath, Config.FIRST_DELIMITER,
-                PAPER_ID_INDEX, PAPER_REF_ID_INDEX, ID_MIN_LENGTH, REF_LIST_MIN_SIZE, outoutDirPath);
+                PAPER_ID_INDEX, PAPER_REF_ID_INDEX, ID_MIN_LENGTH, REF_LIST_MIN_SIZE, outputDirPath);
         extractFromIdListFile(paperKeysFilePath, Config.FIRST_DELIMITER,
-                PAPER_ID_INDEX, FIELD_ID_INDEX, ID_MIN_LENGTH, FIELD_LIST_MIN_SIZE, outoutDirPath);
+                PAPER_ID_INDEX, FIELD_ID_INDEX, ID_MIN_LENGTH, FIELD_LIST_MIN_SIZE, outputDirPath);
     }
 
     public static void main(String[] args) {
-        Options options = setOptions();
+        Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("MinimumExtractor for KDD Cup 2016 dataset", options, args);
         String papersFilePath = cl.hasOption(PAPERS_FILE_OPTION) ? cl.getOptionValue(PAPERS_FILE_OPTION) : null;
         String affilsFilePath = cl.hasOption(AFFILS_FILE_OPTION) ? cl.getOptionValue(AFFILS_FILE_OPTION) : null;

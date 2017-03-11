@@ -104,7 +104,7 @@ public class Evaluator {
         }
 
         StringBuilder sb = new StringBuilder();
-        int overOneAtX = calcHat(hatThr, authorSizeX);
+        int overOneAtX = calcHat(authorSizeX, hatThr);
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)

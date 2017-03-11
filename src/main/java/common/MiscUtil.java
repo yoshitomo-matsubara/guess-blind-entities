@@ -39,6 +39,11 @@ public class MiscUtil {
         CommandLine cl = null;
         try {
             cl = clp.parse(options, args);
+            StringBuilder sb = new StringBuilder("args:");
+            for (int i = 0; i < args.length; i++) {
+                sb.append(" " + args[i]);
+            }
+            System.out.println(sb.toString());
         } catch (ParseException pe) {
             HelpFormatter help = new HelpFormatter();
             help.printHelp(Config.PROJECT_NAME + ": " + className, options, true);

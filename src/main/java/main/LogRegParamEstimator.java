@@ -16,6 +16,7 @@ import java.util.*;
 public class LogRegParamEstimator {
     private static final String TRAIN_DIR_OPTION = "train";
     private static final String MODEL_DIR_OPTION = "model";
+    private static final String RANDOM_VALUE_SCALE_OPTION = "rvscale";
     private static final String EPOCH_SIZE_OPTION = "epoch";
     private static final String START_IDX_OPTION = "sidx";
     private static final String BATCH_SIZE_OPTION = "bsize";
@@ -26,14 +27,15 @@ public class LogRegParamEstimator {
     private static final int DEFAULT_EPOCH_SIZE = 50;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
-    private static final double RANDOM_VALUE_RANGE = 1e-10d;
-    private static final double DEFAULT_REGULATION_PARAM = 1e-3d;
-    private static final double DEFAULT_LEARNING_RATE = 1e-10d;
+    private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-2d;
+    private static final double DEFAULT_REGULATION_PARAM = 1e-2d;
+    private static final double DEFAULT_LEARNING_RATE = 1e-2d;
 
     private static Options getOptions() {
         Options options = new Options();
         MiscUtil.setOption(TRAIN_DIR_OPTION, true, true, "[input] train dir", options);
         MiscUtil.setOption(MODEL_DIR_OPTION, true, true, "[input] model dir", options);
+        MiscUtil.setOption(RANDOM_VALUE_SCALE_OPTION, true, false, "[param, optional] random value scale", options);
         MiscUtil.setOption(EPOCH_SIZE_OPTION, true, false, "[param, optional] epoch size", options);
         MiscUtil.setOption(START_IDX_OPTION, true, false, "[param, optional] start index (epoch)", options);
         MiscUtil.setOption(BATCH_SIZE_OPTION, true, false, "[param, optional] batch size", options);
@@ -74,13 +76,13 @@ public class LogRegParamEstimator {
         return paramListPair;
     }
 
-    private static void initParams(String filePath, double[] params, String[] optionParams) {
+    private static void initParams(String filePath, double[] params, double randomValueScale, String[] optionParams) {
         File file = new File(filePath);
-        Pair<List<Double>, List<String>> paramListPair = file.exists() && file.isFile()? loadParams(file) : null;
+        Pair<List<Double>, List<String>> paramListPair = file.exists() && file.isFile() ? loadParams(file) : null;
         if (paramListPair == null) {
             Random rand = new Random();
             for (int i = 0; i < params.length; i++) {
-                params[i] = (rand.nextDouble() - 0.5d) * RANDOM_VALUE_RANGE;
+                params[i] = (rand.nextDouble() - 0.5d) * randomValueScale;
             }
         } else {
             List<Double> paramList = paramListPair.first;
@@ -208,7 +210,7 @@ public class LogRegParamEstimator {
             File outputFile = new File(outputFilePath);
             boolean appendMode = outputFile.exists();
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, appendMode));
-            if (appendMode) {
+            if (!appendMode) {
                 bw.write("Epoch size\t" + String.valueOf(epochSize) + "\tBatch size\t" + String.valueOf(batchSize)
                         + "\tRegulation param\t" + String.valueOf(regParam)
                         + "\tLearning rate\t" + String.valueOf(learnRate));
@@ -229,10 +231,10 @@ public class LogRegParamEstimator {
         }
     }
 
-    private static void estimate(String trainDirPath, String modelDirPath,
+    private static void estimate(String trainDirPath, String modelDirPath, double randomValueScale,
                                  String[] optionParams, String outputFilePath) {
         double[] params = new double[PARAM_SIZE];
-        initParams(outputFilePath, params, optionParams);
+        initParams(outputFilePath, params, randomValueScale, optionParams);
         int epochSize = Integer.parseInt(optionParams[0]);
         int batchSize = Integer.parseInt(optionParams[1]);
         double regParam = Double.parseDouble(optionParams[2]);
@@ -266,6 +268,8 @@ public class LogRegParamEstimator {
         CommandLine cl = MiscUtil.setParams("LogRegParamEstimator", options, args);
         String trainDirPath = cl.getOptionValue(TRAIN_DIR_OPTION);
         String modelDirPath = cl.getOptionValue(MODEL_DIR_OPTION);
+        double randomValueScale = cl.hasOption(RANDOM_VALUE_SCALE_OPTION) ?
+                Double.parseDouble(cl.getOptionValue(RANDOM_VALUE_SCALE_OPTION)) : DEFAULT_RANDOM_VALUE_SCALE;
         String[] optionParams = new String[OPTION_PARAM_SIZE];
         optionParams[0] = cl.hasOption(EPOCH_SIZE_OPTION) ?
                 cl.getOptionValue(EPOCH_SIZE_OPTION) : String.valueOf(DEFAULT_EPOCH_SIZE);
@@ -278,6 +282,6 @@ public class LogRegParamEstimator {
         optionParams[4] = cl.hasOption(START_IDX_OPTION) ?
                 cl.getOptionValue(START_IDX_OPTION) : String.valueOf(DEFAULT_START_IDX_SIZE);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        estimate(trainDirPath, modelDirPath, optionParams, outputFilePath);
+        estimate(trainDirPath, modelDirPath, randomValueScale, optionParams, outputFilePath);
     }
 }
