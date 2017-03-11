@@ -24,7 +24,7 @@ public class LogRegParamEstimator {
     private static final String REGULATION_PARAM_OPTION = "rparam";
     private static final String LEARNING_RATE_OPTION = "lrate";
     private static final int PARAM_SIZE = LogisticRegressionModel.PARAM_SIZE;
-    private static final int OPTION_PARAM_SIZE = 5;
+    private static final int OPTION_PARAM_SIZE = 6;
     private static final int DEFAULT_EPOCH_SIZE = 50;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
