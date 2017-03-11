@@ -223,8 +223,8 @@ public class LogRegParamEstimator {
         return updatedParams;
     }
 
-    private static void writeUpdatedParams(double[] params, int epochSize, int batchSize, double regParam,
-                                           double learnRate, String outputFilePath) {
+    private static void writeUpdatedParams(double[] params, int epochSize, int batchSize, int negativeSampleSize,
+                                           double regParam, double learnRate, String outputFilePath) {
         try {
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
@@ -232,6 +232,7 @@ public class LogRegParamEstimator {
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, appendMode));
             if (!appendMode) {
                 bw.write("Epoch size\t" + String.valueOf(epochSize) + "\tBatch size\t" + String.valueOf(batchSize)
+                        + "\tNegative sample size\t" + String.valueOf(negativeSampleSize)
                         + "\tRegulation param\t" + String.valueOf(regParam)
                         + "\tLearning rate\t" + String.valueOf(learnRate));
                 bw.newLine();
@@ -281,7 +282,7 @@ public class LogRegParamEstimator {
                         regParam, learnRate / (double) t);
             }
 
-            writeUpdatedParams(params, epochSize, batchSize, regParam, learnRate, outputFilePath);
+            writeUpdatedParams(params, epochSize, batchSize, negativeSampleSize, regParam, learnRate, outputFilePath);
             System.out.println("\t\tWrote updated parameters");
         }
         System.out.println("End:\testimating parameters");
