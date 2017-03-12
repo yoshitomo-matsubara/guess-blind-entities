@@ -198,6 +198,10 @@ public class LogRegParamEstimator {
                 while (sampleCount < negativeSampleSize) {
                     int idx = rand.nextInt(negativeSampleSize);
                     String id = trainAuthorIdList.get(idx);
+                    if (paper.checkIfAuthor(id)) {
+                        continue;
+                    }
+
                     double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(id), paper);
                     double[] subParams = calcDifferentiatedLogLogReg(params, featureValues);
                     for (int i = 0; i < subParams.length; i++) {
