@@ -23,6 +23,7 @@ public class LogRegParamEstimator {
     private static final String NEGATIVE_SAMPLE_SIZE_OPTION = "nssize";
     private static final String REGULATION_PARAM_OPTION = "rparam";
     private static final String LEARNING_RATE_OPTION = "lrate";
+    private static final String THRESHOLD_OPTION = "thr";
     private static final int PARAM_SIZE = LogisticRegressionModel.PARAM_SIZE;
     private static final int OPTION_PARAM_SIZE = 6;
     private static final int DEFAULT_EPOCH_SIZE = 50;
@@ -32,6 +33,7 @@ public class LogRegParamEstimator {
     private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-2d;
     private static final double DEFAULT_REGULATION_PARAM = 1e-2d;
     private static final double DEFAULT_LEARNING_RATE = 1e-2d;
+    private static final double DEFAULT_THRESHOLD = 1e-5d;
 
     private static Options getOptions() {
         Options options = new Options();
@@ -44,6 +46,7 @@ public class LogRegParamEstimator {
         MiscUtil.setOption(NEGATIVE_SAMPLE_SIZE_OPTION, true, false, "[param, optional] negative sample size", options);
         MiscUtil.setOption(REGULATION_PARAM_OPTION, true, false, "[param, optional] regulation parameter", options);
         MiscUtil.setOption(LEARNING_RATE_OPTION, true, false, "[param, optional] learning rate", options);
+        MiscUtil.setOption(THRESHOLD_OPTION, true, false, "[param, optional] convergence threshold", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
@@ -228,7 +231,7 @@ public class LogRegParamEstimator {
     }
 
     private static void writeUpdatedParams(double[] params, int epochSize, int batchSize, int negativeSampleSize,
-                                           double regParam, double learnRate, String outputFilePath) {
+                                           double regParam, double learnRate, double threshold, String outputFilePath) {
         try {
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
@@ -238,7 +241,8 @@ public class LogRegParamEstimator {
                 bw.write("Epoch size\t" + String.valueOf(epochSize) + "\tBatch size\t" + String.valueOf(batchSize)
                         + "\tNegative sample size\t" + String.valueOf(negativeSampleSize)
                         + "\tRegulation param\t" + String.valueOf(regParam)
-                        + "\tLearning rate\t" + String.valueOf(learnRate));
+                        + "\tLearning rate\t" + String.valueOf(learnRate)
+                        + "\tThreshold\t" + String.valueOf(threshold));
                 bw.newLine();
             }
 
@@ -256,16 +260,26 @@ public class LogRegParamEstimator {
         }
     }
 
+    private static boolean checkIfConverged(double[] params, double[] preParams, double threshold) {
+        double norm = 0.0d;
+        for (int i = 0; i < params.length; i++) {
+            norm += Math.pow(params[i] - preParams[i], 2.0d);
+        }
+        return Math.sqrt(norm) < threshold;
+    }
+
     private static void estimate(String trainDirPath, String modelDirPath, double randomValueScale,
                                  String[] optionParams, String outputFilePath) {
         double[] params = new double[PARAM_SIZE];
+        double[] preParams = new double[PARAM_SIZE];
         initParams(outputFilePath, params, randomValueScale, optionParams);
         int epochSize = Integer.parseInt(optionParams[0]);
-        int negativeSampleSize = Integer.parseInt(optionParams[1]);
-        int batchSize = Integer.parseInt(optionParams[2]);
-        double regParam = Double.parseDouble(optionParams[3]);
-        double learnRate = Double.parseDouble(optionParams[4]);
-        int startIdx = Integer.parseInt(optionParams[5]);
+        int startIdx = Integer.parseInt(optionParams[1]);
+        int negativeSampleSize = Integer.parseInt(optionParams[2]);
+        int batchSize = Integer.parseInt(optionParams[3]);
+        double regParam = Double.parseDouble(optionParams[4]);
+        double learnRate = Double.parseDouble(optionParams[5]);
+        double threshold = Double.parseDouble(optionParams[6]);
         List<Paper> trainPaperList = readPaperFiles(trainDirPath);
         Pair<HashMap<String, CountUpModel>, List<String>> pair = readModelFiles(modelDirPath);
         HashMap<String, CountUpModel> modelMap = pair.first;
@@ -275,6 +289,7 @@ public class LogRegParamEstimator {
         for (int i = startIdx; i < epochSize; i++) {
             System.out.println("\tEpoch " + String.valueOf(i + 1) + "/" + String.valueOf(epochSize));
             List<Paper> copyTrainPaperList = deepCopyInRandomOrder(trainPaperList);
+            MiscUtil.deepCopy(params, preParams);
             while (copyTrainPaperList.size() > 0) {
                 t++;
                 List<Paper> batchPaperList = new ArrayList<>();
@@ -286,8 +301,12 @@ public class LogRegParamEstimator {
                         regParam, learnRate / (double) t);
             }
 
-            writeUpdatedParams(params, epochSize, batchSize, negativeSampleSize, regParam, learnRate, outputFilePath);
+            writeUpdatedParams(params, epochSize, batchSize, negativeSampleSize, regParam, learnRate, threshold, outputFilePath);
             System.out.println("\t\tWrote updated parameters");
+            if (checkIfConverged(params, preParams, threshold)) {
+                System.out.println("\t\tConverged");
+                break;
+            }
         }
         System.out.println("End:\testimating parameters");
     }
@@ -302,16 +321,18 @@ public class LogRegParamEstimator {
         String[] optionParams = new String[OPTION_PARAM_SIZE];
         optionParams[0] = cl.hasOption(EPOCH_SIZE_OPTION) ?
                 cl.getOptionValue(EPOCH_SIZE_OPTION) : String.valueOf(DEFAULT_EPOCH_SIZE);
-        optionParams[1] = cl.hasOption(NEGATIVE_SAMPLE_SIZE_OPTION) ?
-                cl.getOptionValue(NEGATIVE_SAMPLE_SIZE_OPTION) : String.valueOf(DEFAULT_NEGATIVE_SAMPLE_SIZE);
-        optionParams[2] = cl.hasOption(BATCH_SIZE_OPTION) ?
-                cl.getOptionValue(BATCH_SIZE_OPTION) : String.valueOf(DEFAULT_BATCH_SIZE);
-        optionParams[3] = cl.hasOption(REGULATION_PARAM_OPTION) ?
-               cl.getOptionValue(REGULATION_PARAM_OPTION) : String.valueOf(DEFAULT_REGULATION_PARAM);
-        optionParams[4] = cl.hasOption(LEARNING_RATE_OPTION) ?
-                cl.getOptionValue(LEARNING_RATE_OPTION) : String.valueOf(DEFAULT_LEARNING_RATE);
-        optionParams[5] = cl.hasOption(START_IDX_OPTION) ?
+        optionParams[1] = cl.hasOption(START_IDX_OPTION) ?
                 cl.getOptionValue(START_IDX_OPTION) : String.valueOf(DEFAULT_START_IDX_SIZE);
+        optionParams[2] = cl.hasOption(NEGATIVE_SAMPLE_SIZE_OPTION) ?
+                cl.getOptionValue(NEGATIVE_SAMPLE_SIZE_OPTION) : String.valueOf(DEFAULT_NEGATIVE_SAMPLE_SIZE);
+        optionParams[3] = cl.hasOption(BATCH_SIZE_OPTION) ?
+                cl.getOptionValue(BATCH_SIZE_OPTION) : String.valueOf(DEFAULT_BATCH_SIZE);
+        optionParams[4] = cl.hasOption(REGULATION_PARAM_OPTION) ?
+               cl.getOptionValue(REGULATION_PARAM_OPTION) : String.valueOf(DEFAULT_REGULATION_PARAM);
+        optionParams[5] = cl.hasOption(LEARNING_RATE_OPTION) ?
+                cl.getOptionValue(LEARNING_RATE_OPTION) : String.valueOf(DEFAULT_LEARNING_RATE);
+        optionParams[6] = cl.hasOption(THRESHOLD_OPTION) ?
+                cl.getOptionValue(THRESHOLD_OPTION) : String.valueOf(DEFAULT_THRESHOLD);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
         estimate(trainDirPath, modelDirPath, randomValueScale, optionParams, outputFilePath);
     }
