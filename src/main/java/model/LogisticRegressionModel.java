@@ -10,9 +10,9 @@ import structure.Paper;
 public class LogisticRegressionModel extends BaseModel {
     public static final String TYPE = "lr";
     public static final String NAME = "Logistic Regression Model";
-    public static final int PARAM_SIZE = 9;
+    public static final int PARAM_SIZE = 10;
     private static final String PARAM_OPTION = "param";
-    private static final double LOG_OFFSET = 1.0d;
+    private static final double SCALING_CONST = 1000.0d;
     private double[] params;
 
     public LogisticRegressionModel(String line, CommandLine cl) {
@@ -44,22 +44,28 @@ public class LogisticRegressionModel extends BaseModel {
         double authorRefCoverage = (double) counts[1] / (double) model.getCitationIdSize();
         double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
         double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
-        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage};
+        int selfCiteCount = 0;
+        for (String refPaperId : paper.refPaperIds) {
+            if (model.checkIfPaper(refPaperId)) {
+                selfCiteCount++;
+            }
+        }
+        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage, selfCiteCount};
     }
 
     public static double[] extractFeatureValues(BaseModel model, Paper paper) {
         double[] featureValues = new double[PARAM_SIZE];
         featureValues[0] = 1.0d;
         // author's attributes
-        featureValues[1] = Math.log((double) model.paperIds.length + LOG_OFFSET);
-        featureValues[2] = Math.log((double) model.getCitationIdSize() + LOG_OFFSET);
-        featureValues[3] = Math.log((double) model.getTotalCitationCount() + LOG_OFFSET);
+        featureValues[1] = (double) model.paperIds.length / SCALING_CONST;
+        featureValues[2] = (double) model.getCitationIdSize() / SCALING_CONST;
+        featureValues[3] = (double) model.getTotalCitationCount() / SCALING_CONST;
         // paper's attribute
-        featureValues[4] = Math.log((double) paper.refPaperIds.length + LOG_OFFSET);
+        featureValues[4] = (double) paper.refPaperIds.length / SCALING_CONST;
         // attributes from a pair of author and paper
         double[] pairValues = extractPairValues(model, paper);
         for (int i = 0; i < pairValues.length; i++) {
-            featureValues[i + 5] = Math.log(pairValues[i] + LOG_OFFSET);
+            featureValues[i + 5] = pairValues[i] / SCALING_CONST;
         }
         return featureValues;
     }
