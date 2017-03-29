@@ -25,12 +25,16 @@ public class LogisticRegressionModel extends BaseModel {
         }
     }
 
-    private double logisticFunction(double[] values) {
+    public static double logisticFunction(double[] values, double[] params) {
         double ip = 0.0d;
         for (int i = 0; i < values.length; i++) {
-            ip += values[i] * this.params[i];
+            ip += values[i] * params[i];
         }
         return 1.0d / (1.0d + Math.exp(-ip));
+    }
+
+    private double logisticFunction(double[] values) {
+        return logisticFunction(values, this.params);
     }
 
     @Override
