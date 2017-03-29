@@ -99,4 +99,10 @@ public class MiscUtil {
         }
         return array;
     }
+
+    public static void deepCopy(double[] inputArray, double[] outputArray) {
+        for (int i = 0; i < outputArray.length; i++) {
+            outputArray[i] = inputArray[i];
+        }
+    }
 }

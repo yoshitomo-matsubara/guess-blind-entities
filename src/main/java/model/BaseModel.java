@@ -5,6 +5,7 @@ import structure.Author;
 import structure.Paper;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public abstract class BaseModel {
     public static final String TYPE = "ab";
@@ -14,6 +15,7 @@ public abstract class BaseModel {
     public final String authorId;
     public final String[] paperIds;
     protected Author author;
+    protected HashSet<String> paperIdSet;
     protected HashMap<String, Integer> citeCountMap;
     protected int totalCitationCount;
 
@@ -21,6 +23,7 @@ public abstract class BaseModel {
         this.authorId = author.id;
         this.author = author;
         this.paperIds = new String[author.papers.length];
+        this.paperIdSet = new HashSet<>();
         for (int i = 0; i < this.paperIds.length; i++) {
             this.paperIds[i] = author.papers[i].id;
         }
@@ -35,8 +38,10 @@ public abstract class BaseModel {
         this.author = null;
         String[] paperIds = elements[2].split(Config.SECOND_DELIMITER);
         this.paperIds = new String[paperIds.length];
+        this.paperIdSet = new HashSet<>();
         for (int i = 0; i < this.paperIds.length; i++) {
             this.paperIds[i] = paperIds[i];
+            this.paperIdSet.add(paperIds[i]);
         }
 
         this.citeCountMap = new HashMap<>();
@@ -62,6 +67,10 @@ public abstract class BaseModel {
     }
 
     public abstract double estimate(Paper paper);
+
+    public boolean checkIfPaper(String paperId) {
+        return this.paperIdSet.contains(paperId);
+    }
 
     public int getCitationIdSize() {
         return this.citeCountMap.size();
