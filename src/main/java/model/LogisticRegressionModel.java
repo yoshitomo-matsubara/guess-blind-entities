@@ -4,13 +4,12 @@ import common.Config;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
-import structure.Author;
 import structure.Paper;
 
 public class LogisticRegressionModel extends BaseModel {
     public static final String TYPE = "lr";
     public static final String NAME = "Logistic Regression Model";
-    public static final int PARAM_SIZE = 10;
+    public static final int PARAM_SIZE = 6;
     private static final String PARAM_OPTION = "param";
     private static final double SCALING_CONST = 1000.0d;
     private double[] params;
@@ -54,22 +53,16 @@ public class LogisticRegressionModel extends BaseModel {
                 selfCiteCount++;
             }
         }
-        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage, selfCiteCount};
+        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage, (double) selfCiteCount};
     }
 
     public static double[] extractFeatureValues(BaseModel model, Paper paper) {
         double[] featureValues = new double[PARAM_SIZE];
         featureValues[0] = 1.0d;
-        // author's attributes
-        featureValues[1] = (double) model.paperIds.length / SCALING_CONST;
-        featureValues[2] = (double) model.getCitationIdSize() / SCALING_CONST;
-        featureValues[3] = (double) model.getTotalCitationCount() / SCALING_CONST;
-        // paper's attribute
-        featureValues[4] = (double) paper.refPaperIds.length / SCALING_CONST;
         // attributes from a pair of author and paper
         double[] pairValues = extractPairValues(model, paper);
         for (int i = 0; i < pairValues.length; i++) {
-            featureValues[i + 5] = pairValues[i] / SCALING_CONST;
+            featureValues[i + 1] = pairValues[i] / SCALING_CONST;
         }
         return featureValues;
     }
@@ -77,7 +70,7 @@ public class LogisticRegressionModel extends BaseModel {
     @Override
     public double estimate(Paper paper) {
         double[] featureValues = extractFeatureValues(this, paper);
-        return logisticFunction(featureValues);
+        return featureValues[2] > 0.0d ? logisticFunction(featureValues) : INVALID_VALUE;
     }
 
     public static void setOptions(Options options) {

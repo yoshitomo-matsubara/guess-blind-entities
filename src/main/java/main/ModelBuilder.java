@@ -49,7 +49,7 @@ public class ModelBuilder {
         return null;
     }
 
-    public static List<BaseModel> readAuthorFiles(List<File> trainingFileList, String modelType,
+    private static List<BaseModel> readAuthorFiles(List<File> trainingFileList, String modelType,
                                                   CommandLine cl, int minPaperSize) {
         System.out.println("\tStart:\treading author files");
         List<BaseModel> modelList = new ArrayList<>();
