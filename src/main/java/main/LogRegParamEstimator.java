@@ -289,7 +289,7 @@ public class LogRegParamEstimator {
                 }
 
                 double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
-                double posLogLikelihood = LogisticRegressionModel.logisticFunction(featureValues, params);
+                double posLogLikelihood = Math.log(LogisticRegressionModel.logisticFunction(featureValues, params));
                 logLikelihood += posLogLikelihood - negLogLikelihood / (double) negativeSampleSize;
                 count++;
             }
