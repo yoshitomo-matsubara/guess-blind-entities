@@ -65,12 +65,14 @@ public class LogRegParamEstimator {
             }
 
             int startIdx = 0;
+            String preLine = null;
             while ((line = br.readLine()) != null) {
+                preLine = line;
                 startIdx++;
             }
 
             optionParamList.add(String.valueOf(startIdx));
-            String[] elements = line.split(Config.FIRST_DELIMITER);
+            String[] elements = preLine.split(Config.FIRST_DELIMITER);
             for (int i = 0; i < params.length; i++) {
                 paramList.add(Double.parseDouble(elements[i]));
             }
