@@ -181,11 +181,10 @@ public class LogRegParamEstimator {
         return values;
     }
 
-    private static double[] updateParams(double[] params, List<Paper> batchPaperList,
+    private static void updateParams(double[] params, List<Paper> batchPaperList,
                                          HashMap<String, CountUpModel> modelMap, List<String> trainAuthorIdList,
                                          int negativeSampleSize, double regParam, double learnRate) {
         double[] gradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
-        double logLikelihood = 0.0d;
         int count = 0;
         Random rand = new Random();
         while (batchPaperList.size() > 0) {
@@ -199,7 +198,6 @@ public class LogRegParamEstimator {
 
                 int sampleCount = 0;
                 double[] negGradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
-                double negLogLikelihood = 0.0d;
                 while (sampleCount < negativeSampleSize) {
                     int idx = rand.nextInt(negativeSampleSize);
                     String id = trainAuthorIdList.get(idx);
@@ -212,8 +210,6 @@ public class LogRegParamEstimator {
                     for (int i = 0; i < subParams.length; i++) {
                         negGradParams[i] += subParams[i];
                     }
-
-                    negLogLikelihood += Math.log(LogisticRegressionModel.logisticFunction(featureValues, params));
                     sampleCount++;
                 }
 
@@ -222,24 +218,14 @@ public class LogRegParamEstimator {
                 for (int i = 0; i < gradParams.length; i++) {
                     gradParams[i] += posGradParams[i] - negGradParams[i] / (double) negativeSampleSize;
                 }
-
-                double posLogLikelihood = LogisticRegressionModel.logisticFunction(featureValues, params);
-                logLikelihood += posLogLikelihood - negLogLikelihood / (double) negativeSampleSize;
                 count++;
             }
         }
 
-        double norm = 0.0d;
-        for (double value : params) {
-            norm += Math.pow(value, 2.0d);
-        }
-
-        logLikelihood -= regParam * norm;
         for (int i = 0; i < params.length; i++) {
             gradParams[i] = gradParams[i] / (double) count - 2.0d * regParam * params[i];
             params[i] -=  learnRate * gradParams[i];
         }
-        return new double[]{logLikelihood, (double) count};
     }
 
     private static void writeUpdatedParams(double[] params, int epochSize, int batchSize, int negativeSampleSize,
