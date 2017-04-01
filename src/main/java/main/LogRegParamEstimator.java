@@ -298,8 +298,8 @@ public class LogRegParamEstimator {
             norm += Math.pow(value, 2.0d);
         }
 
-        logLikelihood -= regParam * norm;
-        System.out.println("\t\tLog-Likelihood: " + String.valueOf(logLikelihood / (double) count));
+        logLikelihood = logLikelihood / (double) count - regParam * norm;
+        System.out.println("\t\tLog-Likelihood: " + String.valueOf(logLikelihood));
     }
 
     private static boolean checkIfConverged(double[] params, double[] preParams, double threshold) {
