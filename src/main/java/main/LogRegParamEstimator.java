@@ -185,6 +185,7 @@ public class LogRegParamEstimator {
                                          HashMap<String, CountUpModel> modelMap, List<String> trainAuthorIdList,
                                          int negativeSampleSize, double regParam, double learnRate) {
         double[] gradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
+        double logLikelihood = 0.0d;
         int count = 0;
         Random rand = new Random();
         while (batchPaperList.size() > 0) {
@@ -197,7 +198,8 @@ public class LogRegParamEstimator {
                 }
 
                 int sampleCount = 0;
-                double[] negParams = MiscUtil.initDoubleArray(params.length, 0.0d);
+                double[] negGradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
+                double negLogLikelihood = 0.0d;
                 while (sampleCount < negativeSampleSize) {
                     int idx = rand.nextInt(negativeSampleSize);
                     String id = trainAuthorIdList.get(idx);
@@ -208,26 +210,36 @@ public class LogRegParamEstimator {
                     double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(id), paper);
                     double[] subParams = calcDifferentiatedLogLogReg(params, featureValues);
                     for (int i = 0; i < subParams.length; i++) {
-                        negParams[i] += subParams[i];
+                        negGradParams[i] += subParams[i];
                     }
+
+                    negLogLikelihood += Math.log(LogisticRegressionModel.logisticFunction(featureValues, params));
                     sampleCount++;
                 }
 
                 double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
-                double[] posParams = calcDifferentiatedLogLogReg(params, featureValues);
+                double[] posGradParams = calcDifferentiatedLogLogReg(params, featureValues);
                 for (int i = 0; i < gradParams.length; i++) {
-                    gradParams[i] += posParams[i] - negParams[i] / (double) negativeSampleSize;
+                    gradParams[i] += posGradParams[i] - negGradParams[i] / (double) negativeSampleSize;
                 }
+
+                double posLogLikelihood = LogisticRegressionModel.logisticFunction(featureValues, params);
+                logLikelihood += posLogLikelihood - negLogLikelihood / (double) negativeSampleSize;
                 count++;
             }
         }
 
-        double[] updatedParams = new double[params.length];
+        double norm = 0.0d;
+        for (double value : params) {
+            norm += Math.pow(value, 2.0d);
+        }
+
+        logLikelihood -= regParam * norm;
         for (int i = 0; i < params.length; i++) {
             gradParams[i] = gradParams[i] / (double) count - 2.0d * regParam * params[i];
-            updatedParams[i] = params[i] + learnRate * gradParams[i];
+            params[i] -=  learnRate * gradParams[i];
         }
-        return updatedParams;
+        return new double[]{logLikelihood, (double) count};
     }
 
     private static void writeUpdatedParams(double[] params, int epochSize, int batchSize, int negativeSampleSize,
@@ -258,6 +270,50 @@ public class LogRegParamEstimator {
             System.err.println("Exception @ writeUpdatedParams");
             e.printStackTrace();
         }
+    }
+
+    private static void showLogLikelihood(double[] params, List<Paper> paperList, HashMap<String, CountUpModel> modelMap,
+                                          List<String> trainAuthorIdList, int negativeSampleSize, double regParam) {
+        double logLikelihood = 0.0d;
+        int count = 0;
+        Random rand = new Random();
+        while (paperList.size() > 0) {
+            Paper paper = paperList.remove(0);
+            Iterator<String> ite = paper.getAuthorSet().iterator();
+            while (ite.hasNext()) {
+                String authorId = ite.next();
+                if (!modelMap.containsKey(authorId)) {
+                    continue;
+                }
+
+                int sampleCount = 0;
+                double negLogLikelihood = 0.0d;
+                while (sampleCount < negativeSampleSize) {
+                    int idx = rand.nextInt(negativeSampleSize);
+                    String id = trainAuthorIdList.get(idx);
+                    if (paper.checkIfAuthor(id)) {
+                        continue;
+                    }
+
+                    double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(id), paper);
+                    negLogLikelihood += Math.log(LogisticRegressionModel.logisticFunction(featureValues, params));
+                    sampleCount++;
+                }
+
+                double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
+                double posLogLikelihood = LogisticRegressionModel.logisticFunction(featureValues, params);
+                logLikelihood += posLogLikelihood - negLogLikelihood / (double) negativeSampleSize;
+                count++;
+            }
+        }
+
+        double norm = 0.0d;
+        for (double value : params) {
+            norm += Math.pow(value, 2.0d);
+        }
+
+        logLikelihood -= regParam * norm;
+        System.out.println("\t\tLog-Likelihood: " + String.valueOf(logLikelihood / (double) count));
     }
 
     private static boolean checkIfConverged(double[] params, double[] preParams, double threshold) {
@@ -297,12 +353,14 @@ public class LogRegParamEstimator {
                 for (int j = 0; j < size; j++) {
                     batchPaperList.add(copyTrainPaperList.remove(0));
                 }
-                params = updateParams(params, batchPaperList, modelMap, trainAuthorIdList, negativeSampleSize,
+                updateParams(params, batchPaperList, modelMap, trainAuthorIdList, negativeSampleSize,
                         regParam, learnRate / (double) t);
             }
 
             writeUpdatedParams(params, epochSize, batchSize, negativeSampleSize, regParam, learnRate, threshold, outputFilePath);
             System.out.println("\t\tWrote updated parameters");
+            copyTrainPaperList = deepCopyInRandomOrder(trainPaperList);
+            showLogLikelihood(params, copyTrainPaperList, modelMap, trainAuthorIdList, negativeSampleSize, regParam);
             if (checkIfConverged(params, preParams, threshold)) {
                 System.out.println("\t\tConverged");
                 break;
