@@ -226,7 +226,7 @@ public class LogRegParamEstimator {
 
         for (int i = 0; i < params.length; i++) {
             gradParams[i] = gradParams[i] / (double) count - 2.0d * regParam * params[i];
-            params[i] -=  learnRate * gradParams[i];
+            params[i] +=  learnRate * gradParams[i];
         }
     }
 
@@ -289,7 +289,7 @@ public class LogRegParamEstimator {
                 }
 
                 double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
-                double posLogLikelihood = LogisticRegressionModel.logisticFunction(featureValues, params);
+                double posLogLikelihood = Math.log(LogisticRegressionModel.logisticFunction(featureValues, params));
                 logLikelihood += posLogLikelihood - negLogLikelihood / (double) negativeSampleSize;
                 count++;
             }
