@@ -320,12 +320,12 @@ public class LogRegParamEstimator {
         double[] preParams = new double[PARAM_SIZE];
         initParams(outputFilePath, params, randomValueScale, optionParams);
         int epochSize = Integer.parseInt(optionParams[0]);
-        int startIdx = Integer.parseInt(optionParams[1]);
+        int batchSize = Integer.parseInt(optionParams[1]);
         int negativeSampleSize = Integer.parseInt(optionParams[2]);
-        int batchSize = Integer.parseInt(optionParams[3]);
-        double regParam = Double.parseDouble(optionParams[4]);
-        double learnRate = Double.parseDouble(optionParams[5]);
-        double threshold = Double.parseDouble(optionParams[6]);
+        double regParam = Double.parseDouble(optionParams[3]);
+        double learnRate = Double.parseDouble(optionParams[4]);
+        double threshold = Double.parseDouble(optionParams[5]);
+        int startIdx = Integer.parseInt(optionParams[6]);
         List<Paper> trainPaperList = readPaperFiles(trainDirPath);
         Pair<HashMap<String, CountUpModel>, List<String>> pair = readModelFiles(modelDirPath);
         HashMap<String, CountUpModel> modelMap = pair.first;
