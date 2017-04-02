@@ -24,6 +24,7 @@ public class LogRegParamEstimator {
     private static final String REGULATION_PARAM_OPTION = "rparam";
     private static final String LEARNING_RATE_OPTION = "lrate";
     private static final String THRESHOLD_OPTION = "thr";
+    private static final String LOG_LIKELIHOOD_OPTION = "ll";
     private static final int PARAM_SIZE = LogisticRegressionModel.PARAM_SIZE;
     private static final int OPTION_PARAM_SIZE = 7;
     private static final int DEFAULT_EPOCH_SIZE = 50;
@@ -47,6 +48,7 @@ public class LogRegParamEstimator {
         MiscUtil.setOption(REGULATION_PARAM_OPTION, true, false, "[param, optional] regulation parameter", options);
         MiscUtil.setOption(LEARNING_RATE_OPTION, true, false, "[param, optional] learning rate", options);
         MiscUtil.setOption(THRESHOLD_OPTION, true, false, "[param, optional] convergence threshold", options);
+        MiscUtil.setOption(LOG_LIKELIHOOD_OPTION, false, false, "[param, optional] log-likelihood print flag", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
@@ -313,17 +315,17 @@ public class LogRegParamEstimator {
     }
 
     private static void estimate(String trainDirPath, String modelDirPath, double randomValueScale,
-                                 String[] optionParams, String outputFilePath) {
+                                 String[] optionParams, boolean llPrintFlag, String outputFilePath) {
         double[] params = new double[PARAM_SIZE];
         double[] preParams = new double[PARAM_SIZE];
         initParams(outputFilePath, params, randomValueScale, optionParams);
         int epochSize = Integer.parseInt(optionParams[0]);
-        int startIdx = Integer.parseInt(optionParams[1]);
+        int batchSize = Integer.parseInt(optionParams[1]);
         int negativeSampleSize = Integer.parseInt(optionParams[2]);
-        int batchSize = Integer.parseInt(optionParams[3]);
-        double regParam = Double.parseDouble(optionParams[4]);
-        double learnRate = Double.parseDouble(optionParams[5]);
-        double threshold = Double.parseDouble(optionParams[6]);
+        double regParam = Double.parseDouble(optionParams[3]);
+        double learnRate = Double.parseDouble(optionParams[4]);
+        double threshold = Double.parseDouble(optionParams[5]);
+        int startIdx = Integer.parseInt(optionParams[6]);
         List<Paper> trainPaperList = readPaperFiles(trainDirPath);
         Pair<HashMap<String, CountUpModel>, List<String>> pair = readModelFiles(modelDirPath);
         HashMap<String, CountUpModel> modelMap = pair.first;
@@ -347,8 +349,11 @@ public class LogRegParamEstimator {
 
             writeUpdatedParams(params, epochSize, batchSize, negativeSampleSize, regParam, learnRate, threshold, outputFilePath);
             System.out.println("\t\tWrote updated parameters");
-            copyTrainPaperList = deepCopyInRandomOrder(trainPaperList);
-            showLogLikelihood(params, copyTrainPaperList, modelMap, trainAuthorIdList, negativeSampleSize, regParam);
+            if (llPrintFlag) {
+                copyTrainPaperList = deepCopyInRandomOrder(trainPaperList);
+                showLogLikelihood(params, copyTrainPaperList, modelMap, trainAuthorIdList, negativeSampleSize, regParam);
+            }
+
             if (checkIfConverged(params, preParams, threshold)) {
                 System.out.println("\t\tConverged");
                 break;
@@ -379,7 +384,8 @@ public class LogRegParamEstimator {
                 cl.getOptionValue(LEARNING_RATE_OPTION) : String.valueOf(DEFAULT_LEARNING_RATE);
         optionParams[6] = cl.hasOption(THRESHOLD_OPTION) ?
                 cl.getOptionValue(THRESHOLD_OPTION) : String.valueOf(DEFAULT_THRESHOLD);
+        boolean llPrintFlag = cl.hasOption(LOG_LIKELIHOOD_OPTION);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        estimate(trainDirPath, modelDirPath, randomValueScale, optionParams, outputFilePath);
+        estimate(trainDirPath, modelDirPath, randomValueScale, optionParams, llPrintFlag, outputFilePath);
     }
 }
