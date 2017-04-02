@@ -226,7 +226,7 @@ public class LogRegParamEstimator {
 
         for (int i = 0; i < params.length; i++) {
             gradParams[i] = gradParams[i] / (double) count - 2.0d * regParam * params[i];
-            params[i] -=  learnRate * gradParams[i];
+            params[i] +=  learnRate * gradParams[i];
         }
     }
 
