@@ -27,14 +27,14 @@ public class LogRegParamEstimator {
     private static final String LOG_LIKELIHOOD_OPTION = "ll";
     private static final int PARAM_SIZE = LogisticRegressionModel.PARAM_SIZE;
     private static final int OPTION_PARAM_SIZE = 7;
-    private static final int DEFAULT_EPOCH_SIZE = 50;
+    private static final int DEFAULT_EPOCH_SIZE = 1000;
     private static final int DEFAULT_START_IDX_SIZE = 0;
     private static final int DEFAULT_BATCH_SIZE = 5000;
     private static final int DEFAULT_NEGATIVE_SAMPLE_SIZE = 100;
-    private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-2d;
-    private static final double DEFAULT_REGULATION_PARAM = 1e-2d;
-    private static final double DEFAULT_LEARNING_RATE = 1e-2d;
-    private static final double DEFAULT_THRESHOLD = 1e-5d;
+    private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-1d;
+    private static final double DEFAULT_REGULATION_PARAM = 1e-1d;
+    private static final double DEFAULT_LEARNING_RATE = 1e-1d;
+    private static final double DEFAULT_THRESHOLD = 1e-4d;
 
     private static Options getOptions() {
         Options options = new Options();
