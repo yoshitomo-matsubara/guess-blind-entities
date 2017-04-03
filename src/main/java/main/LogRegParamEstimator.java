@@ -372,18 +372,18 @@ public class LogRegParamEstimator {
         String[] optionParams = new String[OPTION_PARAM_SIZE];
         optionParams[0] = cl.hasOption(EPOCH_SIZE_OPTION) ?
                 cl.getOptionValue(EPOCH_SIZE_OPTION) : String.valueOf(DEFAULT_EPOCH_SIZE);
-        optionParams[1] = cl.hasOption(START_IDX_OPTION) ?
-                cl.getOptionValue(START_IDX_OPTION) : String.valueOf(DEFAULT_START_IDX_SIZE);
+        optionParams[1] = cl.hasOption(BATCH_SIZE_OPTION) ?
+                cl.getOptionValue(BATCH_SIZE_OPTION) : String.valueOf(DEFAULT_BATCH_SIZE);
         optionParams[2] = cl.hasOption(NEGATIVE_SAMPLE_SIZE_OPTION) ?
                 cl.getOptionValue(NEGATIVE_SAMPLE_SIZE_OPTION) : String.valueOf(DEFAULT_NEGATIVE_SAMPLE_SIZE);
-        optionParams[3] = cl.hasOption(BATCH_SIZE_OPTION) ?
-                cl.getOptionValue(BATCH_SIZE_OPTION) : String.valueOf(DEFAULT_BATCH_SIZE);
-        optionParams[4] = cl.hasOption(REGULATION_PARAM_OPTION) ?
+        optionParams[3] = cl.hasOption(REGULATION_PARAM_OPTION) ?
                cl.getOptionValue(REGULATION_PARAM_OPTION) : String.valueOf(DEFAULT_REGULATION_PARAM);
-        optionParams[5] = cl.hasOption(LEARNING_RATE_OPTION) ?
+        optionParams[4] = cl.hasOption(LEARNING_RATE_OPTION) ?
                 cl.getOptionValue(LEARNING_RATE_OPTION) : String.valueOf(DEFAULT_LEARNING_RATE);
-        optionParams[6] = cl.hasOption(THRESHOLD_OPTION) ?
+        optionParams[5] = cl.hasOption(THRESHOLD_OPTION) ?
                 cl.getOptionValue(THRESHOLD_OPTION) : String.valueOf(DEFAULT_THRESHOLD);
+        optionParams[6] = cl.hasOption(START_IDX_OPTION) ?
+                cl.getOptionValue(START_IDX_OPTION) : String.valueOf(DEFAULT_START_IDX_SIZE);
         boolean llPrintFlag = cl.hasOption(LOG_LIKELIHOOD_OPTION);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
         estimate(trainDirPath, modelDirPath, randomValueScale, optionParams, llPrintFlag, outputFilePath);
