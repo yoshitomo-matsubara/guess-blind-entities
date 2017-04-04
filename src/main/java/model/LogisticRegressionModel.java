@@ -11,7 +11,6 @@ public class LogisticRegressionModel extends BaseModel {
     public static final String NAME = "Logistic Regression Model";
     public static final int PARAM_SIZE = 6;
     private static final String PARAM_OPTION = "param";
-    private static final double SCALING_CONST = 1000.0d;
     private double[] params;
 
     public LogisticRegressionModel(String line, CommandLine cl) {
@@ -62,7 +61,7 @@ public class LogisticRegressionModel extends BaseModel {
         // attributes from a pair of author and paper
         double[] pairValues = extractPairValues(model, paper);
         for (int i = 0; i < pairValues.length; i++) {
-            featureValues[i + 1] = pairValues[i] / SCALING_CONST;
+            featureValues[i + 1] = pairValues[i];
         }
         return featureValues;
     }
