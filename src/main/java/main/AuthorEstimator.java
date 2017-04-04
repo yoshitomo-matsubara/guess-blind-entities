@@ -20,6 +20,7 @@ public class AuthorEstimator {
     private static final String MODEL_TYPE_OPTION = "mt";
     private static final String MIN_PAPER_SIZE_OPTION = "mps";
     private static final int DEFAULT_MIN_PAPER_SIZE = 1;
+    private static final int PRINT_UNIT_SIZE = 1000;
     private static final int SUFFIX_SIZE = 3;
     private static final double ZERO_SCORE = 0.0d;
 
@@ -87,7 +88,9 @@ public class AuthorEstimator {
     }
 
     private static void score(File testFile, List<BaseModel> modelList, String outputDirPath) {
+        System.out.println("\tStart:\tscoring");
         try {
+            int count = 0;
             BufferedReader br = new BufferedReader(new FileReader(testFile));
             String line;
             while ((line = br.readLine()) != null) {
@@ -109,13 +112,19 @@ public class AuthorEstimator {
                         bw.newLine();
                     }
                 }
+
                 bw.close();
+                count++;
+                if (count % PRINT_UNIT_SIZE == 0) {
+                    System.out.println("\t\tscored for " + String.valueOf(count) + " test papers in total");
+                }
             }
             br.close();
         } catch (Exception e) {
             System.err.println("Exception @ score");
             e.printStackTrace();
         }
+        System.out.println("\tEnd:\tscoring");
     }
 
     private static void estimate(String modelDirPath, String testDirPath, String modelType,
