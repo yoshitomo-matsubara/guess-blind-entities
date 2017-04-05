@@ -78,7 +78,7 @@ public class Evaluator {
         return count >= threshold ? 1 : 0;
     }
 
-    private static String evaluate(List<Result> resultList, int[] topMs, int hatThr, Paper paper) {
+    private static String evaluate(List<Result> resultList, int[] topMs, int halThr, Paper paper) {
         Collections.sort(resultList);
         int trueAuthorSize = paper.getAuthorSize();
         int resultSize = resultList.size();
@@ -111,14 +111,14 @@ public class Evaluator {
         }
 
         StringBuilder sb = new StringBuilder();
-        int overOneAtX = calcHal(authorSizeX, hatThr);
+        int overOneAtX = calcHal(authorSizeX, halThr);
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(bestRanking) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER
                 + String.valueOf(overOneAtX) + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
         for (int i = 0; i < authorSizeMs.length; i++) {
-            int overOneAtM = calcHal(authorSizeMs[i], hatThr);
+            int overOneAtM = calcHal(authorSizeMs[i], halThr);
             double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + String.valueOf(authorSizeMs[i])
                     + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
@@ -141,16 +141,16 @@ public class Evaluator {
         return list;
     }
 
-    private static void evaluate(String inputDirPath, String topMsStr, int hatThr, String outputFilePath) {
+    private static void evaluate(String inputDirPath, String topMsStr, int halThr, String outputFilePath) {
         try {
             int[] topMs = convertToIntArray(topMsStr);
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            bw.write("paper ID\ttrue author count\tbest ranking\tauthor hit count\tHAL" + String.valueOf(hatThr) + "@X\tRecall@X\t");
+            bw.write("paper ID\ttrue author count\tbest ranking\tauthor hit count\tHAL" + String.valueOf(halThr) + "@X\tRecall@X\t");
             for (int i = 0; i < topMs.length; i++) {
                 String mStr = String.valueOf(topMs[i]);
-                bw.write("\tauthor hit count@" + mStr + "\tHAL" + String.valueOf(hatThr) + "@" + mStr
+                bw.write("\tauthor hit count@" + mStr + "\tHAL" + String.valueOf(halThr) + "@" + mStr
                         + "\tRecall@" + mStr + "\t");
             }
             
@@ -184,7 +184,7 @@ public class Evaluator {
 
                     Paper paper = resultPair.first;
                     List<Result> resultList = resultPair.second;
-                    String outputLine = evaluate(resultList, topMs, hatThr, paper);
+                    String outputLine = evaluate(resultList, topMs, halThr, paper);
                     bw.write(outputLine);
                     bw.newLine();
                     List<String> elementList = extractElements(outputLine);
@@ -259,8 +259,8 @@ public class Evaluator {
         CommandLine cl = MiscUtil.setParams("Evaluator", options, args);
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
         String topMsStr = cl.getOptionValue(TOP_M_OPTION);
-        int hatThr = cl.hasOption(HAL_OPTION) ? Integer.parseInt(cl.getOptionValue(HAL_OPTION)) : DEFAULT_HAL_THRESHOLD;
+        int halThr = cl.hasOption(HAL_OPTION) ? Integer.parseInt(cl.getOptionValue(HAL_OPTION)) : DEFAULT_HAL_THRESHOLD;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        evaluate(inputDirPath, topMsStr, hatThr, outputFilePath);
+        evaluate(inputDirPath, topMsStr, halThr, outputFilePath);
     }
 }
