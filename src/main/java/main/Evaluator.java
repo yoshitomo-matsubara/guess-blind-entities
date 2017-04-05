@@ -16,8 +16,8 @@ import java.util.List;
 
 public class Evaluator {
     private static final String TOP_M_OPTION = "m";
-    private static final String HAT_OPTION = "hat";
-    private static final int DEFAULT_HAT_THRESHOLD = 1;
+    private static final String HAL_OPTION = "hal";
+    private static final int DEFAULT_HAL_THRESHOLD = 1;
     private static final int INVALID_RANKING = -1;
 
     private static Options getOptions() {
@@ -25,8 +25,8 @@ public class Evaluator {
         MiscUtil.setOption(Config.INPUT_DIR_OPTION, true, true, "[input] input dir", options);
         MiscUtil.setOption(TOP_M_OPTION, true, true,
                 "[param] top M authors in rankings used for evaluation (can be plural, separate with comma)", options);
-        MiscUtil.setOption(HAT_OPTION, true, false,
-                "[param, optional] HAT (Hit At Least) threshold (default = " + String.valueOf(DEFAULT_HAT_THRESHOLD)
+        MiscUtil.setOption(HAL_OPTION, true, false,
+                "[param, optional] HAL (Hit At Least) threshold (default = " + String.valueOf(DEFAULT_HAL_THRESHOLD)
                         + ")", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
@@ -259,7 +259,7 @@ public class Evaluator {
         CommandLine cl = MiscUtil.setParams("Evaluator", options, args);
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
         String topMsStr = cl.getOptionValue(TOP_M_OPTION);
-        int hatThr = cl.hasOption(HAT_OPTION) ? Integer.parseInt(cl.getOptionValue(HAT_OPTION)) : DEFAULT_HAT_THRESHOLD;
+        int hatThr = cl.hasOption(HAL_OPTION) ? Integer.parseInt(cl.getOptionValue(HAL_OPTION)) : DEFAULT_HAL_THRESHOLD;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
         evaluate(inputDirPath, topMsStr, hatThr, outputFilePath);
     }
