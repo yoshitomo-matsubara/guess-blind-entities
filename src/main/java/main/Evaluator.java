@@ -111,17 +111,17 @@ public class Evaluator {
         }
 
         StringBuilder sb = new StringBuilder();
-        int overOneAtX = calcHal(authorSizeX, halThr);
+        int overThrAtX = calcHal(authorSizeX, halThr);
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(bestRanking) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER
-                + String.valueOf(overOneAtX) + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
+                + String.valueOf(overThrAtX) + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
         for (int i = 0; i < authorSizeMs.length; i++) {
-            int overOneAtM = calcHal(authorSizeMs[i], halThr);
+            int overThrAtM = calcHal(authorSizeMs[i], halThr);
             double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + String.valueOf(authorSizeMs[i])
-                    + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
+                    + Config.FIRST_DELIMITER + String.valueOf(overThrAtM)
                     + Config.FIRST_DELIMITER + String.valueOf(recallAtM));
         }
         return sb.toString();
@@ -163,10 +163,10 @@ public class Evaluator {
             int blindPaperSize = 0;
             int trueAuthorCount = 0;
             int authorX = 0;
-            int overOneAtX = 0;
+            int overThrAtX = 0;
             double recallAtX = 0.0d;
             int[] authorMs = MiscUtil.initIntArray(topMs.length, 0);
-            int[] overOneAtMs = MiscUtil.initIntArray(topMs.length, 0);
+            int[] overThrAtMs = MiscUtil.initIntArray(topMs.length, 0);
             double[] recallAtMs = MiscUtil.initDoubleArray(topMs.length, 0.0d);
             int dirSize = inputDirList.size();
             for (int i = 0; i < dirSize; i++) {
@@ -177,25 +177,30 @@ public class Evaluator {
                 for (int j = 0; j < fileSize; j++) {
                     File inputFile = inputFileList.remove(0);
                     Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
-                    if (resultPair.second.size() == 0) {
-                        trueAuthorCount += resultPair.first.getAuthorSize();
+                    Paper paper = resultPair.first;
+                    List<Result> resultList = resultPair.second;
+                    if (paper.getAuthorSize() < halThr || resultList.size() == 0) {
+                        if (paper.getAuthorSize() < halThr) {
+                            blindPaperSize--;
+                        }
+                        if (resultList.size() == 0) {
+                            trueAuthorCount += paper.getAuthorSize();
+                        }
                         continue;
                     }
 
-                    Paper paper = resultPair.first;
-                    List<Result> resultList = resultPair.second;
                     String outputLine = evaluate(resultList, topMs, halThr, paper);
                     bw.write(outputLine);
                     bw.newLine();
                     List<String> elementList = extractElements(outputLine);
                     trueAuthorCount += Integer.parseInt(elementList.remove(0));
                     authorX += Integer.parseInt(elementList.remove(0));
-                    overOneAtX += Integer.parseInt(elementList.remove(0));
+                    overThrAtX += Integer.parseInt(elementList.remove(0));
                     recallAtX += Double.parseDouble(elementList.remove(0));
                     int k = 0;
                     while (elementList.size() > 0) {
                         authorMs[k] += Integer.parseInt(elementList.remove(0));
-                        overOneAtMs[k] += Integer.parseInt(elementList.remove(0));
+                        overThrAtMs[k] += Integer.parseInt(elementList.remove(0));
                         recallAtMs[k] += Double.parseDouble(elementList.remove(0));
                         k++;
                     }
@@ -204,21 +209,21 @@ public class Evaluator {
 
             bw.newLine();
             bw.write(Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER
-                    + "hit author count @ X" + Config.FIRST_DELIMITER
-                    + "HAL1@X" + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
+                    + "hit author count @ X" + Config.FIRST_DELIMITER + "HAL" + String.valueOf(halThr) + "@X"
+                    + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
             for (int i = 0; i < topMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "HAL1@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER
-                        + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
+                        + Config.FIRST_DELIMITER + "HAL" + String.valueOf(halThr) + "@X" + String.valueOf(topMs[i])
+                        + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
             }
 
             bw.newLine();
             bw.write("total" + Config.FIRST_DELIMITER + String.valueOf(trueAuthorCount) + Config.FIRST_DELIMITER
-                    + String.valueOf(authorX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
+                    + String.valueOf(authorX) + Config.FIRST_DELIMITER + String.valueOf(overThrAtX)
                     + Config.FIRST_DELIMITER + String.valueOf(recallAtX) + Config.FIRST_DELIMITER);
             for (int i = 0; i < authorMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + String.valueOf(authorMs[i])
-                        + Config.FIRST_DELIMITER + String.valueOf(overOneAtMs[i]) + Config.FIRST_DELIMITER
+                        + Config.FIRST_DELIMITER + String.valueOf(overThrAtMs[i]) + Config.FIRST_DELIMITER
                         + String.valueOf(recallAtMs[i]) + Config.FIRST_DELIMITER);
             }
 
@@ -226,21 +231,21 @@ public class Evaluator {
             double bps = (double) blindPaperSize;
             bw.write("avg" + Config.FIRST_DELIMITER + String.valueOf((double) trueAuthorCount / bps)
                     + Config.FIRST_DELIMITER + String.valueOf((double) authorX / bps)
-                    + Config.FIRST_DELIMITER + String.valueOf((double) overOneAtX / bps)
+                    + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtX / bps)
                     + Config.FIRST_DELIMITER + String.valueOf(recallAtX / bps) + Config.FIRST_DELIMITER);
             for (int i = 0; i < authorMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + String.valueOf((double) authorMs[i] / bps)
-                        + Config.FIRST_DELIMITER + String.valueOf((double) overOneAtMs[i] / bps)
+                        + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtMs[i] / bps)
                         + Config.FIRST_DELIMITER + String.valueOf(recallAtMs[i] / bps) + Config.FIRST_DELIMITER);
             }
 
             bw.newLine();
             bw.write("metrics" + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
-                    + String.valueOf((double) overOneAtX / bps * 100.0d) + Config.FIRST_DELIMITER
+                    + String.valueOf((double) overThrAtX / bps * 100.0d) + Config.FIRST_DELIMITER
                     + String.valueOf(recallAtX / bps * 100.0d) + Config.FIRST_DELIMITER);
             for (int i = 0; i < authorMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
-                        + String.valueOf((double) overOneAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER
+                        + String.valueOf((double) overThrAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER
                         + String.valueOf(recallAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER);
             }
 
