@@ -18,6 +18,7 @@ public class Evaluator {
     private static final String TOP_M_OPTION = "m";
     private static final String HAT_OPTION = "hat";
     private static final int DEFAULT_HAT_THRESHOLD = 1;
+    private static final int INVALID_RANKING = -1;
 
     private static Options getOptions() {
         Options options = new Options();
@@ -83,23 +84,29 @@ public class Evaluator {
         int resultSize = resultList.size();
         int authorSizeX = 0;
         int[] authorSizeMs = MiscUtil.initIntArray(topMs.length, 0);
-        int size = topMs[topMs.length - 1] > trueAuthorSize ? topMs[topMs.length - 1] : trueAuthorSize;
-        if (resultSize < size) {
-            size = resultSize;
-        }
-
-        for (int i = 0; i < size; i++) {
+        int bestRanking = INVALID_RANKING;
+        for (int i = 0; i < resultSize; i++) {
             Result result = resultList.get(i);
-            if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
-                if (i < trueAuthorSize) {
-                    authorSizeX++;
+            if (paper.checkIfAuthor(result.authorId)) {
+                if (bestRanking == INVALID_RANKING) {
+                    bestRanking = i + 1;
                 }
 
-                for (int j = 0; j < authorSizeMs.length; j++) {
-                    if (i < topMs[j]) {
-                        authorSizeMs[j]++;
+                if (result.score > 0.0d) {
+                    if (i < trueAuthorSize) {
+                        authorSizeX++;
+                    }
+
+                    for (int j = 0; j < authorSizeMs.length; j++) {
+                        if (i < topMs[j]) {
+                            authorSizeMs[j]++;
+                        }
                     }
                 }
+            }
+
+            if (bestRanking > 0 && i >= topMs[topMs.length - 1]) {
+                break;
             }
         }
 
@@ -107,8 +114,9 @@ public class Evaluator {
         int overOneAtX = calcHal(authorSizeX, hatThr);
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
-                + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
-                + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
+                + String.valueOf(bestRanking) + Config.FIRST_DELIMITER
+                + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER
+                + String.valueOf(overOneAtX) + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
         for (int i = 0; i < authorSizeMs.length; i++) {
             int overOneAtM = calcHal(authorSizeMs[i], hatThr);
             double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
@@ -129,6 +137,7 @@ public class Evaluator {
         }
 
         list.remove(0);
+        list.remove(0);
         return list;
     }
 
@@ -138,7 +147,7 @@ public class Evaluator {
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            bw.write("paper ID\ttrue author count\thit author count\tHAL" + String.valueOf(hatThr) + "@X\tRecall@X\t");
+            bw.write("paper ID\ttrue author count\tbest ranking\tauthor hit count\tHAL" + String.valueOf(hatThr) + "@X\tRecall@X\t");
             for (int i = 0; i < topMs.length; i++) {
                 String mStr = String.valueOf(topMs[i]);
                 bw.write("\tauthor hit count@" + mStr + "\tHAL" + String.valueOf(hatThr) + "@" + mStr
