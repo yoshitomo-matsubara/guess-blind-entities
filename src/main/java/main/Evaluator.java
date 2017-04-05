@@ -73,7 +73,7 @@ public class Evaluator {
         return new Pair<>(paper, resultList);
     }
 
-    private static int calcHat(int count, int threshold) {
+    private static int calcHal(int count, int threshold) {
         return count >= threshold ? 1 : 0;
     }
 
@@ -104,13 +104,13 @@ public class Evaluator {
         }
 
         StringBuilder sb = new StringBuilder();
-        int overOneAtX = calcHat(authorSizeX, hatThr);
+        int overOneAtX = calcHal(authorSizeX, hatThr);
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER + String.valueOf(overOneAtX)
                 + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
         for (int i = 0; i < authorSizeMs.length; i++) {
-            int overOneAtM = calcHat(authorSizeMs[i], hatThr);
+            int overOneAtM = calcHal(authorSizeMs[i], hatThr);
             double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + String.valueOf(authorSizeMs[i])
                     + Config.FIRST_DELIMITER + String.valueOf(overOneAtM)
