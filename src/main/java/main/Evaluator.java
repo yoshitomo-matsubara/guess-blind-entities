@@ -88,11 +88,11 @@ public class Evaluator {
         for (int i = 0; i < resultSize; i++) {
             Result result = resultList.get(i);
             if (paper.checkIfAuthor(result.authorId)) {
-                if (bestRanking == INVALID_RANKING) {
-                    bestRanking = i + 1;
-                }
-
                 if (result.score > 0.0d) {
+                    if (bestRanking == INVALID_RANKING) {
+                        bestRanking = i + 1;
+                    }
+
                     if (i < trueAuthorSize) {
                         authorSizeX++;
                     }
@@ -137,7 +137,7 @@ public class Evaluator {
         }
 
         list.remove(0);
-        list.remove(0);
+        list.remove(1);
         return list;
     }
 
@@ -183,6 +183,7 @@ public class Evaluator {
                         if (paper.getAuthorSize() < halThr) {
                             blindPaperSize--;
                         }
+
                         if (resultList.size() == 0) {
                             trueAuthorCount += paper.getAuthorSize();
                         }
