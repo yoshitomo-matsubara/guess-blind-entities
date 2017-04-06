@@ -94,19 +94,18 @@ public class AuthorEstimator {
         return new Pair<>(modelCount, modelList);
     }
 
-    private static void score(File testFile, List<BaseModel> modelList, boolean first, String outputDirPath) {
+    private static void score(List<String> testPaperLineList, List<BaseModel> modelList,
+                              boolean first, String outputDirPath) {
         System.out.println("\tStart:\tscoring");
         try {
             int count = 0;
-            BufferedReader br = new BufferedReader(new FileReader(testFile));
-            String line;
-            while ((line = br.readLine()) != null) {
-                Paper paper = new Paper(line);
+            for (String testPaperLine : testPaperLineList) {
+                Paper paper = new Paper(testPaperLine);
                 String suffix = paper.id.substring(paper.id.length() - SUFFIX_SIZE);
                 File outputFile = new File(outputDirPath + "/" + suffix + "/" + paper.id);
                 FileUtil.makeParentDir(outputFile.getPath());
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
-                bw.write(line);
+                bw.write(testPaperLine);
                 bw.newLine();
                 for (BaseModel model : modelList) {
                     double score = model.estimate(paper);
@@ -126,7 +125,6 @@ public class AuthorEstimator {
                     System.out.println("\t\tscored for " + String.valueOf(count) + " test papers in total");
                 }
             }
-            br.close();
         } catch (Exception e) {
             System.err.println("Exception @ score");
             e.printStackTrace();
@@ -139,6 +137,11 @@ public class AuthorEstimator {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
         Collections.sort(modelFileList);
+        List<String> testPaperLineList = new ArrayList<>();
+        for (File testFile : testFileList) {
+            testPaperLineList.addAll(FileUtil.readFile(testFile));
+        }
+
         int modelCount = 0;
         int availableCount = 0;
         int listSize = modelFileList.size();
@@ -152,9 +155,7 @@ public class AuthorEstimator {
             availableCount += modelList.size();
             FileUtil.makeDirIfNotExist(outputDirPath);
             boolean first = i == 0;
-            for (File testFile : testFileList) {
-                score(testFile, modelList, first, outputDirPath);
-            }
+            score(testPaperLineList, modelList, first, outputDirPath);
         }
 
         System.out.println(String.valueOf(availableCount) + " available authors");
