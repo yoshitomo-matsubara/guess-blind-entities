@@ -96,9 +96,7 @@ public class AuthorEstimator {
 
     private static void score(List<String> testPaperLineList, List<BaseModel> modelList,
                               boolean first, String outputDirPath) {
-        System.out.println("\tStart:\tscoring");
         try {
-            int count = 0;
             for (String testPaperLine : testPaperLineList) {
                 Paper paper = new Paper(testPaperLine);
                 String suffix = paper.id.substring(paper.id.length() - SUFFIX_SIZE);
@@ -120,16 +118,11 @@ public class AuthorEstimator {
                 }
 
                 bw.close();
-                count++;
-                if (count % PRINT_UNIT_SIZE == 0) {
-                    System.out.println("\t\tscored for " + String.valueOf(count) + " test papers in total");
-                }
             }
         } catch (Exception e) {
             System.err.println("Exception @ score");
             e.printStackTrace();
         }
-        System.out.println("\tEnd:\tscoring");
     }
 
     private static void estimate(String modelDirPath, String testDirPath, String modelType,
