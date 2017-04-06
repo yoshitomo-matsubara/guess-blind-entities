@@ -22,7 +22,6 @@ public class AuthorEstimator {
     private static final String START_INDEX_OPTION = "sidx";
     private static final String END_INDEX_OPTION = "eidx";
     private static final int DEFAULT_MIN_PAPER_SIZE = 1;
-    private static final int PRINT_UNIT_SIZE = 1000;
     private static final int SUFFIX_SIZE = 3;
     private static final int DEFAULT_START_INDEX = 0;
     private static final int INVALID_INDEX = -1;
