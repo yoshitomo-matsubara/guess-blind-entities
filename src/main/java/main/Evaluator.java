@@ -17,7 +17,9 @@ import java.util.List;
 public class Evaluator {
     private static final String TOP_M_OPTION = "m";
     private static final String HAL_OPTION = "hal";
+    private static final String HALX_OPTION = "halx";
     private static final int DEFAULT_HAL_THRESHOLD = 1;
+    private static final int HALX_LABEL = -1;
     private static final int INVALID_RANKING = -1;
 
     private static Options getOptions() {
@@ -28,6 +30,8 @@ public class Evaluator {
         MiscUtil.setOption(HAL_OPTION, true, false,
                 "[param, optional] HAL (Hit At Least) threshold (default = " + String.valueOf(DEFAULT_HAL_THRESHOLD)
                         + ")", options);
+        MiscUtil.setOption(HALX_OPTION, false, false,
+                "[param, optional] HAL (Hit At Least) threshold = # of true authors in each paper", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
@@ -78,7 +82,7 @@ public class Evaluator {
         return count >= threshold ? 1 : 0;
     }
 
-    private static String evaluate(List<Result> resultList, int[] topMs, int halThr, Paper paper) {
+    private static String evaluate(List<Result> resultList, int[] topMs, int threshold, Paper paper) {
         Collections.sort(resultList);
         int trueAuthorSize = paper.getAuthorSize();
         int resultSize = resultList.size();
@@ -111,14 +115,14 @@ public class Evaluator {
         }
 
         StringBuilder sb = new StringBuilder();
-        int overThrAtX = calcHal(authorSizeX, halThr);
+        int overThrAtX = calcHal(authorSizeX, threshold);
         double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(bestRanking) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER
                 + String.valueOf(overThrAtX) + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
         for (int i = 0; i < authorSizeMs.length; i++) {
-            int overThrAtM = calcHal(authorSizeMs[i], halThr);
+            int overThrAtM = calcHal(authorSizeMs[i], threshold);
             double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + String.valueOf(authorSizeMs[i])
                     + Config.FIRST_DELIMITER + String.valueOf(overThrAtM)
@@ -143,14 +147,15 @@ public class Evaluator {
 
     private static void evaluate(String inputDirPath, String topMsStr, int halThr, String outputFilePath) {
         try {
+            String halThrStr = halThr != HALX_LABEL ? String.valueOf(halThr) : "X";
             int[] topMs = convertToIntArray(topMsStr);
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            bw.write("paper ID\ttrue author count\tbest ranking\tauthor hit count\tHAL" + String.valueOf(halThr) + "@X\tRecall@X\t");
+            bw.write("paper ID\ttrue author count\tbest ranking\tauthor hit count\tHAL" + halThrStr + "@X\tRecall@X\t");
             for (int i = 0; i < topMs.length; i++) {
                 String mStr = String.valueOf(topMs[i]);
-                bw.write("\tauthor hit count@" + mStr + "\tHAL" + String.valueOf(halThr) + "@" + mStr
+                bw.write("\tauthor hit count@" + mStr + "\tHAL" + halThrStr + "@" + mStr
                         + "\tRecall@" + mStr + "\t");
             }
             
@@ -179,7 +184,7 @@ public class Evaluator {
                     Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
                     Paper paper = resultPair.first;
                     List<Result> resultList = resultPair.second;
-                    if (paper.getAuthorSize() < halThr || resultList.size() == 0) {
+                    if ((halThr != HALX_LABEL && paper.getAuthorSize() < halThr) || resultList.size() == 0) {
                         if (paper.getAuthorSize() < halThr) {
                             blindPaperSize--;
                         }
@@ -190,7 +195,8 @@ public class Evaluator {
                         continue;
                     }
 
-                    String outputLine = evaluate(resultList, topMs, halThr, paper);
+                    int threshold = halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
+                    String outputLine = evaluate(resultList, topMs, threshold, paper);
                     bw.write(outputLine);
                     bw.newLine();
                     List<String> elementList = extractElements(outputLine);
@@ -210,11 +216,11 @@ public class Evaluator {
 
             bw.newLine();
             bw.write(Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER
-                    + "hit author count @ X" + Config.FIRST_DELIMITER + "HAL" + String.valueOf(halThr) + "@X"
+                    + "hit author count @ X" + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X"
                     + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
             for (int i = 0; i < topMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "HAL" + String.valueOf(halThr) + "@X" + String.valueOf(topMs[i])
+                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X" + String.valueOf(topMs[i])
                         + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
             }
 
@@ -266,6 +272,7 @@ public class Evaluator {
         String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
         String topMsStr = cl.getOptionValue(TOP_M_OPTION);
         int halThr = cl.hasOption(HAL_OPTION) ? Integer.parseInt(cl.getOptionValue(HAL_OPTION)) : DEFAULT_HAL_THRESHOLD;
+        halThr = cl.hasOption(HALX_OPTION) ? HALX_LABEL : halThr;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
         evaluate(inputDirPath, topMsStr, halThr, outputFilePath);
     }
