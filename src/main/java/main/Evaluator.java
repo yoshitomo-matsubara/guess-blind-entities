@@ -166,6 +166,7 @@ public class Evaluator {
             }
 
             int blindPaperSize = 0;
+            int guessablePaperSize = 0;
             int trueAuthorCount = 0;
             int authorX = 0;
             int overThrAtX = 0;
@@ -204,6 +205,7 @@ public class Evaluator {
                     authorX += Integer.parseInt(elementList.remove(0));
                     overThrAtX += Integer.parseInt(elementList.remove(0));
                     recallAtX += Double.parseDouble(elementList.remove(0));
+                    guessablePaperSize++;
                     int k = 0;
                     while (elementList.size() > 0) {
                         authorMs[k] += Integer.parseInt(elementList.remove(0));
@@ -258,6 +260,9 @@ public class Evaluator {
 
             bw.newLine();
             bw.write("total number of blind papers" + Config.FIRST_DELIMITER + String.valueOf(blindPaperSize));
+            bw.newLine();
+            double guessablePct = (double) guessablePaperSize / (double) blindPaperSize * 100.0d;
+            bw.write("percentage of guessable test papers" + Config.FIRST_DELIMITER + String.valueOf(guessablePct));
             bw.newLine();
             bw.close();
         } catch (Exception e) {
