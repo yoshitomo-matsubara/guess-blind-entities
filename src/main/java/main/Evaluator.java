@@ -51,24 +51,25 @@ public class Evaluator {
         return array;
     }
 
-    private static Pair<Paper, List<Result>> readScoreFile(File file) {
+    private static Pair<Paper, List<Result>> readScoreFile(File file, int halThr) {
         List<Result> resultList = new ArrayList<>();
         Paper paper = null;
         try {
-            boolean authorIncluded = false;
+            int authorCount = 0;
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line = br.readLine();
             paper = new Paper(line);
             while ((line = br.readLine()) != null) {
                 Result result = new Result(line);
                 if (paper.checkIfAuthor(result.authorId)) {
-                    authorIncluded = true;
+                    authorCount++;
                 }
                 resultList.add(result);
             }
 
             br.close();
-            if (!authorIncluded) {
+            int threshold = halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
+            if (authorCount < threshold) {
                 resultList.clear();
             }
         } catch (Exception e) {
@@ -182,7 +183,7 @@ public class Evaluator {
                 blindPaperSize += fileSize;
                 for (int j = 0; j < fileSize; j++) {
                     File inputFile = inputFileList.remove(0);
-                    Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
+                    Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile, halThr);
                     Paper paper = resultPair.first;
                     List<Result> resultList = resultPair.second;
                     if ((halThr != HALX_LABEL && paper.getAuthorSize() < halThr) || resultList.size() == 0) {
@@ -222,8 +223,8 @@ public class Evaluator {
                     + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
             for (int i = 0; i < topMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X" + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
+                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X" + Config.FIRST_DELIMITER
+                        + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
             }
 
             bw.newLine();
