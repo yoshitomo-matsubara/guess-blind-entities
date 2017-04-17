@@ -8,10 +8,7 @@ import org.apache.commons.cli.Options;
 import structure.Paper;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class RefPaperConverter {
     private static final String INPUT_TRAIN_OPTION = "itrain";
@@ -61,10 +58,71 @@ public class RefPaperConverter {
         return paperMap;
     }
 
-    private static void convert(String inputDirPath, HashMap<String, String> paperMap, String outputDirPath) {
-        List<File> inputFileList = FileUtil.getFileList(inputDirPath);
-        System.out.println("\tReading " + inputDirPath);
+    private static void convertAuthors(String inputDirPath, HashMap<String, String> paperMap, String outputDirPath) {
         try {
+            List<File> inputDirList = FileUtil.getDirList(inputDirPath);
+            HashSet<String> refPaperIdSet = new HashSet<>();
+            int hitCount = 0;
+            int dirSize = inputDirList.size();
+            for (int i = 0; i < dirSize; i++) {
+                System.out.println("\tStage " + String.valueOf(i + 1));
+                File inputDir = inputDirList.remove(0);
+                String baseOutputDirPath = outputDirPath + inputDir.getName() + "/";
+                FileUtil.makeDirIfNotExist(baseOutputDirPath);
+                List<File> inputFileList = FileUtil.getFileListR(inputDir.getPath());
+                for (File inputFile : inputFileList) {
+                    BufferedReader br = new BufferedReader(new FileReader(inputFile));
+                    List<String> outputLineList = new ArrayList<>();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        Paper paper = new Paper(line);
+                        StringBuilder sb = new StringBuilder();
+                        for (String refPaperId : paper.refPaperIds) {
+                            if (!refPaperIdSet.contains(refPaperId)) {
+                                refPaperIdSet.add(refPaperId);
+                                if (paperMap.containsKey(refPaperId)) {
+                                    hitCount++;
+                                }
+                            }
+
+                            if (paperMap.containsKey(refPaperId)) {
+                                String authorsStr = paperMap.get(refPaperId);
+                                String str = sb.length() == 0 ? authorsStr : Config.SECOND_DELIMITER + authorsStr;
+                                sb.append(str);
+                            }
+                        }
+
+                        if (sb.length() > 0) {
+                            int lastIdx = line.lastIndexOf(Config.FIRST_DELIMITER);
+                            outputLineList.add(line.substring(0, lastIdx) + Config.FIRST_DELIMITER + sb.toString());
+                        }
+                    }
+
+                    br.close();
+                    if (outputLineList.size() > 0) {
+                        BufferedWriter bw = new BufferedWriter(new FileWriter(baseOutputDirPath + inputFile.getName()));
+                        for (String outputLine : outputLineList) {
+                            bw.write(outputLine);
+                            bw.newLine();
+                        }
+                        bw.close();
+                    }
+                }
+            }
+
+            System.out.println(String.valueOf(refPaperIdSet.size()) + " unique ref paper IDs");
+            System.out.println(String.valueOf(hitCount) + " hit unique ref paper IDs");
+            System.out.println(String.valueOf((double) hitCount / (double) refPaperIdSet.size() * 100.0d) + "%");
+        } catch (Exception e) {
+            System.err.println("Exception @ convertAuthors");
+            e.printStackTrace();
+        }
+    }
+
+    private static void convertPapers(String inputDirPath, HashMap<String, String> paperMap, String outputDirPath) {
+        try {
+            System.out.println("\tReading " + inputDirPath);
+            List<File> inputFileList = FileUtil.getFileList(inputDirPath);
             FileUtil.makeDirIfNotExist(outputDirPath);
             HashSet<String> refPaperIdSet = new HashSet<>();
             int hitCount = 0;
@@ -105,7 +163,7 @@ public class RefPaperConverter {
             System.out.println(String.valueOf(hitCount) + " hit unique ref paper IDs");
             System.out.println(String.valueOf((double) hitCount / (double) refPaperIdSet.size() * 100.0d) + "%");
         } catch (Exception e) {
-            System.err.println("Exception @ convert");
+            System.err.println("Exception @ convertPapers");
             e.printStackTrace();
         }
     }
@@ -113,8 +171,9 @@ public class RefPaperConverter {
     private static void convert(String inputTrainDirPath, String inputTestDirPath, String paperFilePath,
                                 String outputTrainDirPath, String outputTestDirPath) {
         HashMap<String, String> paperMap = buildPaperMap(paperFilePath);
-        convert(inputTrainDirPath, paperMap, outputTrainDirPath);
-        convert(inputTestDirPath, paperMap, outputTestDirPath);
+        convertAuthors(inputTrainDirPath, paperMap, outputTrainDirPath);
+        convertPapers(inputTrainDirPath, paperMap, outputTrainDirPath);
+        convertPapers(inputTestDirPath, paperMap, outputTestDirPath);
     }
 
     public static void main(String[] args) {
