@@ -190,8 +190,9 @@ public class Evaluator {
                     Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile, halThr);
                     Paper paper = resultPair.first;
                     List<Result> resultList = resultPair.second;
-                    if ((halThr != HALX_LABEL && paper.getAuthorSize() < halThr) || resultList.size() == 0) {
-                        if (paper.getAuthorSize() < halThr) {
+                    int threshold = decideThreshold(paper, halThr);
+                    if (paper.getAuthorSize() < threshold || resultList.size() == 0) {
+                        if (paper.getAuthorSize() < threshold) {
                             blindPaperSize--;
                         }
 
@@ -201,7 +202,6 @@ public class Evaluator {
                         continue;
                     }
 
-                    int threshold = decideThreshold(paper, halThr);
                     String outputLine = evaluate(resultList, topMs, threshold, paper);
                     bw.write(outputLine);
                     bw.newLine();
