@@ -51,6 +51,10 @@ public class Evaluator {
         return array;
     }
 
+    private static int decideThreshold(Paper paper, int halThr) {
+        return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
+    }
+
     private static Pair<Paper, List<Result>> readScoreFile(File file, int halThr) {
         List<Result> resultList = new ArrayList<>();
         Paper paper = null;
@@ -68,7 +72,7 @@ public class Evaluator {
             }
 
             br.close();
-            int threshold = halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
+            int threshold = decideThreshold(paper, halThr);
             if (authorCount < threshold) {
                 resultList.clear();
             }
@@ -197,7 +201,7 @@ public class Evaluator {
                         continue;
                     }
 
-                    int threshold = halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
+                    int threshold = decideThreshold(paper, halThr);
                     String outputLine = evaluate(resultList, topMs, threshold, paper);
                     bw.write(outputLine);
                     bw.newLine();
