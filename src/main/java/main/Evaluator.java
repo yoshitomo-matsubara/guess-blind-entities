@@ -227,8 +227,8 @@ public class Evaluator {
                     + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
             for (int i = 0; i < topMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X" + Config.FIRST_DELIMITER
-                        + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
+                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + String.valueOf(topMs[i])
+                        + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
             }
 
             bw.newLine();
