@@ -275,7 +275,7 @@ public class Evaluator {
             bw.write("percentage of guessable test papers" + Config.FIRST_DELIMITER + String.valueOf(guessablePct));
             bw.newLine();
             bw.close();
-            if (unguessablePaperIdList != null) {
+            if (uplOutputFilePath != null) {
                 FileUtil.makeParentDir(uplOutputFilePath);
                 File uplOutputFile = new File(uplOutputFilePath);
                 bw = new BufferedWriter(new FileWriter(uplOutputFile));
