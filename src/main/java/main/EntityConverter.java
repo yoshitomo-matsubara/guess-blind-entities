@@ -12,7 +12,7 @@ import java.util.*;
 public class EntityConverter {
     private static final String INPUT_TRAIN_DIR_OPTION = "itrain";
     private static final String INPUT_TEST_DIR_OPTION = "itest";
-    private static final String AFFILS_FILE_OPTION = "a";
+    private static final String ENTITY_MAPPING_FILE_OPTION = "em";
     private static final String OUTPUT_TRAIN_DIR_OPTION = "otrain";
     private static final String OUTPUT_TEST_DIR_OPTION = "otest";
     private static final int AUTHOR_ID_INDEX = 3;
@@ -23,24 +23,24 @@ public class EntityConverter {
         Options options = new Options();
         MiscUtil.setOption(INPUT_TRAIN_DIR_OPTION, true, false, "[input] train dir", options);
         MiscUtil.setOption(INPUT_TEST_DIR_OPTION, true, false, "[input] test dir", options);
-        MiscUtil.setOption(AFFILS_FILE_OPTION, true, true, "[input] extra-PaperAuthorAffiliations file", options);
+        MiscUtil.setOption(ENTITY_MAPPING_FILE_OPTION, true, true, "[input] extra-PaperAuthor* file", options);
         MiscUtil.setOption(OUTPUT_TRAIN_DIR_OPTION, true, false, "[output] train dir", options);
         MiscUtil.setOption(OUTPUT_TEST_DIR_OPTION, true, false, "[output] test dir", options);
         return options;
     }
 
-    private static HashMap<String, String> buildAffiliationIdMap(String affilsFilePath) {
-        System.out.println("\tStart:\treading affiliation file");
-        HashMap<String, String> affilIdMap = new HashMap<>();
+    private static HashMap<String, String> buildEntityIdMap(String entityMappingFilePath) {
+        System.out.println("\tStart:\treading entity mapping file");
+        HashMap<String, String> entityIdMap = new HashMap<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(affilsFilePath)));
+            BufferedReader br = new BufferedReader(new FileReader(new File(entityMappingFilePath)));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(Config.FIRST_DELIMITER);
                 String[] ids = elements[1].split(Config.SECOND_DELIMITER);
                 for (String id : ids) {
                     String[] keyValue = id.split(Config.KEY_VALUE_DELIMITER);
-                    affilIdMap.put(elements[0] + keyValue[0], keyValue[1]);
+                    entityIdMap.put(elements[0] + keyValue[0], keyValue[1]);
                 }
             }
             br.close();
@@ -49,15 +49,15 @@ public class EntityConverter {
             e.printStackTrace();
         }
 
-        System.out.println("\tEnd:\treading affiliation file");
-        return affilIdMap;
+        System.out.println("\tEnd:\treading entity mapping file");
+        return entityIdMap;
     }
 
     private static boolean checkIfValidParams(String inputDirPath, String outputDirPath) {
         return inputDirPath != null && outputDirPath != null;
     }
 
-    private static void convertPapers(String inputDirPath, HashMap<String, String> affilIdMap, String outputDirPath) {
+    private static void convertPapers(String inputDirPath, HashMap<String, String> entityIdMap, String outputDirPath) {
         System.out.println("\tStart:\tconverting paper files in " + inputDirPath);
         List<File> inputFileList = FileUtil.getFileList(inputDirPath);
         FileUtil.makeDirIfNotExist(outputDirPath);
@@ -71,21 +71,21 @@ public class EntityConverter {
                 while ((line = br.readLine()) != null) {
                     String[] elements = line.split(Config.FIRST_DELIMITER);
                     String[] authorIds = elements[3].split(Config.SECOND_DELIMITER);
-                    HashSet<String> affilIdSet = new HashSet<>();
+                    HashSet<String> entityIdSet = new HashSet<>();
                     for (String authorId : authorIds) {
                         String key = elements[0] + authorId;
-                        if (affilIdMap.containsKey(key)) {
-                            String affilId = affilIdMap.get(key);
-                            affilIdSet.add(affilId);
+                        if (entityIdMap.containsKey(key)) {
+                            String entityId = entityIdMap.get(key);
+                            entityIdSet.add(entityId);
                         }
                     }
 
-                    if (affilIdSet.size() == 0) {
+                    if (entityIdSet.size() == 0) {
                         continue;
                     }
 
                     StringBuilder sb = new StringBuilder();
-                    Iterator<String> ite = affilIdSet.iterator();
+                    Iterator<String> ite = entityIdSet.iterator();
                     while (ite.hasNext()) {
                         String affilId = ite.next();
                         String str = sb.length() == 0 ? affilId : Config.SECOND_DELIMITER + affilId;
@@ -143,16 +143,16 @@ public class EntityConverter {
         System.out.println("\tEnd:\tdistributing paper files in " + outputTrainDirPath);
     }
 
-    private static void convert(String inputTrainDirPath, String inputTestDirPath, String affilsFilePath,
+    private static void convert(String inputTrainDirPath, String inputTestDirPath, String entityMappingFilePath,
                                 String outputTrainDirPath, String outputTestDirPath) {
-        HashMap<String, String> affilIdMap = buildAffiliationIdMap(affilsFilePath);
+        HashMap<String, String> entityIdMap = buildEntityIdMap(entityMappingFilePath);
         if (checkIfValidParams(inputTrainDirPath, outputTrainDirPath)) {
-            convertPapers(inputTrainDirPath, affilIdMap, outputTrainDirPath);
+            convertPapers(inputTrainDirPath, entityIdMap, outputTrainDirPath);
             distributeAffiliationFiles(outputTrainDirPath);
         }
 
         if (checkIfValidParams(inputTestDirPath, outputTestDirPath)) {
-            convertPapers(inputTestDirPath, affilIdMap, outputTestDirPath);
+            convertPapers(inputTestDirPath, entityIdMap, outputTestDirPath);
         }
     }
 
@@ -163,11 +163,11 @@ public class EntityConverter {
                 cl.getOptionValue(INPUT_TRAIN_DIR_OPTION) : null;
         String inputTestDirPath = cl.hasOption(INPUT_TEST_DIR_OPTION) ?
                 cl.getOptionValue(INPUT_TEST_DIR_OPTION) : null;
-        String affilsFilePath = cl.getOptionValue(AFFILS_FILE_OPTION);
+        String entityMappingFilePath = cl.getOptionValue(ENTITY_MAPPING_FILE_OPTION);
         String outputTrainDirPath = cl.hasOption(OUTPUT_TRAIN_DIR_OPTION) ?
                 cl.getOptionValue(OUTPUT_TRAIN_DIR_OPTION) : null;
         String outputTestDirPath = cl.hasOption(OUTPUT_TEST_DIR_OPTION) ?
                 cl.getOptionValue(OUTPUT_TEST_DIR_OPTION) : null;
-        convert(inputTrainDirPath, inputTestDirPath, affilsFilePath, outputTrainDirPath, outputTestDirPath);
+        convert(inputTrainDirPath, inputTestDirPath, entityMappingFilePath, outputTrainDirPath, outputTestDirPath);
     }
 }
