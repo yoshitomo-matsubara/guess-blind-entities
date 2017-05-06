@@ -97,7 +97,6 @@ public class CountryExtractor {
                                 (searchName.indexOf(name) > 0 && searchName.indexOf(" " + name) > 0)) {
                             String countryId = universityCountryMap.get(name);
                             convertMap.put(elements[0], countryId);
-                            System.out.println(searchName + "\t" + name + "\t" + countryId);
                             isHit = true;
                             hitCount++;
                         }
