@@ -18,6 +18,7 @@ public class Evaluator {
     private static final String TOP_M_OPTION = "m";
     private static final String HAL_OPTION = "hal";
     private static final String HALX_OPTION = "halx";
+    private static final String UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION = "uplo";
     private static final int DEFAULT_HAL_THRESHOLD = 1;
     private static final int HALX_LABEL = -1;
     private static final int INVALID_RANKING = -1;
@@ -32,6 +33,7 @@ public class Evaluator {
                         + ")", options);
         MiscUtil.setOption(HALX_OPTION, false, false,
                 "[param, optional] HAL (Hit At Least) threshold = # of true authors in each paper", options);
+        MiscUtil.setOption(UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION, true, false, "[optional, output] unguessable paper list output file", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
     }
@@ -51,24 +53,29 @@ public class Evaluator {
         return array;
     }
 
-    private static Pair<Paper, List<Result>> readScoreFile(File file) {
+    private static int decideThreshold(Paper paper, int halThr) {
+        return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
+    }
+
+    private static Pair<Paper, List<Result>> readScoreFile(File file, int halThr) {
         List<Result> resultList = new ArrayList<>();
         Paper paper = null;
         try {
-            boolean authorIncluded = false;
+            int authorCount = 0;
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line = br.readLine();
             paper = new Paper(line);
             while ((line = br.readLine()) != null) {
                 Result result = new Result(line);
                 if (paper.checkIfAuthor(result.authorId)) {
-                    authorIncluded = true;
+                    authorCount++;
                 }
                 resultList.add(result);
             }
 
             br.close();
-            if (!authorIncluded) {
+            int threshold = decideThreshold(paper, halThr);
+            if (authorCount < threshold) {
                 resultList.clear();
             }
         } catch (Exception e) {
@@ -145,7 +152,8 @@ public class Evaluator {
         return list;
     }
 
-    private static void evaluate(String inputDirPath, String topMsStr, int halThr, String outputFilePath) {
+    private static void evaluate(String inputDirPath, String topMsStr, int halThr,
+                                 String uplOutputFilePath, String outputFilePath) {
         try {
             String halThrStr = halThr != HALX_LABEL ? String.valueOf(halThr) : "X";
             int[] topMs = convertToIntArray(topMsStr);
@@ -166,6 +174,7 @@ public class Evaluator {
             }
 
             int blindPaperSize = 0;
+            int guessablePaperSize = 0;
             int trueAuthorCount = 0;
             int authorX = 0;
             int overThrAtX = 0;
@@ -173,6 +182,7 @@ public class Evaluator {
             int[] authorMs = MiscUtil.initIntArray(topMs.length, 0);
             int[] overThrAtMs = MiscUtil.initIntArray(topMs.length, 0);
             double[] recallAtMs = MiscUtil.initDoubleArray(topMs.length, 0.0d);
+            List<String> unguessablePaperIdList = new ArrayList<>();
             int dirSize = inputDirList.size();
             for (int i = 0; i < dirSize; i++) {
                 File inputDir = inputDirList.remove(0);
@@ -181,21 +191,22 @@ public class Evaluator {
                 blindPaperSize += fileSize;
                 for (int j = 0; j < fileSize; j++) {
                     File inputFile = inputFileList.remove(0);
-                    Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile);
+                    Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile, halThr);
                     Paper paper = resultPair.first;
                     List<Result> resultList = resultPair.second;
-                    if ((halThr != HALX_LABEL && paper.getAuthorSize() < halThr) || resultList.size() == 0) {
-                        if (paper.getAuthorSize() < halThr) {
+                    int threshold = decideThreshold(paper, halThr);
+                    if (paper.getAuthorSize() < threshold || resultList.size() == 0) {
+                        if (paper.getAuthorSize() < threshold) {
                             blindPaperSize--;
                         }
 
                         if (resultList.size() == 0) {
                             trueAuthorCount += paper.getAuthorSize();
+                            unguessablePaperIdList.add(paper.id);
                         }
                         continue;
                     }
 
-                    int threshold = halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
                     String outputLine = evaluate(resultList, topMs, threshold, paper);
                     bw.write(outputLine);
                     bw.newLine();
@@ -204,6 +215,7 @@ public class Evaluator {
                     authorX += Integer.parseInt(elementList.remove(0));
                     overThrAtX += Integer.parseInt(elementList.remove(0));
                     recallAtX += Double.parseDouble(elementList.remove(0));
+                    guessablePaperSize++;
                     int k = 0;
                     while (elementList.size() > 0) {
                         authorMs[k] += Integer.parseInt(elementList.remove(0));
@@ -220,7 +232,7 @@ public class Evaluator {
                     + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
             for (int i = 0; i < topMs.length; i++) {
                 bw.write(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X" + String.valueOf(topMs[i])
+                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + String.valueOf(topMs[i])
                         + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
             }
 
@@ -259,7 +271,20 @@ public class Evaluator {
             bw.newLine();
             bw.write("total number of blind papers" + Config.FIRST_DELIMITER + String.valueOf(blindPaperSize));
             bw.newLine();
+            double guessablePct = (double) guessablePaperSize / (double) blindPaperSize * 100.0d;
+            bw.write("percentage of guessable test papers" + Config.FIRST_DELIMITER + String.valueOf(guessablePct));
+            bw.newLine();
             bw.close();
+            if (uplOutputFilePath != null) {
+                FileUtil.makeParentDir(uplOutputFilePath);
+                File uplOutputFile = new File(uplOutputFilePath);
+                bw = new BufferedWriter(new FileWriter(uplOutputFile));
+                for (String unguessablePaperId : unguessablePaperIdList) {
+                    bw.write(unguessablePaperId);
+                    bw.newLine();
+                }
+                bw.close();
+            }
         } catch (Exception e) {
             System.err.println("Exception @ evaluate");
             e.printStackTrace();
@@ -273,7 +298,9 @@ public class Evaluator {
         String topMsStr = cl.getOptionValue(TOP_M_OPTION);
         int halThr = cl.hasOption(HAL_OPTION) ? Integer.parseInt(cl.getOptionValue(HAL_OPTION)) : DEFAULT_HAL_THRESHOLD;
         halThr = cl.hasOption(HALX_OPTION) ? HALX_LABEL : halThr;
+        String uplOutputFilePath = cl.hasOption(UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION) ?
+                cl.getOptionValue(UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION) : null;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        evaluate(inputDirPath, topMsStr, halThr, outputFilePath);
+        evaluate(inputDirPath, topMsStr, halThr, uplOutputFilePath, outputFilePath);
     }
 }

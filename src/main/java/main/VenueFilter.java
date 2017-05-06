@@ -17,11 +17,16 @@ public class VenueFilter {
     private static final String MIN_HIT_COUNT_OPTION = "mhc";
     private static final String TRAIN_INPUT_DIR_OPTION = "itrain";
     private static final String TEST_INPUT_DIR_OPTION = "itest";
+    private static final String TRAIN_START_YEAR_OPTION = "strain";
+    private static final String TRAIN_END_YEAR_OPTION = "etrain";
+    private static final String TEST_START_YEAR_OPTION = "stest";
+    private static final String TEST_END_YEAR_OPTION = "etest";
     private static final String TRAIN_OUTPUT_DIR_OPTION = "otrain";
     private static final String TEST_OUTPUT_DIR_OPTION = "otest";
     private static final int VENUE_ID_INDEX = 0;
     private static final int SUFFIX_SIZE = 3;
     private static final int DEFAULT_MIN_HIT_COUNT = 1;
+    private static final int INVALID_VALUE = -1;
 
     private static Options getOptions() {
         Options options = new Options();
@@ -34,6 +39,14 @@ public class VenueFilter {
                 "[input, optional] test dir, -" + TEST_OUTPUT_DIR_OPTION + " is required", options);
         MiscUtil.setOption(TRAIN_OUTPUT_DIR_OPTION, true, false,
                 "[output, optional] filtered training dir, -" + TRAIN_INPUT_DIR_OPTION + " is required", options);
+        MiscUtil.setOption(TRAIN_START_YEAR_OPTION, true, false,
+                "[param, optional] start year for training, -" + TRAIN_END_YEAR_OPTION + " is required", options);
+        MiscUtil.setOption(TRAIN_END_YEAR_OPTION, true, false,
+                "[param, optional] end year for training, -" + TRAIN_START_YEAR_OPTION + " is required", options);
+        MiscUtil.setOption(TEST_START_YEAR_OPTION, true, false,
+                "[param, optional] start year for testing, -" + TEST_END_YEAR_OPTION + " is required", options);
+        MiscUtil.setOption(TEST_END_YEAR_OPTION, true, false,
+                "[param, optional] end year for testing, -" + TEST_START_YEAR_OPTION + " is required", options);
         MiscUtil.setOption(TEST_OUTPUT_DIR_OPTION, true, false,
                 "[output, optional] filtered test dir, -" + TEST_INPUT_DIR_OPTION + " is required", options);
         return options;
@@ -56,14 +69,16 @@ public class VenueFilter {
         return vidSet;
     }
 
-    private static void filterTrainData(String trainInputDirPath, HashSet<String> vidSet,
-                                        int minHitCount, String trainOutputDirPath) {
+    private static void filterTrainData(String trainInputDirPath, HashSet<String> vidSet, int minHitCount,
+                                        int trainStartYear, int trainEndYear, String trainOutputDirPath) {
         try {
             List<File> inputDirList = FileUtil.getDirList(trainInputDirPath);
             if (inputDirList.size() == 0) {
                 inputDirList.add(new File(trainInputDirPath));
             }
 
+            boolean isYearFiltered = trainStartYear != INVALID_VALUE && trainEndYear != INVALID_VALUE
+                        && trainStartYear <= trainEndYear;
             int dirSize = inputDirList.size();
             for (int i = 0; i < dirSize; i++) {
                 File dir = inputDirList.remove(0);
@@ -78,6 +93,11 @@ public class VenueFilter {
                     while ((line = br.readLine()) != null) {
                         lineList.add(line);
                         Paper paper = new Paper(line);
+                        int year = Integer.parseInt(paper.year);
+                        if (isYearFiltered && (year < trainStartYear || year > trainEndYear)) {
+                            continue;
+                        }
+
                         if (vidSet.contains(paper.venueId)) {
                             hitCount++;
                         }
@@ -104,13 +124,16 @@ public class VenueFilter {
         }
     }
 
-    private static void filterTestData(String testInputDirPath, HashSet<String> vidSet, String testOutputDirPath) {
+    private static void filterTestData(String testInputDirPath, HashSet<String> vidSet, int testStartYear,
+                                       int testEndYear, String testOutputDirPath) {
         try {
             List<File> inputDirList = FileUtil.getDirList(testInputDirPath);
             if (inputDirList.size() == 0) {
                 inputDirList.add(new File(testInputDirPath));
             }
 
+            boolean isYearFiltered = testStartYear != INVALID_VALUE && testEndYear != INVALID_VALUE
+                        && testStartYear <= testEndYear;
             FileUtil.makeDirIfNotExist(testOutputDirPath);
             int dirSize = inputDirList.size();
             for (int i = 0; i < dirSize; i++) {
@@ -125,6 +148,11 @@ public class VenueFilter {
                     String line;
                     while ((line = br.readLine()) != null) {
                         Paper paper = new Paper(line);
+                        int year = Integer.parseInt(paper.year);
+                        if (isYearFiltered && (year < testStartYear || year > testEndYear)) {
+                            continue;
+                        }
+
                         if (vidSet.contains(paper.venueId)) {
                             bw.write(line);
                             bw.newLine();
@@ -142,18 +170,19 @@ public class VenueFilter {
     }
 
     private static void filter(String vidListFilePath, int minHitCount, String trainInputDirPath,
-                               String testInputDirPath, String trainOutputDirPath, String testOutputDirPath) {
+                               String testInputDirPath, int trainStartYear, int trainEndYear, int testStartYear,
+                               int testEndYear, String trainOutputDirPath, String testOutputDirPath) {
         HashSet<String> vidSet = readVenueIdListFile(vidListFilePath);
         if (vidSet.size() == 0) {
             return;
         }
 
         if (trainInputDirPath != null && trainOutputDirPath != null) {
-            filterTrainData(trainInputDirPath, vidSet, minHitCount, trainOutputDirPath);
+            filterTrainData(trainInputDirPath, vidSet, minHitCount, trainStartYear, trainEndYear, trainOutputDirPath);
         }
 
         if (testInputDirPath != null && testOutputDirPath != null) {
-            filterTestData(testInputDirPath, vidSet, testOutputDirPath);
+            filterTestData(testInputDirPath, vidSet, testStartYear, testEndYear, testOutputDirPath);
         }
     }
 
@@ -167,10 +196,19 @@ public class VenueFilter {
                 cl.getOptionValue(TRAIN_INPUT_DIR_OPTION) : null;
         String testInputDirPath = cl.hasOption(TEST_INPUT_DIR_OPTION) ?
                 cl.getOptionValue(TEST_INPUT_DIR_OPTION) : null;
+        int trainStartYear = cl.hasOption(TRAIN_START_YEAR_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(TRAIN_START_YEAR_OPTION)) : INVALID_VALUE;
+        int trainEndYear = cl.hasOption(TRAIN_END_YEAR_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(TRAIN_END_YEAR_OPTION)) : INVALID_VALUE;
+        int testStartYear = cl.hasOption(TEST_START_YEAR_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(TEST_START_YEAR_OPTION)) : INVALID_VALUE;
+        int testEndYear = cl.hasOption(TEST_END_YEAR_OPTION) ?
+                Integer.parseInt(cl.getOptionValue(TEST_END_YEAR_OPTION)) : INVALID_VALUE;
         String trainOutputDirPath = cl.hasOption(TRAIN_OUTPUT_DIR_OPTION) ?
                 cl.getOptionValue(TRAIN_OUTPUT_DIR_OPTION) : null;
         String testOutputDirPath = cl.hasOption(TEST_OUTPUT_DIR_OPTION) ?
                 cl.getOptionValue(TEST_OUTPUT_DIR_OPTION) : null;
-        filter(vidListFilePath, minHitCount, trainInputDirPath, testInputDirPath, trainOutputDirPath, testOutputDirPath);
+        filter(vidListFilePath, minHitCount, trainInputDirPath, testInputDirPath, trainStartYear, trainEndYear,
+                testStartYear, testEndYear, trainOutputDirPath, testOutputDirPath);
     }
 }

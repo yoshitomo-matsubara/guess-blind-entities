@@ -62,6 +62,7 @@ public class PaperExtractor {
                     if (!yearMap.containsKey(paper.year)) {
                         yearMap.put(paper.year, new ArrayList<>());
                     }
+
                     yearMap.get(paper.year).add(line);
                     count++;
                 }
