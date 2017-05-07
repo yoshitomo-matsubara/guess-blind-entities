@@ -168,6 +168,6 @@ public class CountryExtractor {
         String affilsFilePath = cl.getOptionValue(AFFILS_FILE_OPTION);
         String extraAffilsFilePath = cl.getOptionValue(EXTRA_AFFILS_FILE_OPTION);
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        extract(country2AffilFilePath, extraAffilsFilePath, affilsFilePath, outputFilePath);
+        extract(country2AffilFilePath, affilsFilePath, extraAffilsFilePath, outputFilePath);
     }
 }
