@@ -36,7 +36,7 @@ public class RandomModel extends BaseModel {
     @Override
     public double estimate(Paper paper) {
         double value = this.rand.nextDouble();
-        if (value > this.pruningRate) {
+        if (value >= this.pruningRate) {
             return value;
         }
         return INVALID_VALUE;
