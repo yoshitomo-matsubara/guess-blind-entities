@@ -11,8 +11,8 @@ import java.util.Random;
 public class RandomModel extends BaseModel {
     public static final String TYPE = "rand";
     public static final String NAME = "Random Model";
-    public static final String PRUNING_RATE_OPTION = "prate";
-    public static final double DEFAULT_PRUNING_RATE = 0.95d;
+    private static final String PRUNING_RATE_OPTION = "prate";
+    private static final double DEFAULT_PRUNING_RATE = 0.95d;
     private final Random rand;
     private final double pruningRate;
 
