@@ -67,7 +67,7 @@ public class Evaluator {
             paper = new Paper(line);
             while ((line = br.readLine()) != null) {
                 Result result = new Result(line);
-                if (paper.checkIfAuthor(result.authorId)) {
+                if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
                     authorCount++;
                 }
                 resultList.add(result);
