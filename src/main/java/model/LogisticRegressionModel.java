@@ -9,7 +9,7 @@ import structure.Paper;
 public class LogisticRegressionModel extends BaseModel {
     public static final String TYPE = "lr";
     public static final String NAME = "Logistic Regression Model";
-    public static final int PARAM_SIZE = 6;
+    public static final int PARAM_SIZE = 7;
     private static final String PARAM_OPTION = "param";
     private double[] params;
 
@@ -42,17 +42,16 @@ public class LogisticRegressionModel extends BaseModel {
 
     public static double[] extractPairValues(BaseModel model, Paper paper) {
         int[] counts = model.calcCounts(paper);
+        int selfCiteCount = 0;
         double countUpScore = (double) counts[0] / (double) model.getTotalCitationCount();
         double authorRefCoverage = (double) counts[1] / (double) model.getCitationIdSize();
-        double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
-        double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
-        int selfCiteCount = 0;
         for (String refPaperId : paper.refPaperIds) {
             if (model.checkIfPaper(refPaperId)) {
                 selfCiteCount++;
             }
         }
-        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage, (double) selfCiteCount};
+        return new double[]{(double) selfCiteCount, countUpScore, (double) model.getTotalCitationCount(),
+                authorRefCoverage, (double) paper.refPaperIds.length, (double) model.paperIds.length};
     }
 
     public static double[] extractFeatureValues(BaseModel model, Paper paper) {
@@ -61,15 +60,16 @@ public class LogisticRegressionModel extends BaseModel {
         // attributes from a pair of author and paper
         double[] pairValues = extractPairValues(model, paper);
         for (int i = 0; i < pairValues.length; i++) {
-            featureValues[i + 1] = pairValues[i];
+            featureValues[i + 1] = Math.log(pairValues[i] + 1.0d);
         }
         return featureValues;
     }
 
     @Override
     public double estimate(Paper paper) {
+        int[] counts = calcCounts(paper);
         double[] featureValues = extractFeatureValues(this, paper);
-        return featureValues[2] > 0.0d ? logisticFunction(featureValues) : INVALID_VALUE;
+        return counts[1] > 0 ? logisticFunction(featureValues) : INVALID_VALUE;
     }
 
     public static void setOptions(Options options) {

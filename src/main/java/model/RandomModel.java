@@ -19,15 +19,15 @@ public class RandomModel extends BaseModel {
     public RandomModel(Author author, CommandLine cl) {
         super(author);
         this.rand = new Random();
-        this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ? Double.parseDouble(PRUNING_RATE_OPTION)
-                : DEFAULT_PRUNING_RATE;
+        this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ?
+                Double.parseDouble(cl.getOptionValue(PRUNING_RATE_OPTION)) : DEFAULT_PRUNING_RATE;
     }
 
     public RandomModel(String line, CommandLine cl) {
         super(line);
         this.rand = new Random();
-        this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ? Double.parseDouble(PRUNING_RATE_OPTION)
-                : DEFAULT_PRUNING_RATE;
+        this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ?
+                Double.parseDouble(cl.getOptionValue(PRUNING_RATE_OPTION)) : DEFAULT_PRUNING_RATE;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class RandomModel extends BaseModel {
         MiscUtil.setOption(PRUNING_RATE_OPTION, true, false,
                 "[param, optional] pruning rate for reducing the cost of evaluation" +
                         " ( (1 - this rate) should be greater than the rate of top authors you will use in evaluation," +
-                        " default rate = " + String.valueOf(DEFAULT_PRUNING_RATE), options);
+                        " default rate = " + String.valueOf(DEFAULT_PRUNING_RATE) + " )", options);
     }
 
     public static boolean checkIfValid(String modelType) {
