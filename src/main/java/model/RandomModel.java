@@ -11,14 +11,17 @@ import java.util.Random;
 public class RandomModel extends BaseModel {
     public static final String TYPE = "rand";
     public static final String NAME = "Random Model";
+    private static final String GUESSABLE_ONLY_OPTION = "go";
     private static final String PRUNING_RATE_OPTION = "prate";
     private static final double DEFAULT_PRUNING_RATE = 0.95d;
     private final Random rand;
+    private final boolean guessableOnly;
     private final double pruningRate;
 
     public RandomModel(Author author, CommandLine cl) {
         super(author);
         this.rand = new Random();
+        this.guessableOnly = cl.hasOption(GUESSABLE_ONLY_OPTION);
         this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ?
                 Double.parseDouble(cl.getOptionValue(PRUNING_RATE_OPTION)) : DEFAULT_PRUNING_RATE;
     }
@@ -26,6 +29,7 @@ public class RandomModel extends BaseModel {
     public RandomModel(String line, CommandLine cl) {
         super(line);
         this.rand = new Random();
+        this.guessableOnly = cl.hasOption(GUESSABLE_ONLY_OPTION);
         this.pruningRate = cl.hasOption(PRUNING_RATE_OPTION) ?
                 Double.parseDouble(cl.getOptionValue(PRUNING_RATE_OPTION)) : DEFAULT_PRUNING_RATE;
     }
@@ -35,6 +39,13 @@ public class RandomModel extends BaseModel {
 
     @Override
     public double estimate(Paper paper) {
+        if (this.guessableOnly) {
+            int[] counts = calcCounts(paper);
+            if (counts[1] == 0) {
+                return INVALID_VALUE;
+            }
+        }
+
         double value = this.rand.nextDouble();
         if (value >= this.pruningRate) {
             return value;
@@ -43,6 +54,8 @@ public class RandomModel extends BaseModel {
     }
 
     public static void setOptions(Options options) {
+        MiscUtil.setOption(GUESSABLE_ONLY_OPTION, false, false,
+                "[param, optional] scoring guessable papers only)", options);
         MiscUtil.setOption(PRUNING_RATE_OPTION, true, false,
                 "[param, optional] pruning rate for reducing the cost of evaluation" +
                         " ( (1 - this rate) should be greater than the rate of top authors you will use in evaluation," +
