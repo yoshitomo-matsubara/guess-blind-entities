@@ -68,7 +68,7 @@ public abstract class BaseModel {
 
     public abstract double estimate(Paper paper);
 
-    public boolean checkIfPaper(String paperId) {
+    public boolean checkIfMyPaper(String paperId) {
         return this.paperIdSet.contains(paperId);
     }
 

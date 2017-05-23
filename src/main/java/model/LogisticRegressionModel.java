@@ -48,7 +48,7 @@ public class LogisticRegressionModel extends BaseModel {
         double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
         int selfCiteCount = 0;
         for (String refPaperId : paper.refPaperIds) {
-            if (model.checkIfPaper(refPaperId)) {
+            if (model.checkIfMyPaper(refPaperId)) {
                 selfCiteCount++;
             }
         }
