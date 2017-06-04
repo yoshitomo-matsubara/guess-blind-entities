@@ -3,15 +3,15 @@ package model;
 import structure.Author;
 import structure.Paper;
 
-public class CountUpModel extends BaseModel {
+public class CommonCitationModel extends BaseModel {
     public static final String TYPE = "cc";
     public static final String NAME = "Common Citation Model";
 
-    public CountUpModel(Author author) {
+    public CommonCitationModel(Author author) {
         super(author);
     }
 
-    public CountUpModel(String line) {
+    public CommonCitationModel(String line) {
         super(line);
     }
 
