@@ -42,7 +42,7 @@ public class LogisticRegressionModel extends BaseModel {
 
     public static double[] extractPairValues(BaseModel model, Paper paper) {
         int[] counts = model.calcCounts(paper);
-        double countUpScore = (double) counts[0] / (double) model.getTotalCitationCount();
+        double normalizedCountScore = (double) counts[0] / (double) model.getTotalCitationCount();
         double authorRefCoverage = (double) counts[1] / (double) model.getCitationIdSize();
         double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
         double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
@@ -52,7 +52,7 @@ public class LogisticRegressionModel extends BaseModel {
                 selfCiteCount++;
             }
         }
-        return new double[]{countUpScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage, (double) selfCiteCount};
+        return new double[]{normalizedCountScore, authorRefCoverage, paperAvgRefHitCount, paperRefCoverage, (double) selfCiteCount};
     }
 
     public static double[] extractFeatureValues(BaseModel model, Paper paper) {

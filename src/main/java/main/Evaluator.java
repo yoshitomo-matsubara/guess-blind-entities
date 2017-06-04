@@ -166,7 +166,7 @@ public class Evaluator {
                 bw.write("\tauthor hit count@" + mStr + "\tHAL" + halThrStr + "@" + mStr
                         + "\tRecall@" + mStr + "\t");
             }
-            
+
             bw.newLine();
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);
             if (inputDirList.size() == 0) {
