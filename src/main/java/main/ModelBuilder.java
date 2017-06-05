@@ -37,10 +37,8 @@ public class ModelBuilder {
     private static BaseModel selectModel(String modelType, Author author, CommandLine cl) {
         if (RandomModel.checkIfValid(modelType)) {
             return new RandomModel(author, cl);
-        } else if (GeometricMealModel.checkIfValid(modelType)) {
-            return new GeometricMealModel(author);
-        } else if (CountUpModel.checkIfValid(modelType)) {
-            return new CountUpModel(author);
+        } else if (CommonCitationModel.checkIfValid(modelType)) {
+            return new CommonCitationModel(author);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
             return new NaiveBayesModel(author, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
