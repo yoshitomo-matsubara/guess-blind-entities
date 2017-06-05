@@ -3,15 +3,15 @@ package model;
 import structure.Author;
 import structure.Paper;
 
-public class SelfCitationCountUpModel extends BaseModel {
-    public static final String TYPE = "scu";
-    public static final String NAME = "Self-Citation Count Up Model";
+public class SelfCitationModel extends BaseModel {
+    public static final String TYPE = "sc";
+    public static final String NAME = "Self-citation Model";
 
-    public SelfCitationCountUpModel(Author author) {
+    public SelfCitationModel(Author author) {
         super(author);
     }
 
-    public SelfCitationCountUpModel(String line) {
+    public SelfCitationModel(String line) {
         super(line);
     }
 
