@@ -54,10 +54,10 @@ public class AuthorEstimator {
     private static BaseModel selectModel(String modelType, String line, CommandLine cl) {
         if (RandomModel.checkIfValid(modelType)) {
             return new RandomModel(line, cl);
-        } else if (GeometricMealModel.checkIfValid(modelType)) {
-            return new GeometricMealModel(line);
-        } else if (CountUpModel.checkIfValid(modelType)) {
-            return new CountUpModel(line);
+        } else if (CommonCitationModel.checkIfValid(modelType)) {
+            return new CommonCitationModel(line);
+        } else if (SelfCitationCountUpModel.checkIfValid(modelType)) {
+            return new SelfCitationCountUpModel(line);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
             return new NaiveBayesModel(line, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
