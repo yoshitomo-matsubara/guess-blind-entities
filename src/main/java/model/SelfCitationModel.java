@@ -28,8 +28,7 @@ public class SelfCitationModel extends BaseModel {
                 selfCiteCount++;
             }
         }
-        int[] counts = calcCounts(paper);
-        return counts[1] > 0 ? (double) selfCiteCount : INVALID_VALUE;
+        return selfCiteCount > 0 ? (double) selfCiteCount : INVALID_VALUE;
     }
 
     public static boolean checkIfValid(String modelType) {
