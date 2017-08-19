@@ -65,8 +65,7 @@ public class FellowCitationModel extends BaseModel {
         }
     }
 
-    @Override
-    public double estimate(Paper paper) {
+    public int[] calcFellowCount(Paper paper) {
         int score = 0;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
@@ -75,7 +74,13 @@ public class FellowCitationModel extends BaseModel {
                 hitCount++;
             }
         }
-        return hitCount > 0 ? (double) score : INVALID_VALUE;
+        return new int[]{score, hitCount};
+    }
+
+    @Override
+    public double estimate(Paper paper) {
+        int[] counts = calcFellowCount(paper);
+        return counts[1] > 0 ? (double) counts[0] : INVALID_VALUE;
     }
 
     @Override
