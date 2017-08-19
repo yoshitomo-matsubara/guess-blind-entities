@@ -56,6 +56,8 @@ public class AuthorEstimator {
             return new RandomModel(line, cl);
         } else if (CommonCitationModel.checkIfValid(modelType)) {
             return new CommonCitationModel(line);
+        } else if (FellowCitationModel.checkIfValid(modelType)) {
+            return new FellowCitationModel(line);
         } else if (SelfCitationModel.checkIfValid(modelType)) {
             return new SelfCitationModel(line);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {

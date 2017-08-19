@@ -10,6 +10,7 @@ import structure.Author;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ModelBuilder {
@@ -39,6 +40,8 @@ public class ModelBuilder {
             return new RandomModel(author, cl);
         } else if (CommonCitationModel.checkIfValid(modelType)) {
             return new CommonCitationModel(author);
+        } else if (FellowCitationModel.checkIfValid(modelType)) {
+            return new FellowCitationModel(author);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
             return new NaiveBayesModel(author, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
@@ -104,15 +107,46 @@ public class ModelBuilder {
         int fileCount = 0;
         int availableCount = 0;
         int dirSize = authorDirList.size();
+        List<BaseModel> allModelList = new ArrayList<>();
+        HashMap<String, List<BaseModel>> modelListMap = new HashMap<>();
         for (int i = 0; i < dirSize; i++) {
             File authorDir = authorDirList.remove(0);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));
             List<File> trainingFileList = FileUtil.getFileListR(authorDir.getPath());
             fileCount += trainingFileList.size();
             List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType, cl, minPaperSize);
+            modelListMap.put(authorDir.getName(), modelList);
+            allModelList.addAll(modelList);
             availableCount += modelList.size();
             trainingFileList.clear();
-            writeModelFile(modelList, outputDirPath + authorDir.getName());
+            if (!FellowCitationModel.checkIfValid(modelType)) {
+                writeModelFile(modelList, outputDirPath + authorDir.getName());
+            }
+        }
+
+        if (FellowCitationModel.checkIfValid(modelType)) {
+            HashMap<String, Integer> modelIdMap = new HashMap<>();
+            int allSize = allModelList.size();
+            for (int i = 0; i < allSize; i++) {
+                BaseModel model = allModelList.get(i);
+                modelIdMap.put(model.authorId, i);
+            }
+
+            for (BaseModel model : allModelList) {
+                model.setFellowPaperIds(allModelList, modelIdMap);
+            }
+
+            for (String key : modelListMap.keySet()) {
+                List<BaseModel> modelList = modelListMap.get(key);
+                int size = modelList.size();
+                for (int i = 0; i < size; i++) {
+                    BaseModel model = modelList.remove(0);
+                    if (model.getFellowCitationIdSize() > 0) {
+                        modelList.add(model);
+                    }
+                }
+                writeModelFile(modelList, outputDirPath + key);
+            }
         }
 
         System.out.println(String.valueOf(availableCount) + " available authors");

@@ -6,6 +6,7 @@ import structure.Paper;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 public abstract class BaseModel {
     public static final String TYPE = "ab";
@@ -66,6 +67,8 @@ public abstract class BaseModel {
         }
     }
 
+    public void setFellowPaperIds(List<BaseModel> allModelList, HashMap<String, Integer> modelIdMap) {}
+
     public abstract double estimate(Paper paper);
 
     public boolean checkIfMyPaper(String paperId) {
@@ -78,6 +81,10 @@ public abstract class BaseModel {
 
     public int getTotalCitationCount() {
         return this.totalCitationCount;
+    }
+
+    public int getFellowCitationIdSize() {
+        return -1;
     }
 
     public int[] calcCounts(Paper paper) {
@@ -94,7 +101,7 @@ public abstract class BaseModel {
 
     @Override
     public String toString() {
-        // author ID, # of paper IDs, paper IDs, # of ref IDs, [refID:count], # of citations
+        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations
         StringBuilder sb = new StringBuilder(this.authorId + Config.FIRST_DELIMITER
                 + String.valueOf(this.author.papers.length) + Config.FIRST_DELIMITER);
         for (int i = 0; i < this.paperIds.length; i++) {
