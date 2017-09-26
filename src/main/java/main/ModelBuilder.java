@@ -46,6 +46,8 @@ public class ModelBuilder {
             return new NaiveBayesModel(author, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
             return new MultiNaiveBayesModel(author, cl);
+        } else if (modelType.equals(LogisticRegressionModel.TYPE)) {
+            return new LogisticRegressionModel(author);
         }
         return null;
     }
@@ -119,12 +121,12 @@ public class ModelBuilder {
             allModelList.addAll(modelList);
             availableCount += modelList.size();
             trainingFileList.clear();
-            if (!FellowCitationModel.checkIfValid(modelType)) {
+            if (!FellowCitationModel.checkIfValid(modelType) && !modelType.equals(LogisticRegressionModel.TYPE)) {
                 writeModelFile(modelList, outputDirPath + authorDir.getName());
             }
         }
 
-        if (FellowCitationModel.checkIfValid(modelType)) {
+        if (FellowCitationModel.checkIfValid(modelType) || modelType.equals(LogisticRegressionModel.TYPE)) {
             HashMap<String, Integer> modelIdMap = new HashMap<>();
             int allSize = allModelList.size();
             for (int i = 0; i < allSize; i++) {

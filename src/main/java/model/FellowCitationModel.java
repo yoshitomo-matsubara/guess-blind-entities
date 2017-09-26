@@ -19,11 +19,13 @@ public class FellowCitationModel extends BaseModel {
     public FellowCitationModel(Author author) {
         super(author);
         this.coauthorIdSet = new HashSet<>();
+        this.fellowPaperCountMap = new HashMap<>();
     }
 
     public FellowCitationModel(String line) {
         super(line);
         this.coauthorIdSet = new HashSet<>();
+        this.fellowPaperCountMap = new HashMap<>();
         this.totalFellowCitationCount = this.totalCitationCount;
     }
 
