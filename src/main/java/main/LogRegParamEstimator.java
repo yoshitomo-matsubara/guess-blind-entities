@@ -92,7 +92,7 @@ public class LogRegParamEstimator {
         if (paramListPair == null) {
             Random rand = new Random();
             for (int i = 0; i < params.length; i++) {
-                params[i] = (rand.nextDouble() - 0.5d) * randomValueScale;
+                params[i] = rand.nextDouble() * randomValueScale;
             }
         } else {
             List<Double> paramList = paramListPair.first;

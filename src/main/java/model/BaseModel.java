@@ -67,7 +67,7 @@ public abstract class BaseModel {
         }
     }
 
-    public void setFellowPaperIds(List<BaseModel> allModelList, HashMap<String, Integer> modelIdMap) {}
+    public void setSocialPaperIds(List<BaseModel> allModelList, HashMap<String, Integer> modelIdMap) {}
 
     public abstract double estimate(Paper paper);
 
@@ -83,9 +83,18 @@ public abstract class BaseModel {
         return this.totalCitationCount;
     }
 
-    public int getFellowCitationIdSize() {
+    public int getSocialCitationIdSize() {
         return -1;
     }
+
+    public void shareCitationCounts(HashMap<String, Integer> totalCitationCountMap) {
+        for (String refPaperId : this.citeCountMap.keySet()) {
+            int count = totalCitationCountMap.getOrDefault(refPaperId, 0);
+            totalCitationCountMap.put(refPaperId, count + this.citeCountMap.get(refPaperId));
+        }
+    }
+
+    public void setInverseCitationFrequencyWeights(HashMap<String, Integer> totalCitationCountMap) {}
 
     public int[] calcCounts(Paper paper) {
         int score = 0;

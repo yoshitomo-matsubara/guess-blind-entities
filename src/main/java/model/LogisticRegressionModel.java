@@ -9,26 +9,19 @@ import structure.Paper;
 
 import java.util.HashMap;
 
-public class LogisticRegressionModel extends FellowCitationModel {
+public class LogisticRegressionModel extends SocialCitationModel {
     public static final String TYPE = "lr";
     public static final String NAME = "Logistic Regression Model";
     public static final int PARAM_SIZE = 6;
     private static final String PARAM_OPTION = "param";
     private double[] params;
 
-    public LogisticRegressionModel(Author author) {
-        super(author);
+    public LogisticRegressionModel(Author author, CommandLine cl) {
+        super(author, cl);
     }
 
     public LogisticRegressionModel(String line) {
         super(line);
-        String[] elements = line.split(Config.FIRST_DELIMITER);
-        String[] fellowStrs = elements[7].split(Config.SECOND_DELIMITER);
-        for (String fellowStr : fellowStrs) {
-            String[] keyValue = fellowStr.split(Config.KEY_VALUE_DELIMITER);
-            this.fellowPaperCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
-        }
-        this.totalCitationCount = Integer.parseInt(elements[8]);
     }
 
     public LogisticRegressionModel(String line, CommandLine cl) {
@@ -58,23 +51,24 @@ public class LogisticRegressionModel extends FellowCitationModel {
         super.train();
     }
 
-    public static double[] extractPairValues(FellowCitationModel model, Paper paper) {
+    public static double[] extractPairValues(LogisticRegressionModel model, Paper paper) {
         int[] counts = model.calcCounts(paper);
-        int[] fellowCounts = model.calcFellowCount(paper);
+        int[] socialCounts = model.calcSocialCount(paper);
         double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
         double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
-        double paperAvgFellowHitCount = (double) fellowCounts[0] / (double) paper.refPaperIds.length;
-        double paperFellowCoverage = (double) fellowCounts[1] / (double) paper.refPaperIds.length;
+        double paperAvgSocialitCount = (double) socialCounts[0] / (double) paper.refPaperIds.length;
+        double paperSocialCoverage = (double) socialCounts[1] / (double) paper.refPaperIds.length;
         int selfCiteCount = 0;
         for (String refPaperId : paper.refPaperIds) {
             if (model.checkIfMyPaper(refPaperId)) {
                 selfCiteCount++;
             }
         }
-        return new double[]{paperAvgRefHitCount, paperRefCoverage, paperAvgFellowHitCount, paperFellowCoverage, (double) selfCiteCount};
+        return new double[]{paperAvgRefHitCount, paperRefCoverage, paperAvgSocialitCount, paperSocialCoverage,
+                (double) selfCiteCount};
     }
 
-    public static double[] extractFeatureValues(FellowCitationModel model, Paper paper) {
+    public static double[] extractFeatureValues(LogisticRegressionModel model, Paper paper) {
         double[] featureValues = new double[PARAM_SIZE];
         featureValues[0] = 1.0d;
         // attributes from a pair of author and paper
@@ -85,10 +79,14 @@ public class LogisticRegressionModel extends FellowCitationModel {
         return featureValues;
     }
 
+    private boolean checkIfValidValue(double[] featureValues) {
+        return featureValues[1] > 0.0d || featureValues[3] > 0.0d || featureValues[5] > 0.0d;
+    }
+
     @Override
     public double estimate(Paper paper) {
         double[] featureValues = extractFeatureValues(this, paper);
-        return featureValues[0] > 0.0d || featureValues[2] > 0.0d || featureValues[4] > 0.0d ? logisticFunction(featureValues) : INVALID_VALUE;
+        return checkIfValidValue(featureValues) ? logisticFunction(featureValues) : INVALID_VALUE;
     }
 
     public static void setOptions(Options options) {
@@ -101,24 +99,15 @@ public class LogisticRegressionModel extends FellowCitationModel {
         return  modelType.equals(TYPE) && cl.hasOption(PARAM_OPTION);
     }
 
+    public static boolean checkIfValid(String modelType) {
+        return  modelType.equals(TYPE);
+    }
+
     @Override
     public String toString() {
-        String str = super.toString();
-        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, # of fellow IDs, [fellow ID:count], # of fellow citations
+        String str = super.toString(true);
+        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, # of social IDs, [social ID:count], # of social citations
         StringBuilder sb = new StringBuilder(str);
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.fellowPaperCountMap.size()) + Config.FIRST_DELIMITER);
-        boolean fellowFirst = true;
-        for (String refId : this.fellowPaperCountMap.keySet()) {
-            if (!fellowFirst) {
-                sb.append(Config.SECOND_DELIMITER);
-            }
-
-            fellowFirst = false;
-            int count = this.fellowPaperCountMap.get(refId);
-            sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(count));
-        }
-
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalFellowCitationCount));
         return sb.toString();
     }
 }
