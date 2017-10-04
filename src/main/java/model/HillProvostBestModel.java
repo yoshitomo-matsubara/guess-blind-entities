@@ -1,26 +1,28 @@
 package model;
 
 import common.Config;
+import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
 import structure.Author;
 import structure.Paper;
 
 import java.util.HashMap;
 
-public class CommonCitationModel extends BaseModel {
-    public static final String TYPE = "cc";
-    public static final String NAME = "Common Citation Model";
+public class HillProvostBestModel extends BaseModel {
+    public static final String TYPE = "hpb";
+    public static final String NAME = "Hill & Provost's Best Model";
     private static final String TRAIN_SIZE_OPTION = "trainsize";
     private HashMap<String, Double> icfWeightMap;
     private double totalTrainPaperSize;
 
-    public CommonCitationModel(Author author, CommandLine cl) {
+    public HillProvostBestModel(Author author, CommandLine cl) {
         super(author);
         this.totalTrainPaperSize = Double.parseDouble(cl.getOptionValue(TRAIN_SIZE_OPTION));
         this.icfWeightMap = new HashMap<>();
     }
 
-    public CommonCitationModel(String line) {
+    public HillProvostBestModel(String line) {
         super(line);
         this.icfWeightMap = new HashMap<>();
         String[] elements = line.split(Config.FIRST_DELIMITER);
@@ -38,20 +40,16 @@ public class CommonCitationModel extends BaseModel {
         super.train();
     }
 
-    @Override
     public void setInverseCitationFrequencyWeights(HashMap<String, Integer> totalCitationCountMap) {
-        for (String refPaperId : this.citeCountMap.keySet()) {
-            int pseudoCount = totalCitationCountMap.getOrDefault(refPaperId, 0) + 1;
-            double icfWeight = (double) this.citeCountMap.get(refPaperId)
-                    * Math.log(this.totalTrainPaperSize / (double) pseudoCount);
-            this.icfWeightMap.put(refPaperId, icfWeight);
+        for (String paperId : this.paperIds) {
+            int pseudoCount = totalCitationCountMap.getOrDefault(paperId, 0) + 1;
+            double icfWeight = Math.log(this.totalTrainPaperSize / (double) pseudoCount);
+            this.icfWeightMap.put(paperId, icfWeight);
         }
     }
 
     @Override
     public double estimate(Paper paper) {
-//        int[] counts = calcCounts(paper);
-//        return counts[1] > 0 ? (double) counts[0] : INVALID_VALUE;
         double score = 0.0d;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
@@ -61,6 +59,11 @@ public class CommonCitationModel extends BaseModel {
             }
         }
         return hitCount > 0 ? score : INVALID_VALUE;
+    }
+
+    public static void setOptions(Options options) {
+        MiscUtil.setOption(TRAIN_SIZE_OPTION, true, false,
+                "[param] training paper size for " + NAME, options);
     }
 
     public static boolean checkIfValid(String modelType, CommandLine cl) {

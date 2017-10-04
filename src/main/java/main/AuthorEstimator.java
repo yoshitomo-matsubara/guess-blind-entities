@@ -46,6 +46,7 @@ public class AuthorEstimator {
 
     private static void setModelOptions(Options options) {
         RandomModel.setOptions(options);
+        HillProvostBestModel.setOptions(options);
         NaiveBayesModel.setOptions(options);
         MultiNaiveBayesModel.setOptions(options);
         LogisticRegressionModel.setOptions(options);
@@ -54,10 +55,12 @@ public class AuthorEstimator {
     private static BaseModel selectModel(String modelType, String line, CommandLine cl) {
         if (RandomModel.checkIfValid(modelType)) {
             return new RandomModel(line, cl);
+        } else if (HillProvostBestModel.checkIfValid(modelType)) {
+            return new HillProvostBestModel(line);
         } else if (CommonCitationModel.checkIfValid(modelType)) {
             return new CommonCitationModel(line);
-        } else if (FellowCitationModel.checkIfValid(modelType)) {
-            return new FellowCitationModel(line);
+        } else if (SocialCitationModel.checkIfValid(modelType)) {
+            return new SocialCitationModel(line);
         } else if (SelfCitationModel.checkIfValid(modelType)) {
             return new SelfCitationModel(line);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
