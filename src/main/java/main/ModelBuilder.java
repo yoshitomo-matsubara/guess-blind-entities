@@ -32,7 +32,6 @@ public class ModelBuilder {
 
     private static void setModelOptions(Options options) {
         HillProvostBestModel.setOptions(options);
-        NaiveBayesModel.setOptions(options);
         MultiNaiveBayesModel.setOptions(options);
     }
 
@@ -45,8 +44,6 @@ public class ModelBuilder {
             return new CommonCitationModel(author, cl);
         } else if (SocialCitationModel.checkIfValid(modelType, cl)) {
             return new SocialCitationModel(author, cl);
-        } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
-            return new NaiveBayesModel(author, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
             return new MultiNaiveBayesModel(author, cl);
         } else if (LogisticRegressionModel.checkIfValid(modelType)) {
