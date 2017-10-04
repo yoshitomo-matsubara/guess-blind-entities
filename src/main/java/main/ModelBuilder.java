@@ -10,6 +10,7 @@ import structure.Author;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ModelBuilder {
@@ -30,6 +31,7 @@ public class ModelBuilder {
     }
 
     private static void setModelOptions(Options options) {
+        HillProvostBestModel.setOptions(options);
         NaiveBayesModel.setOptions(options);
         MultiNaiveBayesModel.setOptions(options);
     }
@@ -37,12 +39,18 @@ public class ModelBuilder {
     private static BaseModel selectModel(String modelType, Author author, CommandLine cl) {
         if (RandomModel.checkIfValid(modelType)) {
             return new RandomModel(author, cl);
-        } else if (CommonCitationModel.checkIfValid(modelType)) {
-            return new CommonCitationModel(author);
+        } else if (HillProvostBestModel.checkIfValid(modelType, cl)) {
+            return new HillProvostBestModel(author, cl);
+        } else if (CommonCitationModel.checkIfValid(modelType, cl)) {
+            return new CommonCitationModel(author, cl);
+        } else if (SocialCitationModel.checkIfValid(modelType, cl)) {
+            return new SocialCitationModel(author, cl);
         } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
             return new NaiveBayesModel(author, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
             return new MultiNaiveBayesModel(author, cl);
+        } else if (LogisticRegressionModel.checkIfValid(modelType)) {
+            return new LogisticRegressionModel(author, cl);
         }
         return null;
     }
@@ -104,15 +112,67 @@ public class ModelBuilder {
         int fileCount = 0;
         int availableCount = 0;
         int dirSize = authorDirList.size();
+        List<BaseModel> allModelList = new ArrayList<>();
+        HashMap<String, List<BaseModel>> modelListMap = new HashMap<>();
         for (int i = 0; i < dirSize; i++) {
             File authorDir = authorDirList.remove(0);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));
             List<File> trainingFileList = FileUtil.getFileListR(authorDir.getPath());
             fileCount += trainingFileList.size();
             List<BaseModel> modelList = readAuthorFiles(trainingFileList, modelType, cl, minPaperSize);
+            modelListMap.put(authorDir.getName(), modelList);
+            allModelList.addAll(modelList);
             availableCount += modelList.size();
             trainingFileList.clear();
-            writeModelFile(modelList, outputDirPath + authorDir.getName());
+            if (!HillProvostBestModel.checkIfValid(modelType, cl) && !SocialCitationModel.checkIfValid(modelType, cl)
+                    && !CommonCitationModel.checkIfValid(modelType, cl)
+                    && !LogisticRegressionModel.checkIfValid(modelType)) {
+                writeModelFile(modelList, outputDirPath + authorDir.getName());
+            }
+        }
+
+        if (HillProvostBestModel.checkIfValid(modelType, cl) || SocialCitationModel.checkIfValid(modelType, cl)
+                || CommonCitationModel.checkIfValid(modelType, cl) || LogisticRegressionModel.checkIfValid(modelType)) {
+            if (SocialCitationModel.checkIfValid(modelType) || LogisticRegressionModel.checkIfValid(modelType)) {
+                HashMap<String, Integer> modelIdMap = new HashMap<>();
+                int allSize = allModelList.size();
+                for (int i = 0; i < allSize; i++) {
+                    BaseModel model = allModelList.get(i);
+                    modelIdMap.put(model.authorId, i);
+                }
+
+                for (BaseModel model : allModelList) {
+                    model.setSocialPaperIds(allModelList, modelIdMap);
+                }
+            }
+
+            if (HillProvostBestModel.checkIfValid(modelType, cl) || SocialCitationModel.checkIfValid(modelType, cl)
+                    || CommonCitationModel.checkIfValid(modelType, cl)) {
+                HashMap<String, Integer> totalCitationCountMap = new HashMap<>();
+                for (BaseModel model : allModelList) {
+                    model.shareCitationCounts(totalCitationCountMap);
+                }
+
+                for (BaseModel model : allModelList) {
+                    model.setInverseCitationFrequencyWeights(totalCitationCountMap);
+                }
+            }
+
+            availableCount = 0;
+            for (String key : modelListMap.keySet()) {
+                List<BaseModel> modelList = modelListMap.get(key);
+                int size = modelList.size();
+                for (int i = 0; i < size; i++) {
+                    BaseModel model = modelList.remove(0);
+                    if ((SocialCitationModel.checkIfValid(modelType) == model.getSocialCitationIdSize() > 0)
+                            || !SocialCitationModel.checkIfValid(modelType)) {
+                        modelList.add(model);
+                    }
+                }
+
+                availableCount += modelList.size();
+                writeModelFile(modelList, outputDirPath + key);
+            }
         }
 
         System.out.println(String.valueOf(availableCount) + " available authors");
