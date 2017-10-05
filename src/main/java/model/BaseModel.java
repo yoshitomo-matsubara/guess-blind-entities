@@ -33,7 +33,7 @@ public abstract class BaseModel {
         this.totalCitationCount = 0;
     }
 
-    public BaseModel(String line) {
+    public BaseModel(String line, boolean isCommonCitationModel) {
         String[] elements = line.split(Config.FIRST_DELIMITER);
         this.authorId = elements[0];
         this.author = null;
@@ -46,12 +46,18 @@ public abstract class BaseModel {
         }
 
         this.citeCountMap = new HashMap<>();
-        String[] refStrs = elements[4].split(Config.SECOND_DELIMITER);
-        for (String refStr : refStrs) {
-            String[] keyValue = refStr.split(Config.KEY_VALUE_DELIMITER);
-            this.citeCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
+        if (!isCommonCitationModel) {
+            String[] refStrs = elements[4].split(Config.SECOND_DELIMITER);
+            for (String refStr : refStrs) {
+                String[] keyValue = refStr.split(Config.KEY_VALUE_DELIMITER);
+                this.citeCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
+            }
+            this.totalCitationCount = Integer.parseInt(elements[5]);
         }
-        this.totalCitationCount = Integer.parseInt(elements[5]);
+    }
+
+    public BaseModel(String line) {
+        this(line, false);
     }
 
     public void train() {
@@ -108,9 +114,8 @@ public abstract class BaseModel {
         return new int[]{score, hitCount};
     }
 
-    @Override
-    public String toString() {
-        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations
+    public String toString(boolean isCommonCitationModel) {
+        // author ID, # of paper IDs, paper IDs, # of ref IDs
         StringBuilder sb = new StringBuilder(this.authorId + Config.FIRST_DELIMITER
                 + String.valueOf(this.author.papers.length) + Config.FIRST_DELIMITER);
         for (int i = 0; i < this.paperIds.length; i++) {
@@ -118,19 +123,27 @@ public abstract class BaseModel {
             sb.append(str);
         }
 
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()) + Config.FIRST_DELIMITER);
-        boolean first = true;
-        for (String refId : this.citeCountMap.keySet()) {
-            if (!first) {
-                sb.append(Config.SECOND_DELIMITER);
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.citeCountMap.size()));
+        if (!isCommonCitationModel) {
+            // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations
+            sb.append(Config.FIRST_DELIMITER);
+            boolean first = true;
+            for (String refId : this.citeCountMap.keySet()) {
+                if (!first) {
+                    sb.append(Config.SECOND_DELIMITER);
+                }
+
+                first = false;
+                int count = this.citeCountMap.get(refId);
+                sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(count));
             }
-
-            first = false;
-            int count = this.citeCountMap.get(refId);
-            sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(count));
+            sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalCitationCount));
         }
-
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalCitationCount));
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toString(false);
     }
 }

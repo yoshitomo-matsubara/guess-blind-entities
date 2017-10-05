@@ -144,7 +144,8 @@ public class ModelBuilder {
             }
 
             if (HillProvostBestModel.checkIfValid(modelType, cl) || SocialCitationModel.checkIfValid(modelType, cl)
-                    || CommonCitationModel.checkIfValid(modelType, cl)) {
+                    || CommonCitationModel.checkIfValid(modelType, cl)
+                    || LogisticRegressionModel.checkIfValid(modelType)) {
                 HashMap<String, Integer> totalCitationCountMap = new HashMap<>();
                 for (BaseModel model : allModelList) {
                     model.shareCitationCounts(totalCitationCountMap);

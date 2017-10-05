@@ -21,16 +21,16 @@ public class CommonCitationModel extends BaseModel {
     }
 
     public CommonCitationModel(String line) {
-        super(line);
+        super(line, true);
         this.icfWeightMap = new HashMap<>();
         String[] elements = line.split(Config.FIRST_DELIMITER);
-        if (elements.length > 6 && elements[6].length() > 0) {
-            String[] icfWeightStrs = elements[6].split(Config.SECOND_DELIMITER);
-            for (String icfWeightStr : icfWeightStrs) {
-                String[] keyValue = icfWeightStr.split(Config.KEY_VALUE_DELIMITER);
-                this.icfWeightMap.put(keyValue[0], Double.parseDouble(keyValue[1]));
-            }
+        String[] refStrs = elements[4].split(Config.SECOND_DELIMITER);
+        for (String refStr : refStrs) {
+            String[] keyValue = refStr.split(Config.KEY_VALUE_DELIMITER);
+            this.citeCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
+            this.icfWeightMap.put(keyValue[0], Double.parseDouble(keyValue[2]));
         }
+        this.totalCitationCount = Integer.parseInt(elements[5]);
     }
 
     @Override
@@ -71,19 +71,23 @@ public class CommonCitationModel extends BaseModel {
 
     @Override
     public String toString() {
-        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, [paper ID:icf weight]
-        StringBuilder sb = new StringBuilder(super.toString());
+        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count:icf weight], # of citations
+        StringBuilder sb = new StringBuilder(super.toString(true));
         sb.append(Config.FIRST_DELIMITER);
         boolean first = true;
-        for (String paperId : this.icfWeightMap.keySet()) {
+        for (String refPaperId : this.citeCountMap.keySet()) {
             if (!first) {
                 sb.append(Config.SECOND_DELIMITER);
             }
 
             first = false;
-            double icfWeight = this.icfWeightMap.get(paperId);
-            sb.append(paperId + Config.KEY_VALUE_DELIMITER + String.valueOf(icfWeight));
+            int count = this.citeCountMap.get(refPaperId);
+            double icfWeight = this.icfWeightMap.get(refPaperId);
+            sb.append(refPaperId + Config.KEY_VALUE_DELIMITER + String.valueOf(count)
+                    + Config.KEY_VALUE_DELIMITER + String.valueOf(icfWeight));
         }
+
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalCitationCount));
         return sb.toString();
     }
 }
