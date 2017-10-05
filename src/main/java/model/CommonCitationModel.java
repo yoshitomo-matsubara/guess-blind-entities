@@ -50,8 +50,6 @@ public class CommonCitationModel extends BaseModel {
 
     @Override
     public double estimate(Paper paper) {
-//        int[] counts = calcCounts(paper);
-//        return counts[1] > 0 ? (double) counts[0] : INVALID_VALUE;
         double score = 0.0d;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
