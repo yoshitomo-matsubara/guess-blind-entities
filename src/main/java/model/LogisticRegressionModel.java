@@ -13,8 +13,8 @@ public class LogisticRegressionModel extends SocialCitationModel {
     public static final String TYPE = "lr";
     public static final String NAME = "Logistic Regression Model";
     public static final int PARAM_SIZE = 6;
-    private static final String PARAM_OPTION = "param";
-    private double[] params;
+    protected static final String PARAM_OPTION = "param";
+    protected double[] params;
 
     public LogisticRegressionModel(Author author, CommandLine cl) {
         super(author, cl);

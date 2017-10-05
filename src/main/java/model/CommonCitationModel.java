@@ -11,8 +11,8 @@ public class CommonCitationModel extends BaseModel {
     public static final String TYPE = "cc";
     public static final String NAME = "Common Citation Model";
     private static final String TRAIN_SIZE_OPTION = "trainsize";
-    private HashMap<String, Double> icfWeightMap;
-    private double totalTrainPaperSize;
+    protected HashMap<String, Double> icfWeightMap;
+    protected double totalTrainPaperSize;
 
     public CommonCitationModel(Author author, CommandLine cl) {
         super(author);

@@ -12,9 +12,9 @@ import java.util.HashMap;
 public class HillProvostBestModel extends BaseModel {
     public static final String TYPE = "hpb";
     public static final String NAME = "Hill & Provost's Best Model";
-    private static final String TRAIN_SIZE_OPTION = "trainsize";
-    private HashMap<String, Double> icfWeightMap;
-    private double totalTrainPaperSize;
+    protected static final String TRAIN_SIZE_OPTION = "trainsize";
+    protected HashMap<String, Double> icfWeightMap;
+    protected double totalTrainPaperSize;
 
     public HillProvostBestModel(Author author, CommandLine cl) {
         super(author);
