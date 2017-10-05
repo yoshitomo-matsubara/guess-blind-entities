@@ -13,10 +13,10 @@ import java.util.List;
 public class SocialCitationModel extends BaseModel {
     public static final String TYPE = "sc";
     public static final String NAME = "Social Citation Model";
-    protected static final String TRAIN_SIZE_OPTION = "trainsize";
+    private static final String TRAIN_SIZE_OPTION = "trainsize";
     protected HashSet<String> coauthorIdSet;
     protected HashMap<String, Integer> socialPaperCountMap;
-    protected HashMap<String, Double> icfWeightMap;
+    protected HashMap<String, Double> socialIcfWeightMap;
     protected double totalTrainPaperSize;
     protected int totalSocialCitationCount;
 
@@ -25,21 +25,20 @@ public class SocialCitationModel extends BaseModel {
         this.totalTrainPaperSize = Double.parseDouble(cl.getOptionValue(TRAIN_SIZE_OPTION));
         this.coauthorIdSet = new HashSet<>();
         this.socialPaperCountMap = new HashMap<>();
-        this.icfWeightMap = new HashMap<>();
+        this.socialIcfWeightMap = new HashMap<>();
     }
 
     public SocialCitationModel(String line) {
         super(line);
         this.coauthorIdSet = new HashSet<>();
         this.socialPaperCountMap = new HashMap<>();
-        this.icfWeightMap = new HashMap<>();
+        this.socialIcfWeightMap = new HashMap<>();
         String[] elements = line.split(Config.FIRST_DELIMITER);
-        if (elements[7].length() > 0) {
-            String[] socialStrs = elements[7].split(Config.SECOND_DELIMITER);
-            for (String socialStr : socialStrs) {
-                String[] keyValue = socialStr.split(Config.KEY_VALUE_DELIMITER);
-                this.icfWeightMap.put(keyValue[0], Double.parseDouble(keyValue[1]));
-            }
+        String[] socialStrs = elements[7].split(Config.SECOND_DELIMITER);
+        for (String socialStr : socialStrs) {
+            String[] keyValue = socialStr.split(Config.KEY_VALUE_DELIMITER);
+            this.socialPaperCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
+            this.socialIcfWeightMap.put(keyValue[0], Double.parseDouble(keyValue[2]));
         }
         this.totalSocialCitationCount = Integer.parseInt(elements[8]);
     }
@@ -88,7 +87,7 @@ public class SocialCitationModel extends BaseModel {
             int pseudoCount = totalCitationCountMap.getOrDefault(socialPaperId, 0) + 1;
             double icfWeight = (double) this.socialPaperCountMap.get(socialPaperId)
                     * Math.log(this.totalTrainPaperSize / (double) pseudoCount);
-            this.icfWeightMap.put(socialPaperId, icfWeight);
+            this.socialIcfWeightMap.put(socialPaperId, icfWeight);
         }
     }
 
@@ -109,8 +108,8 @@ public class SocialCitationModel extends BaseModel {
         double score = 0.0d;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
-            if (this.icfWeightMap.containsKey(refPaperId)) {
-                score += this.icfWeightMap.get(refPaperId);
+            if (this.socialIcfWeightMap.containsKey(refPaperId)) {
+                score += this.socialIcfWeightMap.get(refPaperId);
                 hitCount++;
             }
         }
@@ -143,16 +142,18 @@ public class SocialCitationModel extends BaseModel {
             }
         }
 
-        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.icfWeightMap.size()) + Config.FIRST_DELIMITER);
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(this.socialIcfWeightMap.size()) + Config.FIRST_DELIMITER);
         boolean first = true;
-        for (String refId : this.icfWeightMap.keySet()) {
+        for (String refId : this.socialPaperCountMap.keySet()) {
             if (!first) {
                 sb.append(Config.SECOND_DELIMITER);
             }
 
             first = false;
-            double icfWeight = this.icfWeightMap.get(refId);
-            sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(icfWeight));
+            int socialCount = this.socialPaperCountMap.get(refId);
+            double socialIcfWeight = this.socialIcfWeightMap.get(refId);
+            sb.append(refId + Config.KEY_VALUE_DELIMITER + String.valueOf(socialCount)
+                    + Config.KEY_VALUE_DELIMITER + String.valueOf(socialIcfWeight));
         }
 
         sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalSocialCitationCount));
@@ -161,7 +162,7 @@ public class SocialCitationModel extends BaseModel {
 
     @Override
     public String toString() {
-        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, # of social IDs, [social ID:icf weight], # of social citations
+        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, # of social IDs, [social ID:count:icf weight], # of social citations
         return toString(true);
     }
 }

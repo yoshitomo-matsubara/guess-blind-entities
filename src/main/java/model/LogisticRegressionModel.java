@@ -56,7 +56,7 @@ public class LogisticRegressionModel extends SocialCitationModel {
         int[] socialCounts = model.calcSocialCount(paper);
         double paperAvgRefHitCount = (double) counts[0] / (double) paper.refPaperIds.length;
         double paperRefCoverage = (double) counts[1] / (double) paper.refPaperIds.length;
-        double paperAvgSocialitCount = (double) socialCounts[0] / (double) paper.refPaperIds.length;
+        double paperAvgSocialHitCount = (double) socialCounts[0] / (double) paper.refPaperIds.length;
         double paperSocialCoverage = (double) socialCounts[1] / (double) paper.refPaperIds.length;
         int selfCiteCount = 0;
         for (String refPaperId : paper.refPaperIds) {
@@ -64,7 +64,7 @@ public class LogisticRegressionModel extends SocialCitationModel {
                 selfCiteCount++;
             }
         }
-        return new double[]{paperAvgRefHitCount, paperRefCoverage, paperAvgSocialitCount, paperSocialCoverage,
+        return new double[]{paperAvgRefHitCount, paperRefCoverage, paperAvgSocialHitCount, paperSocialCoverage,
                 (double) selfCiteCount};
     }
 
