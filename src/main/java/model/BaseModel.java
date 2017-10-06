@@ -33,7 +33,7 @@ public abstract class BaseModel {
         this.totalCitationCount = 0;
     }
 
-    public BaseModel(String line, boolean isCommonCitationModel) {
+    public BaseModel(String line, boolean includesCommonCitationModel) {
         String[] elements = line.split(Config.FIRST_DELIMITER);
         this.authorId = elements[0];
         this.author = null;
@@ -46,14 +46,16 @@ public abstract class BaseModel {
         }
 
         this.citeCountMap = new HashMap<>();
-        if (!isCommonCitationModel) {
-            String[] refStrs = elements[4].split(Config.SECOND_DELIMITER);
-            for (String refStr : refStrs) {
-                String[] keyValue = refStr.split(Config.KEY_VALUE_DELIMITER);
-                this.citeCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
-            }
-            this.totalCitationCount = Integer.parseInt(elements[5]);
+        if (includesCommonCitationModel) {
+            return;
         }
+
+        String[] refStrs = elements[4].split(Config.SECOND_DELIMITER);
+        for (String refStr : refStrs) {
+            String[] keyValue = refStr.split(Config.KEY_VALUE_DELIMITER);
+            this.citeCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
+        }
+        this.totalCitationCount = Integer.parseInt(elements[5]);
     }
 
     public BaseModel(String line) {

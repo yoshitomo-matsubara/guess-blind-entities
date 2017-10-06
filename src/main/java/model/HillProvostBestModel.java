@@ -13,25 +13,23 @@ public class HillProvostBestModel extends BaseModel {
     public static final String TYPE = "hpb";
     public static final String NAME = "Hill & Provost's Best Model";
     protected static final String TRAIN_SIZE_OPTION = "trainsize";
-    protected HashMap<String, Double> icfWeightMap;
+    protected HashMap<String, Double> weightMap;
     protected double totalTrainPaperSize;
 
     public HillProvostBestModel(Author author, CommandLine cl) {
         super(author);
         this.totalTrainPaperSize = Double.parseDouble(cl.getOptionValue(TRAIN_SIZE_OPTION));
-        this.icfWeightMap = new HashMap<>();
+        this.weightMap = new HashMap<>();
     }
 
     public HillProvostBestModel(String line) {
         super(line);
-        this.icfWeightMap = new HashMap<>();
+        this.weightMap = new HashMap<>();
         String[] elements = line.split(Config.FIRST_DELIMITER);
-        if (elements.length > 6 && elements[6].length() > 0) {
-            String[] icfWeightStrs = elements[6].split(Config.SECOND_DELIMITER);
-            for (String icfWeightStr : icfWeightStrs) {
-                String[] keyValue = icfWeightStr.split(Config.KEY_VALUE_DELIMITER);
-                this.icfWeightMap.put(keyValue[0], Double.parseDouble(keyValue[1]));
-            }
+        String[] icfWeightStrs = elements[6].split(Config.SECOND_DELIMITER);
+        for (String icfWeightStr : icfWeightStrs) {
+            String[] keyValue = icfWeightStr.split(Config.KEY_VALUE_DELIMITER);
+            this.weightMap.put(keyValue[0], Double.parseDouble(keyValue[1]));
         }
     }
 
@@ -44,7 +42,7 @@ public class HillProvostBestModel extends BaseModel {
         for (String paperId : this.paperIds) {
             int pseudoCount = totalCitationCountMap.getOrDefault(paperId, 0) + 1;
             double icfWeight = Math.log(this.totalTrainPaperSize / (double) pseudoCount);
-            this.icfWeightMap.put(paperId, icfWeight);
+            this.weightMap.put(paperId, icfWeight);
         }
     }
 
@@ -53,8 +51,8 @@ public class HillProvostBestModel extends BaseModel {
         double score = 0.0d;
         int hitCount = 0;
         for (String refPaperId : paper.refPaperIds) {
-            if (this.icfWeightMap.containsKey(refPaperId)) {
-                score += this.icfWeightMap.get(refPaperId);
+            if (this.weightMap.containsKey(refPaperId)) {
+                score += this.weightMap.get(refPaperId);
                 hitCount++;
             }
         }
@@ -76,17 +74,17 @@ public class HillProvostBestModel extends BaseModel {
 
     @Override
     public String toString() {
-        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, [paper ID:icf weight]
+        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, [paper ID:weight]
         StringBuilder sb = new StringBuilder(super.toString());
         sb.append(Config.FIRST_DELIMITER);
         boolean first = true;
-        for (String paperId : this.icfWeightMap.keySet()) {
+        for (String paperId : this.weightMap.keySet()) {
             if (!first) {
                 sb.append(Config.SECOND_DELIMITER);
             }
 
             first = false;
-            double icfWeight = this.icfWeightMap.get(paperId);
+            double icfWeight = this.weightMap.get(paperId);
             sb.append(paperId + Config.KEY_VALUE_DELIMITER + String.valueOf(icfWeight));
         }
         return sb.toString();
