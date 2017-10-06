@@ -13,7 +13,7 @@ import java.util.List;
 public class SocialCitationModel extends BaseModel {
     public static final String TYPE = "sc";
     public static final String NAME = "Social Citation Model";
-    private static final String TRAIN_SIZE_OPTION = "trainsize";
+    protected static final String TRAIN_SIZE_OPTION = "trainsize";
     protected HashSet<String> coauthorIdSet;
     protected HashMap<String, Integer> socialPaperCountMap;
     protected HashMap<String, Double> socialIcfWeightMap;
