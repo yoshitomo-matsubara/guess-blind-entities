@@ -31,9 +31,9 @@ public class RefPaperConverter {
         return options;
     }
 
-    private static HashMap<String, String> buildPaperMap(String paperFilePath) {
+    private static Map<String, String> buildPaperMap(String paperFilePath) {
         System.out.println("Start: reading " + paperFilePath);
-        HashMap<String, String> paperMap = new HashMap<>();
+        Map<String, String> paperMap = new HashMap<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(paperFilePath)));
             String line;
@@ -58,10 +58,10 @@ public class RefPaperConverter {
         return paperMap;
     }
 
-    private static void convertAuthors(String inputDirPath, HashMap<String, String> paperMap, String outputDirPath) {
+    private static void convertAuthors(String inputDirPath, Map<String, String> paperMap, String outputDirPath) {
         try {
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);
-            HashSet<String> refPaperIdSet = new HashSet<>();
+            Set<String> refPaperIdSet = new HashSet<>();
             int hitCount = 0;
             int dirSize = inputDirList.size();
             for (int i = 0; i < dirSize; i++) {
@@ -119,12 +119,12 @@ public class RefPaperConverter {
         }
     }
 
-    private static void convertPapers(String inputDirPath, HashMap<String, String> paperMap, String outputDirPath) {
+    private static void convertPapers(String inputDirPath, Map<String, String> paperMap, String outputDirPath) {
         try {
             System.out.println("\tReading " + inputDirPath);
             List<File> inputFileList = FileUtil.getFileList(inputDirPath);
             FileUtil.makeDirIfNotExist(outputDirPath);
-            HashSet<String> refPaperIdSet = new HashSet<>();
+            Set<String> refPaperIdSet = new HashSet<>();
             int hitCount = 0;
             for (File inputFile : inputFileList) {
                 BufferedReader br = new BufferedReader(new FileReader(inputFile));
@@ -170,7 +170,7 @@ public class RefPaperConverter {
 
     private static void convert(String inputTrainDirPath, String inputTestDirPath, String paperFilePath,
                                 String outputTrainDirPath, String outputTestDirPath) {
-        HashMap<String, String> paperMap = buildPaperMap(paperFilePath);
+        Map<String, String> paperMap = buildPaperMap(paperFilePath);
         convertAuthors(inputTrainDirPath, paperMap, outputTrainDirPath);
         convertPapers(inputTrainDirPath, paperMap, outputTrainDirPath);
         convertPapers(inputTestDirPath, paperMap, outputTestDirPath);

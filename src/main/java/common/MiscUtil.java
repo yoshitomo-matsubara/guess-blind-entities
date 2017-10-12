@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class MiscUtil {
     public static void setOption(String optionArg, boolean hasArg, boolean required, String desc, Options options) {
@@ -33,8 +34,8 @@ public class MiscUtil {
         return cl;
     }
 
-    public static HashSet<String> buildAuthorIdSet(List<File> fileList) {
-        HashSet<String> authorIdSet = new HashSet<>();
+    public static Set<String> buildAuthorIdSet(List<File> fileList) {
+        Set<String> authorIdSet = new HashSet<>();
         for (File file : fileList) {
             String authorId = file.getName();
             authorIdSet.add(authorId);
@@ -42,7 +43,7 @@ public class MiscUtil {
         return authorIdSet;
     }
 
-    public static boolean checkIfAuthorExists(HashSet<String> authorIdSet, HashSet<String> trainingAuthorIdSet) {
+    public static boolean checkIfAuthorExists(Set<String> authorIdSet, Set<String> trainingAuthorIdSet) {
         Iterator<String> ite = authorIdSet.iterator();
         while (ite.hasNext()) {
             if (trainingAuthorIdSet.contains(ite.next())) {

@@ -1,10 +1,7 @@
 package common;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class FileUtil {
     public static List<File> getFileListR(String dirPath) {
@@ -108,10 +105,10 @@ public class FileUtil {
         }
     }
 
-    public static void distributeFiles(HashMap<String, List<String>> hashMap, HashSet<String> fileNameSet,
+    public static void distributeFiles(Map<String, List<String>> Map, Set<String> fileNameSet,
                                        boolean subDirMode, int suffixSize, String outputDirPath) {
         try {
-            for (String key : hashMap.keySet()) {
+            for (String key : Map.keySet()) {
                 String outputFilePath = subDirMode ?
                         outputDirPath + "/" + key.substring(key.length() - suffixSize) + "/" + key
                         : outputDirPath + "/" + key;
@@ -119,7 +116,7 @@ public class FileUtil {
                 File outputFile = new File(outputFilePath);
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
-                List<String> valueList = hashMap.get(key);
+                List<String> valueList = Map.get(key);
                 for (String value : valueList) {
                     bw.write(value);
                     bw.newLine();
@@ -132,18 +129,18 @@ public class FileUtil {
             System.err.println("Exception @ distributeFiles");
             e.printStackTrace();
         }
-        hashMap.clear();
+        Map.clear();
     }
 
-    public static void distributeFiles(HashMap<String, List<String>> hashMap,
-                                       HashSet<String> fileNameSet, String tmpFilePrefix, String outputDirPath) {
+    public static void distributeFiles(Map<String, List<String>> Map,
+                                       Set<String> fileNameSet, String tmpFilePrefix, String outputDirPath) {
         try {
-            for (String initial : hashMap.keySet()) {
+            for (String initial : Map.keySet()) {
                 File outputFile = new File(outputDirPath + "/" + tmpFilePrefix + initial);
                 makeParentDir(outputFile.getPath());
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
-                List<String> valueList = hashMap.get(initial);
+                List<String> valueList = Map.get(initial);
                 for (String value : valueList) {
                     bw.write(value);
                     bw.newLine();
@@ -156,18 +153,18 @@ public class FileUtil {
             System.err.println("Exception @ distributeFiles");
             e.printStackTrace();
         }
-        hashMap.clear();
+        Map.clear();
     }
 
-    public static HashSet<String> splitFile(String inputFilePath, int prefixLength,
+    public static Set<String> splitFile(String inputFilePath, int prefixLength,
                                             int bufferSize, String tmpFilePrefix, String outputDirPath) {
-        HashSet<String> prefixSet = new HashSet<>();
+        Set<String> prefixSet = new HashSet<>();
         try {
             makeDirIfNotExist(outputDirPath);
             File inputFile = new File(inputFilePath);
-            HashMap<String, List<String>> bufferMap = new HashMap<>();
+            Map<String, List<String>> bufferMap = new HashMap<>();
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
-            HashSet<String> fileNameSet = new HashSet<>();
+            Set<String> fileNameSet = new HashSet<>();
             int count = 0;
             String line;
             while ((line = br.readLine()) != null) {
@@ -193,9 +190,9 @@ public class FileUtil {
         return prefixSet;
     }
 
-    public static HashSet<String> splitFile(String inputFilePath, String delimiter, int keyIdx, int valueIdx,
+    public static Set<String> splitFile(String inputFilePath, String delimiter, int keyIdx, int valueIdx,
                                             int prefixLength, int bufferSize, String tmpFilePrefix, String outputDirPath) {
-        HashSet<String> prefixSet = new HashSet<>();
+        Set<String> prefixSet = new HashSet<>();
         try {
             File outputDir = new File (outputDirPath);
             if (!outputDir.exists()) {
@@ -203,9 +200,9 @@ public class FileUtil {
             }
 
             File inputFile = new File(inputFilePath);
-            HashMap<String, List<String>> bufferMap = new HashMap<>();
+            Map<String, List<String>> bufferMap = new HashMap<>();
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
-            HashSet<String> fileNameSet = new HashSet<>();
+            Set<String> fileNameSet = new HashSet<>();
             int count = 0;
             String line;
             while ((line = br.readLine()) != null) {
@@ -232,12 +229,12 @@ public class FileUtil {
         return prefixSet;
     }
 
-    public static void writeFile(HashMap<String, Integer> hashMap, String outputFilePath) {
+    public static void writeFile(Map<String, Integer> Map, String outputFilePath) {
         try {
             File publisherFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(publisherFile));
-            for (String venueId : hashMap.keySet()) {
-                bw.write(venueId + Config.FIRST_DELIMITER + String.valueOf(hashMap.get(venueId)));
+            for (String venueId : Map.keySet()) {
+                bw.write(venueId + Config.FIRST_DELIMITER + String.valueOf(Map.get(venueId)));
                 bw.newLine();
             }
             bw.close();

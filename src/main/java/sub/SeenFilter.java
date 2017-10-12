@@ -8,8 +8,8 @@ import org.apache.commons.cli.Options;
 import structure.Paper;
 
 import java.io.*;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SeenFilter {
     private static final String TRAIN_DIR_OPTION = "train";
@@ -23,7 +23,7 @@ public class SeenFilter {
         return options;
     }
 
-    private static void filter(File testFile, HashSet<String> authorIdSet, String outputDirPath) {
+    private static void filter(File testFile, Set<String> authorIdSet, String outputDirPath) {
         try {
             File outputFile = new File(outputDirPath + "/" + testFile.getName());
             BufferedReader br = new BufferedReader(new FileReader(testFile));
@@ -47,7 +47,7 @@ public class SeenFilter {
 
     private static void filter(String trainingDirPath, String testDirPath, String outputDirPath) {
         List<File> trainingFileList = FileUtil.getFileListR(trainingDirPath);
-        HashSet<String> authorIdSet = MiscUtil.buildAuthorIdSet(trainingFileList);
+        Set<String> authorIdSet = MiscUtil.buildAuthorIdSet(trainingFileList);
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         FileUtil.makeDirIfNotExist(outputDirPath);
         for (File testFile : testFileList) {

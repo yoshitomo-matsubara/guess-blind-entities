@@ -4,9 +4,7 @@ import common.Config;
 import structure.Author;
 import structure.Paper;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public abstract class BaseModel {
     public static final String TYPE = "ab";
@@ -16,8 +14,8 @@ public abstract class BaseModel {
     public final String authorId;
     public final String[] paperIds;
     protected Author author;
-    protected HashSet<String> paperIdSet;
-    protected HashMap<String, Integer> citeCountMap;
+    protected Set<String> paperIdSet;
+    protected Map<String, Integer> citeCountMap;
     protected int totalCitationCount;
 
     public BaseModel(Author author) {
@@ -75,7 +73,7 @@ public abstract class BaseModel {
         }
     }
 
-    public void setSocialPaperIds(List<BaseModel> allModelList, HashMap<String, Integer> modelIdMap) {}
+    public void setSocialPaperIds(List<BaseModel> allModelList, Map<String, Integer> modelIdMap) {}
 
     public abstract double estimate(Paper paper);
 
@@ -95,14 +93,14 @@ public abstract class BaseModel {
         return -1;
     }
 
-    public void shareCitationCounts(HashMap<String, Integer> totalCitationCountMap) {
+    public void shareCitationCounts(Map<String, Integer> totalCitationCountMap) {
         for (String refPaperId : this.citeCountMap.keySet()) {
             int count = totalCitationCountMap.getOrDefault(refPaperId, 0);
             totalCitationCountMap.put(refPaperId, count + this.citeCountMap.get(refPaperId));
         }
     }
 
-    public void setInverseCitationFrequencyWeights(HashMap<String, Integer> totalCitationCountMap) {}
+    public void setInverseCitationFrequencyWeights(Map<String, Integer> totalCitationCountMap) {}
 
     public int[] calcCounts(Paper paper) {
         int score = 0;

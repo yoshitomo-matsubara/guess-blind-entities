@@ -36,7 +36,7 @@ public class StatisticalAnalyzer {
 
     private static void analyzeMinFile(String orgFilePath, int index, String title) {
         try {
-            HashSet<String> idSet = new HashSet<>();
+            Set<String> idSet = new HashSet<>();
             File orgFile = new File(orgFilePath);
             BufferedReader br = new BufferedReader(new FileReader(orgFile));
             String line;
@@ -57,7 +57,7 @@ public class StatisticalAnalyzer {
 
     private static void analyzeMinListFile(String orgFilePath, int index, String title) {
         try {
-            HashSet<String> idSet = new HashSet<>();
+            Set<String> idSet = new HashSet<>();
             File orgFile = new File(orgFilePath);
             BufferedReader br = new BufferedReader(new FileReader(orgFile));
             String line;
@@ -91,8 +91,8 @@ public class StatisticalAnalyzer {
         return authorList;
     }
 
-    private static void analyzeBasicMetrics(List<Author> authorList, HashSet<String> authorIdSet,
-                                            HashSet<String> paperIdSet, HashSet<String> refPaperIdSet) {
+    private static void analyzeBasicMetrics(List<Author> authorList, Set<String> authorIdSet,
+                                            Set<String> paperIdSet, Set<String> refPaperIdSet) {
         int dupPaperCount = 0;
         int dupRefPaperCount = 0;
         for (Author author : authorList) {
@@ -120,18 +120,18 @@ public class StatisticalAnalyzer {
         System.out.println("# of reference paper IDs (including overlapped):\t" + String.valueOf(dupRefPaperCount));
     }
 
-    private static void analyzeAveMetrics(List<Author> authorList, HashSet<String> authorIdSet,
-                                          HashSet<String> paperIdSet, HashSet<String> refPaperIdSet) {
+    private static void analyzeAveMetrics(List<Author> authorList, Set<String> authorIdSet,
+                                          Set<String> paperIdSet, Set<String> refPaperIdSet) {
         System.out.println("# of unique paper IDs / a unique author ID:\t"
                 + String.valueOf((double)paperIdSet.size() / (double)authorIdSet.size()));
         System.out.println("# of unique reference paper IDs / a unique paper ID:\t"
                 + String.valueOf((double)refPaperIdSet.size() / (double)paperIdSet.size()));
         System.out.println("# of unique reference paper IDs / a unique author ID:\t"
                 + String.valueOf((double)refPaperIdSet.size() / (double)authorIdSet.size()));
-        TreeMap<Integer, Integer> paperCountMap = new TreeMap<>();
-        TreeMap<String, Integer> yearPaperCountMap = new TreeMap<>();
-        HashSet<String> usedPaperIdSet = new HashSet<>();
-        TreeMap<Integer, Integer> refCountMap = new TreeMap<>();
+        Map<Integer, Integer> paperCountMap = new TreeMap<>();
+        Map<String, Integer> yearPaperCountMap = new TreeMap<>();
+        Set<String> usedPaperIdSet = new HashSet<>();
+        Map<Integer, Integer> refCountMap = new TreeMap<>();
         for (Author author : authorList) {
             authorIdSet.add(author.id);
             if (!paperCountMap.containsKey(author.papers.length)) {
@@ -177,10 +177,10 @@ public class StatisticalAnalyzer {
         }
     }
 
-    private static void analyzeOverlappedAuthor(String testDirPath, HashSet<String> trainingAuthorIdSet) {
+    private static void analyzeOverlappedAuthor(String testDirPath, Set<String> trainingAuthorIdSet) {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
-        HashSet<String> testAuthorIdSet = new HashSet<>();
-        HashSet<String> overlappedIdSet = new HashSet<>();
+        Set<String> testAuthorIdSet = new HashSet<>();
+        Set<String> overlappedIdSet = new HashSet<>();
         try {
             for (File testFile : testFileList) {
                 BufferedReader br = new BufferedReader(new FileReader(testFile));
@@ -212,9 +212,9 @@ public class StatisticalAnalyzer {
     }
 
     private static void analyzeAuthors(String authorDirPath, String testDirPath) {
-        HashSet<String> authorIdSet = new HashSet<>();
-        HashSet<String> paperIdSet = new HashSet<>();
-        HashSet<String> refPaperIdSet = new HashSet<>();
+        Set<String> authorIdSet = new HashSet<>();
+        Set<String> paperIdSet = new HashSet<>();
+        Set<String> refPaperIdSet = new HashSet<>();
         List<Author> authorList = getAuthorList(authorDirPath);
         analyzeBasicMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);
         analyzeAveMetrics(authorList, authorIdSet, paperIdSet, refPaperIdSet);

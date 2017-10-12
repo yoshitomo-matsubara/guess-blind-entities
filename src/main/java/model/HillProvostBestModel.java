@@ -8,12 +8,13 @@ import structure.Author;
 import structure.Paper;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class HillProvostBestModel extends BaseModel {
     public static final String TYPE = "hpb";
     public static final String NAME = "Hill & Provost's Best Model";
     protected static final String TRAIN_SIZE_OPTION = "trainsize";
-    protected HashMap<String, Double> weightMap;
+    protected Map<String, Double> weightMap;
     protected double totalTrainPaperSize;
 
     public HillProvostBestModel(Author author, CommandLine cl) {
@@ -38,7 +39,7 @@ public class HillProvostBestModel extends BaseModel {
         super.train();
     }
 
-    public void setInverseCitationFrequencyWeights(HashMap<String, Integer> totalCitationCountMap) {
+    public void setInverseCitationFrequencyWeights(Map<String, Integer> totalCitationCountMap) {
         for (String paperId : this.paperIds) {
             int pseudoCount = totalCitationCountMap.getOrDefault(paperId, 0) + 1;
             double icfWeight = Math.log(this.totalTrainPaperSize / (double) pseudoCount);

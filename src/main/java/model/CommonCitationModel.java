@@ -6,12 +6,13 @@ import structure.Author;
 import structure.Paper;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class CommonCitationModel extends BaseModel {
     public static final String TYPE = "cc";
     public static final String NAME = "Common Citation Model";
     private static final String TRAIN_SIZE_OPTION = "trainsize";
-    protected HashMap<String, Double> weightMap;
+    protected Map<String, Double> weightMap;
     protected double totalTrainPaperSize;
 
     public CommonCitationModel(Author author, CommandLine cl) {
@@ -39,7 +40,7 @@ public class CommonCitationModel extends BaseModel {
     }
 
     @Override
-    public void setInverseCitationFrequencyWeights(HashMap<String, Integer> totalCitationCountMap) {
+    public void setInverseCitationFrequencyWeights(Map<String, Integer> totalCitationCountMap) {
         for (String refPaperId : this.citeCountMap.keySet()) {
             int pseudoCount = totalCitationCountMap.getOrDefault(refPaperId, 0) + 1;
             double icfWeight = (double) this.citeCountMap.get(refPaperId)

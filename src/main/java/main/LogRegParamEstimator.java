@@ -126,8 +126,8 @@ public class LogRegParamEstimator {
         return trainPaperList;
     }
 
-    private static Pair<HashMap<String, LogisticRegressionModel>, List<String>> readModelFiles(String modelDirPath) {
-        HashMap<String, LogisticRegressionModel> modelMap = new HashMap<>();
+    private static Pair<Map<String, LogisticRegressionModel>, List<String>> readModelFiles(String modelDirPath) {
+        Map<String, LogisticRegressionModel> modelMap = new HashMap<>();
         List<String> trainAuthorIdList = new ArrayList<>();
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
         System.out.println("Start:\treading model files");
@@ -186,7 +186,7 @@ public class LogRegParamEstimator {
     }
 
     private static void updateParams(double[] params, List<Paper> batchPaperList,
-                                     HashMap<String, LogisticRegressionModel> modelMap, List<String> trainAuthorIdList,
+                                     Map<String, LogisticRegressionModel> modelMap, List<String> trainAuthorIdList,
                                      int negativeSampleSize, double regParam, double learnRate) {
         double[] gradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
         int count = 0;
@@ -262,7 +262,7 @@ public class LogRegParamEstimator {
         }
     }
 
-    private static void showLogLikelihood(double[] params, List<Paper> paperList, HashMap<String, LogisticRegressionModel> modelMap,
+    private static void showLogLikelihood(double[] params, List<Paper> paperList, Map<String, LogisticRegressionModel> modelMap,
                                           List<String> trainAuthorIdList, int negativeSampleSize, double regParam) {
         double logLikelihood = 0.0d;
         int count = 0;
@@ -327,8 +327,8 @@ public class LogRegParamEstimator {
         double threshold = Double.parseDouble(optionParams[5]);
         int startIdx = Integer.parseInt(optionParams[6]);
         List<Paper> trainPaperList = readPaperFiles(trainDirPath);
-        Pair<HashMap<String, LogisticRegressionModel>, List<String>> pair = readModelFiles(modelDirPath);
-        HashMap<String, LogisticRegressionModel> modelMap = pair.first;
+        Pair<Map<String, LogisticRegressionModel>, List<String>> pair = readModelFiles(modelDirPath);
+        Map<String, LogisticRegressionModel> modelMap = pair.first;
         List<String> trainAuthorIdList = pair.second;
         int t = 0;
         System.out.println("Start:\testimating parameters");

@@ -11,6 +11,7 @@ import structure.Author;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 public class ModelBuilder {
@@ -110,7 +111,7 @@ public class ModelBuilder {
         int availableCount = 0;
         int dirSize = authorDirList.size();
         List<BaseModel> allModelList = new ArrayList<>();
-        HashMap<String, List<BaseModel>> modelListMap = new HashMap<>();
+        Map<String, List<BaseModel>> modelListMap = new HashMap<>();
         for (int i = 0; i < dirSize; i++) {
             File authorDir = authorDirList.remove(0);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));
@@ -131,7 +132,7 @@ public class ModelBuilder {
         if (HillProvostBestModel.checkIfValid(modelType, cl) || SocialCitationModel.checkIfValid(modelType, cl)
                 || CommonCitationModel.checkIfValid(modelType, cl) || LogisticRegressionModel.checkIfValid(modelType)) {
             if (SocialCitationModel.checkIfValid(modelType) || LogisticRegressionModel.checkIfValid(modelType)) {
-                HashMap<String, Integer> modelIdMap = new HashMap<>();
+                Map<String, Integer> modelIdMap = new HashMap<>();
                 int allSize = allModelList.size();
                 for (int i = 0; i < allSize; i++) {
                     BaseModel model = allModelList.get(i);
@@ -146,7 +147,7 @@ public class ModelBuilder {
             if (HillProvostBestModel.checkIfValid(modelType, cl) || SocialCitationModel.checkIfValid(modelType, cl)
                     || CommonCitationModel.checkIfValid(modelType, cl)
                     || LogisticRegressionModel.checkIfValid(modelType)) {
-                HashMap<String, Integer> totalCitationCountMap = new HashMap<>();
+                Map<String, Integer> totalCitationCountMap = new HashMap<>();
                 for (BaseModel model : allModelList) {
                     model.shareCitationCounts(totalCitationCountMap);
                 }

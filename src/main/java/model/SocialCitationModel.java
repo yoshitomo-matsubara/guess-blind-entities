@@ -5,18 +5,15 @@ import org.apache.commons.cli.CommandLine;
 import structure.Author;
 import structure.Paper;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class SocialCitationModel extends BaseModel {
     public static final String TYPE = "sc";
     public static final String NAME = "Social Citation Model";
     protected static final String TRAIN_SIZE_OPTION = "trainsize";
-    protected HashSet<String> coauthorIdSet;
-    protected HashMap<String, Integer> socialPaperCountMap;
-    protected HashMap<String, Double> socialWeightMap;
+    protected Set<String> coauthorIdSet;
+    protected Map<String, Integer> socialPaperCountMap;
+    protected Map<String, Double> socialWeightMap;
     protected double totalTrainPaperSize;
     protected int totalSocialCitationCount;
 
@@ -68,7 +65,7 @@ public class SocialCitationModel extends BaseModel {
     }
 
     @Override
-    public void setSocialPaperIds(List<BaseModel> allModelList, HashMap<String, Integer> modelIdMap) {
+    public void setSocialPaperIds(List<BaseModel> allModelList, Map<String, Integer> modelIdMap) {
         Iterator<String> ite = this.coauthorIdSet.iterator();
         while (ite.hasNext()) {
             String coauthorId = ite.next();
@@ -92,7 +89,7 @@ public class SocialCitationModel extends BaseModel {
     }
 
     @Override
-    public void setInverseCitationFrequencyWeights(HashMap<String, Integer> totalCitationCountMap) {
+    public void setInverseCitationFrequencyWeights(Map<String, Integer> totalCitationCountMap) {
         for (String socialPaperId : this.socialPaperCountMap.keySet()) {
             int pseudoCount = totalCitationCountMap.getOrDefault(socialPaperId, 0) + 1;
             double icfWeight = (double) this.socialPaperCountMap.get(socialPaperId)

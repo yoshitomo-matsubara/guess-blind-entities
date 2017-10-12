@@ -6,7 +6,9 @@ import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.*;
 
 public class PaperSeparator {
@@ -97,12 +99,12 @@ public class PaperSeparator {
             int trainCountP = 0;
             int trainCountA = 0;
             int testCount = 0;
-            HashMap<String, List<String>> trainListMapP = new HashMap<>();
-            HashMap<String, List<String>> trainListMapA = new HashMap<>();
-            HashMap<String, List<String>> testListMap = new HashMap<>();
-            HashSet<String> trainFileNameSetP = new HashSet<>();
-            HashSet<String> trainFileNameSetA = new HashSet<>();
-            HashSet<String> testFileNameSet = new HashSet<>();
+            Map<String, List<String>> trainListMapP = new HashMap<>();
+            Map<String, List<String>> trainListMapA = new HashMap<>();
+            Map<String, List<String>> testListMap = new HashMap<>();
+            Set<String> trainFileNameSetP = new HashSet<>();
+            Set<String> trainFileNameSetA = new HashSet<>();
+            Set<String> testFileNameSet = new HashSet<>();
             BufferedReader br = new BufferedReader(new FileReader(new File(inputFilePath)));
             String line;
             while ((line = br.readLine()) != null) {

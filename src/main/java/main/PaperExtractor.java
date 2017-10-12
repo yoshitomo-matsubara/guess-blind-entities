@@ -8,10 +8,7 @@ import org.apache.commons.cli.Options;
 import structure.Paper;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class PaperExtractor {
     private static final String TRAIN_DIR_OPTION = "train";
@@ -25,7 +22,7 @@ public class PaperExtractor {
         return options;
     }
 
-    public static void readAuthorFiles(List<File> trainingFileList, HashSet<String> paperIdSet) {
+    public static void readAuthorFiles(List<File> trainingFileList, Set<String> paperIdSet) {
         System.out.println("\tStart:\treading author files");
         try {
             for (File trainingFile : trainingFileList) {
@@ -48,14 +45,14 @@ public class PaperExtractor {
         System.out.println("\tEnd:\treading author files");
     }
 
-    private static void writeFiles(String inputFilePath, HashSet<String> paperIdSet, String outputDirPath) {
+    private static void writeFiles(String inputFilePath, Set<String> paperIdSet, String outputDirPath) {
         try {
             FileUtil.makeDirIfNotExist(outputDirPath);
-            HashMap<String, List<String>> yearMap = new HashMap<>();
+            Map<String, List<String>> yearMap = new HashMap<>();
             BufferedReader br = new BufferedReader(new FileReader(new File(inputFilePath)));
             String line;
             int count = 0;
-            HashSet<String> yearSet = new HashSet<>();
+            Set<String> yearSet = new HashSet<>();
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
                 if (paperIdSet.contains(paper.id)) {
@@ -108,7 +105,7 @@ public class PaperExtractor {
         }
 
         int dirSize = authorDirList.size();
-        HashSet<String> paperIdSet = new HashSet<>();
+        Set<String> paperIdSet = new HashSet<>();
         for (int i = 0; i < dirSize; i++) {
             File authorDir = authorDirList.remove(0);
             System.out.println("Stage " + String.valueOf(i + 1) + "/" + String.valueOf(dirSize));

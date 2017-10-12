@@ -8,6 +8,7 @@ import org.apache.commons.cli.Options;
 
 import java.io.*;
 import java.util.HashSet;
+import java.util.Set;
 
 public class ColumnFilter {
     private static final String FILTER_FILE_OPTION = "f";
@@ -22,8 +23,8 @@ public class ColumnFilter {
         return options;
     }
 
-    private static HashSet<String> readFilterFile(String filterFilePath) {
-        HashSet<String> filterSet = new HashSet<>();
+    private static Set<String> readFilterFile(String filterFilePath) {
+        Set<String> filterSet = new HashSet<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(filterFilePath)));
             String line;
@@ -39,7 +40,7 @@ public class ColumnFilter {
     }
 
     private static void filter(String inputFilePath, String filterFilePath, int columnIndex, String outputFilePath) {
-        HashSet<String> filterSet = readFilterFile(filterFilePath);
+        Set<String> filterSet = readFilterFile(filterFilePath);
         if (filterSet.size() == 0 || columnIndex < 0) {
             return;
         }

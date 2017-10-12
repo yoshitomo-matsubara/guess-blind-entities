@@ -30,8 +30,8 @@ public class AffiliationExtractor {
         return options;
     }
 
-    private static HashSet<String> readValidPaperListFile(String paperListFilePath) {
-        HashSet<String> validPaperIdSet = new HashSet<>();
+    private static Set<String> readValidPaperListFile(String paperListFilePath) {
+        Set<String> validPaperIdSet = new HashSet<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(paperListFilePath)));
             String line;
@@ -49,15 +49,15 @@ public class AffiliationExtractor {
         return validPaperIdSet;
     }
 
-    private static HashSet<String> readIdListFile(File inputFile, String delimiter, int keyIdx, int valueIdxA,
+    private static Set<String> readIdListFile(File inputFile, String delimiter, int keyIdx, int valueIdxA,
                                                   int valueIdxB, int minIdLength, String tmpOutputDirPath) {
-        HashSet<String> prefixSet = new HashSet<>();
+        Set<String> prefixSet = new HashSet<>();
         try {
             System.out.println("\tStart:\treading " + inputFile.getPath());
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
             int count = 0;
-            HashSet<String> fileNameSet = new HashSet<>();
-            HashMap<String, List<String>> bufferMap = new HashMap<>();
+            Set<String> fileNameSet = new HashSet<>();
+            Map<String, List<String>> bufferMap = new HashMap<>();
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(delimiter);
@@ -88,9 +88,9 @@ public class AffiliationExtractor {
         return prefixSet;
     }
 
-    private static HashMap<String, List<String>> readDistributedFiles(String inputFilePath, String delimiter,
-                                                                      HashSet<String> validPaperIdSet) {
-        HashMap<String, List<String>> hashMap = new HashMap<>();
+    private static Map<String, List<String>> readDistributedFiles(String inputFilePath, String delimiter,
+                                                                      Set<String> validPaperIdSet) {
+        Map<String, List<String>> Map = new HashMap<>();
         try {
             System.out.println("\tStart:\treading " + inputFilePath);
             File inputFile = new File(inputFilePath);
@@ -100,10 +100,10 @@ public class AffiliationExtractor {
                 String[] elements = line.split(delimiter);
                 if (!validPaperIdSet.contains(elements[0])) {
                     continue;
-                } else if (!hashMap.containsKey(elements[0])) {
-                    hashMap.put(elements[0], new ArrayList<>());
+                } else if (!Map.containsKey(elements[0])) {
+                    Map.put(elements[0], new ArrayList<>());
                 }
-                hashMap.get(elements[0]).add(elements[1]);
+                Map.get(elements[0]).add(elements[1]);
             }
 
             br.close();
@@ -113,12 +113,12 @@ public class AffiliationExtractor {
             System.err.println("Exception @ readDistributedFiles");
             e.printStackTrace();
         }
-        return hashMap;
+        return Map;
     }
 
     private static void extractFromIdListFile(String inputFilePath, String delimiter, int keyIdx, int valueIdxA,
                                               int valueIdxB, int minIdLength, int minValueSize,
-                                              HashSet<String> validPaperIdSet, String tmpDirPath, String outputDirPath) {
+                                              Set<String> validPaperIdSet, String tmpDirPath, String outputDirPath) {
         if (inputFilePath == null) {
             return;
         }
@@ -127,14 +127,14 @@ public class AffiliationExtractor {
         try {
             File inputFile = new File(inputFilePath);
             String tmpOutputDirPath = tmpDirPath != null ? tmpDirPath : inputFile.getParent();
-            HashSet<String> prefixSet =
+            Set<String> prefixSet =
                     readIdListFile(inputFile, delimiter, keyIdx,valueIdxA, valueIdxB,minIdLength, tmpOutputDirPath);
             File outputFile = new File(outputDirPath + "/" + EXTRA_FILE_PREFIX + inputFile.getName());
             boolean first = true;
             Iterator<String> ite = prefixSet.iterator();
             while (ite.hasNext()) {
                 String prefix = ite.next();
-                HashMap<String, List<String>> distributedMap =
+                Map<String, List<String>> distributedMap =
                         readDistributedFiles(tmpOutputDirPath + "/" + TMP_FILE_PREFIX + prefix, delimiter, validPaperIdSet);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
                 for (String key : distributedMap.keySet()) {
@@ -162,7 +162,7 @@ public class AffiliationExtractor {
     }
 
     private static void extract(String inputFilePath, String affilsFilePath, String tmpDirPath, String outputDirPath) {
-        HashSet<String> validPaperIdSet = readValidPaperListFile(inputFilePath);
+        Set<String> validPaperIdSet = readValidPaperListFile(inputFilePath);
         extractFromIdListFile(affilsFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX, AUTHOR_ID_INDEX,
                 AFFILIATION_ID_INDEX, ID_MIN_LENGTH, AUTHOR_LIST_MIN_SIZE, validPaperIdSet, tmpDirPath, outputDirPath);
     }

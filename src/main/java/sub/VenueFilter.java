@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class VenueFilter {
     private static final String VENUE_ID_LIST_FILE_OPTION = "vid";
@@ -52,8 +53,8 @@ public class VenueFilter {
         return options;
     }
 
-    private static HashSet<String> readVenueIdListFile(String vidListFilePath) {
-        HashSet<String> vidSet = new HashSet<>();
+    private static Set<String> readVenueIdListFile(String vidListFilePath) {
+        Set<String> vidSet = new HashSet<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(vidListFilePath)));
             String line;
@@ -69,7 +70,7 @@ public class VenueFilter {
         return vidSet;
     }
 
-    private static void filterTrainData(String trainInputDirPath, HashSet<String> vidSet, int minHitCount,
+    private static void filterTrainData(String trainInputDirPath, Set<String> vidSet, int minHitCount,
                                         int trainStartYear, int trainEndYear, String trainOutputDirPath) {
         try {
             List<File> inputDirList = FileUtil.getDirList(trainInputDirPath);
@@ -124,7 +125,7 @@ public class VenueFilter {
         }
     }
 
-    private static void filterTestData(String testInputDirPath, HashSet<String> vidSet, int testStartYear,
+    private static void filterTestData(String testInputDirPath, Set<String> vidSet, int testStartYear,
                                        int testEndYear, String testOutputDirPath) {
         try {
             List<File> inputDirList = FileUtil.getDirList(testInputDirPath);
@@ -172,7 +173,7 @@ public class VenueFilter {
     private static void filter(String vidListFilePath, int minHitCount, String trainInputDirPath,
                                String testInputDirPath, int trainStartYear, int trainEndYear, int testStartYear,
                                int testEndYear, String trainOutputDirPath, String testOutputDirPath) {
-        HashSet<String> vidSet = readVenueIdListFile(vidListFilePath);
+        Set<String> vidSet = readVenueIdListFile(vidListFilePath);
         if (vidSet.size() == 0) {
             return;
         }

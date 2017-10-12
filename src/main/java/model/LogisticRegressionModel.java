@@ -8,13 +8,14 @@ import structure.Author;
 import structure.Paper;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class LogisticRegressionModel extends SocialCitationModel {
     public static final String TYPE = "lr";
     public static final String NAME = "Logistic Regression Model";
     public static final int PARAM_SIZE = 7;
     protected static final String PARAM_OPTION = "param";
-    protected HashMap<String, Double> commonIcfWeightMap, selfIcfWeightMap;
+    protected Map<String, Double> commonIcfWeightMap, selfIcfWeightMap;
     protected double[] params;
 
     public LogisticRegressionModel(Author author, CommandLine cl) {
@@ -139,7 +140,7 @@ public class LogisticRegressionModel extends SocialCitationModel {
     }
 
     @Override
-    public void setInverseCitationFrequencyWeights(HashMap<String, Integer> totalCitationCountMap) {
+    public void setInverseCitationFrequencyWeights(Map<String, Integer> totalCitationCountMap) {
         super.setInverseCitationFrequencyWeights(totalCitationCountMap);
         for (String commonPaperId : this.citeCountMap.keySet()) {
             int pseudoCount = totalCitationCountMap.getOrDefault(commonPaperId, 0) + 1;

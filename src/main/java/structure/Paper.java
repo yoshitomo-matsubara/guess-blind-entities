@@ -3,11 +3,12 @@ package structure;
 import common.Config;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class Paper {
     public final String id, year, venueId;
     public final String[] refPaperIds;
-    private final HashSet<String> authorIdSet;
+    private final Set<String> authorIdSet;
 
     public Paper(String inputLine) {
         String[] elements = inputLine.split(Config.FIRST_DELIMITER);
@@ -22,7 +23,7 @@ public class Paper {
         }
     }
 
-    public HashSet<String> getAuthorSet() {
+    public Set<String> getAuthorSet() {
         return this.authorIdSet;
     }
 

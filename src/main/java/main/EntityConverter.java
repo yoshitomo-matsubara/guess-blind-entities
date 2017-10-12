@@ -29,9 +29,9 @@ public class EntityConverter {
         return options;
     }
 
-    private static HashMap<String, String> buildEntityIdMap(String entityMappingFilePath) {
+    private static Map<String, String> buildEntityIdMap(String entityMappingFilePath) {
         System.out.println("\tStart:\treading entity mapping file");
-        HashMap<String, String> entityIdMap = new HashMap<>();
+        Map<String, String> entityIdMap = new HashMap<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(entityMappingFilePath)));
             String line;
@@ -57,7 +57,7 @@ public class EntityConverter {
         return inputDirPath != null && outputDirPath != null;
     }
 
-    private static void convertPapers(String inputDirPath, HashMap<String, String> entityIdMap, String outputDirPath) {
+    private static void convertPapers(String inputDirPath, Map<String, String> entityIdMap, String outputDirPath) {
         System.out.println("\tStart:\tconverting paper files in " + inputDirPath);
         List<File> inputFileList = FileUtil.getFileList(inputDirPath);
         FileUtil.makeDirIfNotExist(outputDirPath);
@@ -71,7 +71,7 @@ public class EntityConverter {
                 while ((line = br.readLine()) != null) {
                     String[] elements = line.split(Config.FIRST_DELIMITER);
                     String[] authorIds = elements[3].split(Config.SECOND_DELIMITER);
-                    HashSet<String> entityIdSet = new HashSet<>();
+                    Set<String> entityIdSet = new HashSet<>();
                     for (String authorId : authorIds) {
                         String key = elements[0] + authorId;
                         if (entityIdMap.containsKey(key)) {
@@ -111,8 +111,8 @@ public class EntityConverter {
     private static void distributeAffiliationFiles(String outputTrainDirPath) {
         System.out.println("\tStart:\tdistributing paper files in " + outputTrainDirPath);
         try {
-            HashSet<String> fileNameSet = new HashSet<>();
-            HashMap<String, List<String>> paperListMap = new HashMap<>();
+            Set<String> fileNameSet = new HashSet<>();
+            Map<String, List<String>> paperListMap = new HashMap<>();
             int count = 0;
             List<File> inputFileList = FileUtil.getFileList(outputTrainDirPath);
             for (File inputFile : inputFileList) {
@@ -145,7 +145,7 @@ public class EntityConverter {
 
     private static void convert(String inputTrainDirPath, String inputTestDirPath, String entityMappingFilePath,
                                 String outputTrainDirPath, String outputTestDirPath) {
-        HashMap<String, String> entityIdMap = buildEntityIdMap(entityMappingFilePath);
+        Map<String, String> entityIdMap = buildEntityIdMap(entityMappingFilePath);
         if (checkIfValidParams(inputTrainDirPath, outputTrainDirPath)) {
             convertPapers(inputTrainDirPath, entityIdMap, outputTrainDirPath);
             distributeAffiliationFiles(outputTrainDirPath);

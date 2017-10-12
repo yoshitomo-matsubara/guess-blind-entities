@@ -59,8 +59,8 @@ public class LogLikelihoodEstimator {
     }
 
     private static int buildMaps(File testFile, List<MultiNaiveBayesModel> modelList,
-                                  HashMap<String, Double> totalProbMap,
-                                  HashMap<String, MultiNaiveBayesModel> modelMap) {
+                                  Map<String, Double> totalProbMap,
+                                  Map<String, MultiNaiveBayesModel> modelMap) {
         int testPaperCount = 0;
         try {
             BufferedReader br = new BufferedReader(new FileReader(testFile));
@@ -83,15 +83,15 @@ public class LogLikelihoodEstimator {
         return testPaperCount;
     }
 
-    private static double calcLogLikelihood(File testFile, HashMap<String, Double> totalProbMap,
-                              HashMap<String, MultiNaiveBayesModel> modelMap) {
+    private static double calcLogLikelihood(File testFile, Map<String, Double> totalProbMap,
+                              Map<String, MultiNaiveBayesModel> modelMap) {
         double logLikelihood = 0.0d;
         try {
             BufferedReader br = new BufferedReader(new FileReader(testFile));
             String line;
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
-                HashSet<String> authorIdSet = paper.getAuthorSet();
+                Set<String> authorIdSet = paper.getAuthorSet();
                 Iterator<String> ite = authorIdSet.iterator();
                 while (ite.hasNext()) {
                     String authorId = ite.next();
@@ -116,8 +116,8 @@ public class LogLikelihoodEstimator {
         List<File> testFileList = FileUtil.getFileList(testDirPath);
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
         Collections.sort(modelFileList);
-        HashMap<String, Double> totalProbMap = new HashMap<>();
-        HashMap<String, MultiNaiveBayesModel> modelMap = new HashMap<>();
+        Map<String, Double> totalProbMap = new HashMap<>();
+        Map<String, MultiNaiveBayesModel> modelMap = new HashMap<>();
         int testPaperCount = 0;
         int listSize = modelFileList.size();
         for (int i = 0; i < listSize; i++) {
