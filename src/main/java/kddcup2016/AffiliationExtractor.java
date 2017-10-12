@@ -90,7 +90,7 @@ public class AffiliationExtractor {
 
     private static Map<String, List<String>> readDistributedFiles(String inputFilePath, String delimiter,
                                                                       Set<String> validPaperIdSet) {
-        Map<String, List<String>> Map = new HashMap<>();
+        Map<String, List<String>> map = new HashMap<>();
         try {
             System.out.println("\tStart:\treading " + inputFilePath);
             File inputFile = new File(inputFilePath);
@@ -100,10 +100,10 @@ public class AffiliationExtractor {
                 String[] elements = line.split(delimiter);
                 if (!validPaperIdSet.contains(elements[0])) {
                     continue;
-                } else if (!Map.containsKey(elements[0])) {
-                    Map.put(elements[0], new ArrayList<>());
+                } else if (!map.containsKey(elements[0])) {
+                    map.put(elements[0], new ArrayList<>());
                 }
-                Map.get(elements[0]).add(elements[1]);
+                map.get(elements[0]).add(elements[1]);
             }
 
             br.close();
@@ -113,7 +113,7 @@ public class AffiliationExtractor {
             System.err.println("Exception @ readDistributedFiles");
             e.printStackTrace();
         }
-        return Map;
+        return map;
     }
 
     private static void extractFromIdListFile(String inputFilePath, String delimiter, int keyIdx, int valueIdxA,
