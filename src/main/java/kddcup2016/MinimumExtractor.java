@@ -58,11 +58,7 @@ public class MinimumExtractor {
     }
 
     private static void updateCountMap(Map<String, Integer> countMap, String venueId) {
-        if (!countMap.containsKey(venueId)) {
-            countMap.put(venueId, 1);
-        } else {
-            countMap.put(venueId, countMap.get(venueId) + 1);
-        }
+        countMap.put(venueId, countMap.getOrDefault(venueId, 0) + 1);
     }
 
     private static void extractFromPapersFile(String inputFilePath, String delimiter, String outputDirPath) {

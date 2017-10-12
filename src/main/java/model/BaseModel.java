@@ -63,11 +63,7 @@ public abstract class BaseModel {
     public void train() {
         for (Paper paper : this.author.papers) {
             for (String refPaperId : paper.refPaperIds) {
-                if (!this.citeCountMap.containsKey(refPaperId)) {
-                    this.citeCountMap.put(refPaperId, 1);
-                } else {
-                    this.citeCountMap.put(refPaperId, this.citeCountMap.get(refPaperId) + 1);
-                }
+                this.citeCountMap.put(refPaperId, this.citeCountMap.getOrDefault(refPaperId, 0) + 1);
                 this.totalCitationCount++;
             }
         }

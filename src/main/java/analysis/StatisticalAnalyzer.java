@@ -134,30 +134,18 @@ public class StatisticalAnalyzer {
         Map<Integer, Integer> refCountMap = new TreeMap<>();
         for (Author author : authorList) {
             authorIdSet.add(author.id);
-            if (!paperCountMap.containsKey(author.papers.length)) {
-                paperCountMap.put(author.papers.length, 0);
-            }
-
-            paperCountMap.put(author.papers.length, paperCountMap.get(author.papers.length) + 1);
+            paperCountMap.put(author.papers.length, paperCountMap.getOrDefault(author.papers.length, 0) + 1);
             for (Paper paper : author.papers) {
                 paperIdSet.add(paper.id);
-                if (!yearPaperCountMap.containsKey(paper.year)) {
-                    yearPaperCountMap.put(paper.year, 0);
-                }
-
                 if (!usedPaperIdSet.contains(paper.id)) {
                     usedPaperIdSet.add(paper.id);
-                    yearPaperCountMap.put(paper.year, yearPaperCountMap.get(paper.year) + 1);
+                    yearPaperCountMap.put(paper.year, yearPaperCountMap.getOrDefault(paper.year, 0) + 1);
                 }
 
                 for (String refPaperId : paper.refPaperIds) {
                     refPaperIdSet.add(refPaperId);
                 }
-
-                if (!refCountMap.containsKey(paper.refPaperIds.length)) {
-                    refCountMap.put(paper.refPaperIds.length, 0);
-                }
-                refCountMap.put(paper.refPaperIds.length, refCountMap.get(paper.refPaperIds.length) + 1);
+                refCountMap.put(paper.refPaperIds.length, refCountMap.getOrDefault(paper.refPaperIds.length, 0) + 1);
             }
         }
 

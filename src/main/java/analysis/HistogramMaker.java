@@ -99,11 +99,7 @@ public class HistogramMaker {
                 int year = Integer.parseInt(paper.year);
                 if (startYear <= year && year <= endYear) {
                     int refPaperSize = paper.refPaperIds.length;
-                    if (!refPaperCountMap.containsKey(refPaperSize)) {
-                        refPaperCountMap.put(refPaperSize, 1);
-                    } else {
-                        refPaperCountMap.put(refPaperSize, refPaperCountMap.get(refPaperSize) + 1);
-                    }
+                    refPaperCountMap.put(refPaperSize, refPaperCountMap.getOrDefault(refPaperSize, 0) + 1);
                 }
             }
 
@@ -136,10 +132,8 @@ public class HistogramMaker {
                     int value = Integer.parseInt(elements[1]);
                     if (key < counts.length) {
                         counts[key] += value;
-                    } else if (!countMap.containsKey(key)) {
-                        countMap.put(key, value);
                     } else {
-                        countMap.put(key, countMap.get(key) + value);
+                        countMap.put(key, countMap.getOrDefault(key, 0) + value);
                     }
                 }
 
@@ -199,19 +193,15 @@ public class HistogramMaker {
                     br.close();
                     if (totalCount < authorCounts.length) {
                         authorCounts[totalCount]++;
-                    } else if (!exAuthorCountMap.containsKey(totalCount)) {
-                        exAuthorCountMap.put(totalCount, 1);
                     } else {
-                        exAuthorCountMap.put(totalCount, exAuthorCountMap.get(totalCount) + 1);
+                        exAuthorCountMap.put(totalCount, exAuthorCountMap.getOrDefault(totalCount, 0) + 1);
                     }
 
                     int refPaperSize = refPaperIdSet.size();
                     if (refPaperSize < refAuthorCounts.length) {
                         refAuthorCounts[refPaperSize]++;
-                    } else if (!exRefAuthorCountMap.containsKey(refPaperSize)) {
-                        exRefAuthorCountMap.put(refPaperSize, 1);
                     } else {
-                        exRefAuthorCountMap.put(refPaperSize, exRefAuthorCountMap.get(refPaperSize) + 1);
+                        exRefAuthorCountMap.put(refPaperSize, exRefAuthorCountMap.getOrDefault(refPaperSize, 0) + 1);
                     }
                 }
 

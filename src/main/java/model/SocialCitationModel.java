@@ -77,11 +77,7 @@ public class SocialCitationModel extends BaseModel {
                         continue;
                     }
 
-                    if (!this.socialPaperCountMap.containsKey(socialPaperId)) {
-                        this.socialPaperCountMap.put(socialPaperId, 1);
-                    } else {
-                        this.socialPaperCountMap.put(socialPaperId, this.socialPaperCountMap.get(socialPaperId) + 1);
-                    }
+                    this.socialPaperCountMap.put(socialPaperId, this.socialPaperCountMap.getOrDefault(socialPaperId, 0) + 1);
                     this.totalSocialCitationCount++;
                 }
             }
