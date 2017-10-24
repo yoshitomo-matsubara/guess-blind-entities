@@ -23,6 +23,7 @@ public class SocialCitationModel extends BaseModel {
         this.coauthorIdSet = new HashSet<>();
         this.socialPaperCountMap = new HashMap<>();
         this.socialWeightMap = new HashMap<>();
+        this.totalSocialCitationCount = 0;
     }
 
     public SocialCitationModel(String line, boolean isLogRegModel) {
@@ -35,15 +36,15 @@ public class SocialCitationModel extends BaseModel {
         }
 
         String[] elements = line.split(Config.FIRST_DELIMITER);
-        if (elements[7] != null && elements[7].length() > 0) {
+        if (!elements[7].equals(Config.NULL) && elements[7].length() > 0) {
             String[] socialStrs = elements[7].split(Config.SECOND_DELIMITER);
             for (String socialStr : socialStrs) {
                 String[] keyValue = socialStr.split(Config.KEY_VALUE_DELIMITER);
                 this.socialPaperCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
                 this.socialWeightMap.put(keyValue[0], Double.parseDouble(keyValue[2]));
             }
-            this.totalSocialCitationCount = Integer.parseInt(elements[8]);
         }
+        this.totalSocialCitationCount = Integer.parseInt(elements[8]);
     }
 
     public SocialCitationModel(String line) {
@@ -158,6 +159,10 @@ public class SocialCitationModel extends BaseModel {
             double socialIcfWeight = this.socialWeightMap.get(refPaperId);
             sb.append(refPaperId + Config.KEY_VALUE_DELIMITER + String.valueOf(socialCount)
                     + Config.KEY_VALUE_DELIMITER + String.valueOf(socialIcfWeight));
+        }
+
+        if (first) {
+            sb.append(Config.NULL);
         }
 
         sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalSocialCitationCount));
