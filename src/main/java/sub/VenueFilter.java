@@ -120,7 +120,7 @@ public class VenueFilter {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Exception @ filterTestData");
+            System.err.println("Exception @ filterTrainData");
             e.printStackTrace();
         }
     }
