@@ -37,7 +37,7 @@ public class LogisticRegressionModel extends SocialCitationModel {
         }
 
         this.totalCitationCount = Integer.parseInt(elements[5]);
-        if (elements[7] != null && elements[7].length() > 0) {
+        if (!elements[7].equals(Config.NULL) && elements[7].length() > 0) {
             String[] socialStrs = elements[7].split(Config.SECOND_DELIMITER);
             for (String socialStr : socialStrs) {
                 String[] keyValue = socialStr.split(Config.KEY_VALUE_DELIMITER);
@@ -156,14 +156,14 @@ public class LogisticRegressionModel extends SocialCitationModel {
         }
     }
 
-    private boolean checkIfValidValue(double[] featureValues) {
+    public static boolean checkIfValidValues(double[] featureValues) {
         return featureValues[1] > 0.0d || featureValues[3] > 0.0d || featureValues[5] > 0.0d;
     }
 
     @Override
     public double estimate(Paper paper) {
         double[] featureValues = extractFeatureValues(this, paper);
-        return checkIfValidValue(featureValues) ? logisticFunction(featureValues) : INVALID_VALUE;
+        return checkIfValidValues(featureValues) ? logisticFunction(featureValues) : INVALID_VALUE;
     }
 
     public static void setOptions(Options options) {
@@ -211,6 +211,10 @@ public class LogisticRegressionModel extends SocialCitationModel {
             double socialIcfWeight = this.socialWeightMap.get(refPaperId);
             sb.append(refPaperId + Config.KEY_VALUE_DELIMITER + String.valueOf(socialCount)
                     + Config.KEY_VALUE_DELIMITER + String.valueOf(socialIcfWeight));
+        }
+
+        if (socialFirst) {
+            sb.append(Config.NULL);
         }
 
         sb.append(Config.FIRST_DELIMITER + String.valueOf(this.totalSocialCitationCount) + Config.FIRST_DELIMITER);
