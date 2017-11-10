@@ -2,8 +2,7 @@ package structure;
 
 import common.Config;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Paper {
     public final String id, year, venueId;
@@ -11,16 +10,16 @@ public class Paper {
     private final Set<String> authorIdSet;
 
     public Paper(String inputLine) {
+        this.authorIdSet = new HashSet<>();
         String[] elements = inputLine.split(Config.FIRST_DELIMITER);
         this.id = elements[0];
         this.year = elements[1];
         this.venueId = elements[2];
-        this.authorIdSet = new HashSet<>();
-        this.refPaperIds = elements[4].split(Config.SECOND_DELIMITER);
         String[] authorIds = elements[3].split(Config.SECOND_DELIMITER);
         for (String authorId : authorIds) {
             this.authorIdSet.add(authorId);
         }
+        this.refPaperIds = elements[4].split(Config.SECOND_DELIMITER);
     }
 
     public Set<String> getAuthorSet() {
