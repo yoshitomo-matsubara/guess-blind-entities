@@ -3,7 +3,6 @@ package main;
 import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
-import model.CommonCitationModel;
 import model.LogisticRegressionModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -200,6 +199,12 @@ public class LogRegParamEstimator {
                     continue;
                 }
 
+                double[] posFeatureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
+                if (!LogisticRegressionModel.checkIfValidValues(posFeatureValues)) {
+                    continue;
+                }
+
+                double[] posGradParams = calcDifferentiatedLogLogReg(params, posFeatureValues);
                 int sampleCount = 0;
                 double[] negGradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
                 while (sampleCount < negativeSampleSize) {
@@ -209,16 +214,13 @@ public class LogRegParamEstimator {
                         continue;
                     }
 
-                    double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(id), paper);
-                    double[] subParams = calcDifferentiatedLogLogReg(params, featureValues);
+                    double[] negFeatureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(id), paper);
+                    double[] subParams = calcDifferentiatedLogLogReg(params, negFeatureValues);
                     for (int i = 0; i < subParams.length; i++) {
                         negGradParams[i] += subParams[i];
                     }
                     sampleCount++;
                 }
-
-                double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
-                double[] posGradParams = calcDifferentiatedLogLogReg(params, featureValues);
                 for (int i = 0; i < gradParams.length; i++) {
                     gradParams[i] += posGradParams[i] - negGradParams[i] / (double) negativeSampleSize;
                 }
@@ -311,6 +313,8 @@ public class LogRegParamEstimator {
         for (int i = 0; i < params.length; i++) {
             norm += Math.pow(params[i] - preParams[i], 2.0d);
         }
+
+        System.out.println("\t\tNorm of parameter difference: " + String.valueOf(norm));
         return Math.sqrt(norm) < threshold;
     }
 
