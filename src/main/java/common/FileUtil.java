@@ -74,13 +74,15 @@ public class FileUtil {
         makeDirIfNotExist(parentDirPath);
     }
 
-    public static boolean overwriteFile(String line, boolean first, String filePath) {
+    public static boolean overwriteFile(List<String> lineList, boolean first, String filePath) {
         makeParentDir(filePath);
         File file = new File(filePath);
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(file, !first));
-            bw.write(line);
-            bw.newLine();
+            for (String line : lineList) {
+                bw.write(line);
+                bw.newLine();
+            }
             bw.close();
         } catch (Exception e) {
             System.err.println("Exception @ overwriteFile");
