@@ -72,6 +72,12 @@ public class FeatureExtractor {
         for (int i = 1; i < features.length; i++) {
             sb.append(Config.FIRST_DELIMITER + String.valueOf(features[i]));
         }
+
+        sb.append(Config.FIRST_DELIMITER + String.valueOf(model.paperIds.length) + Config.FIRST_DELIMITER
+                + String.valueOf(model.getCitationIdSize()) + Config.FIRST_DELIMITER
+                + String.valueOf(model.getTotalCitationCount()) + Config.FIRST_DELIMITER
+                + String.valueOf(model.getCoauthorIdSize()) + Config.FIRST_DELIMITER
+                + String.valueOf(model.getSocialCitationIdSize()));
         return sb.toString();
     }
 
