@@ -121,6 +121,11 @@ public class SocialCitationModel extends BaseModel {
     }
 
     @Override
+    public int getCoauthorIdSize() {
+        return this.coauthorIdSet.size();
+    }
+
+    @Override
     public int getSocialCitationIdSize() {
         return this.socialPaperCountMap.size();
     }

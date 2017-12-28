@@ -9,7 +9,6 @@ import java.util.*;
 public abstract class BaseModel {
     public static final String TYPE = "ab";
     public static final String NAME = "Base Model";
-
     public static final double INVALID_VALUE = -Double.MAX_VALUE;
     public final String authorId;
     public final String[] paperIds;
@@ -83,6 +82,10 @@ public abstract class BaseModel {
 
     public int getTotalCitationCount() {
         return this.totalCitationCount;
+    }
+
+    public int getCoauthorIdSize() {
+        return -1;
     }
 
     public int getSocialCitationIdSize() {
