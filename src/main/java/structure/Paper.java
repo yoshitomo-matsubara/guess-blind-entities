@@ -2,7 +2,9 @@ package structure;
 
 import common.Config;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class Paper {
     public final String id, year, venueId;
@@ -32,5 +34,23 @@ public class Paper {
 
     public boolean checkIfAuthor(String authorId) {
         return this.authorIdSet.contains(authorId);
+    }
+
+    public String toString() {
+        StringBuilder authorIdSetSb = new StringBuilder();
+        Iterator<String> authorIdIte = authorIdSet.iterator();
+        while (authorIdIte.hasNext()) {
+            String str = authorIdSetSb.length() == 0 ? authorIdIte.next() : Config.SECOND_DELIMITER + authorIdIte.next();
+            authorIdSetSb.append(str);
+        }
+
+        StringBuilder refPaperIdsSb = new StringBuilder();
+        for (String refPaperId : this.refPaperIds) {
+            String str = refPaperIdsSb.length() == 0 ? refPaperId : Config.SECOND_DELIMITER + refPaperId;
+            refPaperIdsSb.append(str);
+        }
+
+        return this.id + Config.FIRST_DELIMITER + this.year + Config.FIRST_DELIMITER + this.venueId
+                + Config.FIRST_DELIMITER + authorIdSetSb.toString() + Config.FIRST_DELIMITER + refPaperIdsSb.toString();
     }
 }
