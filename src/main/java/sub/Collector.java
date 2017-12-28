@@ -148,7 +148,7 @@ public class Collector {
         int keyIndex = cl.hasOption(KEY_INDEX_OPTION) ?
                 Integer.parseInt(cl.getOptionValue(KEY_INDEX_OPTION)) : INVALID_VALUE;
         float negSampleRatio = cl.hasOption(NEGATIVE_SAMPLE_RATIO_OPTION) ?
-                Integer.parseInt(cl.getOptionValue(NEGATIVE_SAMPLE_RATIO_OPTION)) : INVALID_VALUE;
+                Float.parseFloat(cl.getOptionValue(NEGATIVE_SAMPLE_RATIO_OPTION)) : INVALID_VALUE;
         int stepSize = cl.hasOption(STEP_SIZE_OPTION) ?
                 Integer.parseInt(cl.getOptionValue(STEP_SIZE_OPTION)) : DEFAULT_STEP_SIZE;
         String outputDirPath = cl.getOptionValue(OUTPUT_DIR_OPTION);
