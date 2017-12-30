@@ -8,10 +8,7 @@ import org.apache.commons.cli.Options;
 import structure.Pair;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 public class CountryExtractor {
     private static final String COUNTRY2AFFIL_FILE_OPTION = "c";
@@ -35,9 +32,9 @@ public class CountryExtractor {
         return name.split(" ").length >= MIN_SPACE_COUNT && name.length() >= MIN_NAME_LENGTH;
     }
 
-    private static Pair<HashMap<String, String>, TreeMap<Integer, List<String>>> readCountryFileMap(String filePath) {
+    private static Pair<Map<String, String>, TreeMap<Integer, List<String>>> readCountryFileMap(String filePath) {
         System.out.println("\tStart:\treading country-university-id file");
-        HashMap<String, String> universityCountryMap = new HashMap<>();
+        Map<String, String> universityCountryMap = new HashMap<>();
         TreeMap<Integer, List<String>> universityNameListMap = new TreeMap<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(filePath)));
@@ -67,10 +64,10 @@ public class CountryExtractor {
         return new Pair<>(universityCountryMap, universityNameListMap);
     }
 
-    private static HashMap<String, String> buildConvertMap(String affilsFilePath,
-                                                           HashMap<String, String> universityCountryMap,
+    private static Map<String, String> buildConvertMap(String affilsFilePath,
+                                                           Map<String, String> universityCountryMap,
                                                            TreeMap<Integer, List<String>> universityNameListMap) {
-        HashMap<String, String> convertMap = new HashMap<>();
+        Map<String, String> convertMap = new HashMap<>();
         try {
             int totalCount = 0;
             int hitCount = 0;
@@ -118,7 +115,7 @@ public class CountryExtractor {
         return convertMap;
     }
 
-    private static void convertToCountry(String extraAffilsFilePath, HashMap<String, String> convertMap, String outputFilePath) {
+    private static void convertToCountry(String extraAffilsFilePath, Map<String, String> convertMap, String outputFilePath) {
         try {
             FileUtil.makeParentDir(outputFilePath);
             File outputFile = new File(outputFilePath);
@@ -154,10 +151,10 @@ public class CountryExtractor {
 
     private static void extract(String country2AffilFilePath, String affilsFilePath,
                                 String extraAffilsFilePath, String outputFilePath) {
-        Pair<HashMap<String, String>, TreeMap<Integer, List<String>>> pair = readCountryFileMap(country2AffilFilePath);
-        HashMap<String, String> universityCountryMap = pair.first;
+        Pair<Map<String, String>, TreeMap<Integer, List<String>>> pair = readCountryFileMap(country2AffilFilePath);
+        Map<String, String> universityCountryMap = pair.first;
         TreeMap<Integer, List<String>> universityNameListMap = pair.second;
-        HashMap<String, String> convertMap = buildConvertMap(affilsFilePath, universityCountryMap, universityNameListMap);
+        Map<String, String> convertMap = buildConvertMap(affilsFilePath, universityCountryMap, universityNameListMap);
         convertToCountry(extraAffilsFilePath, convertMap, outputFilePath);
     }
 

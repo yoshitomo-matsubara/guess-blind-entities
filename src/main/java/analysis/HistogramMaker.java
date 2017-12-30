@@ -8,10 +8,7 @@ import org.apache.commons.cli.Options;
 import structure.Paper;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 public class HistogramMaker {
     private static final String PAPER_FILE_OPTION = "p";
@@ -48,7 +45,7 @@ public class HistogramMaker {
         return authorDirPath != null;
     }
 
-    private static void writeHistogramFile(TreeMap<Integer, Integer> treeMap, String outputFilePath) {
+    private static void writeHistogramFile(Map<Integer, Integer> treeMap, String outputFilePath) {
         System.out.println("\tStart:\twriting " + outputFilePath);
         try {
             FileUtil.makeParentDir(outputFilePath);
@@ -66,7 +63,7 @@ public class HistogramMaker {
         System.out.println("\tEnd:\twriting " + outputFilePath);
     }
 
-    private static void writeHistogramFile(int[] array, TreeMap<Integer, Integer> treeMap, String outputFilePath) {
+    private static void writeHistogramFile(int[] array, Map<Integer, Integer> treeMap, String outputFilePath) {
         System.out.println("\tStart:\twriting " + outputFilePath);
         try {
             FileUtil.makeParentDir(outputFilePath);
@@ -94,7 +91,7 @@ public class HistogramMaker {
     private static void makePaperHistogram(String paperFilePath, int startYear, int endYear, String outputDirPath) {
         System.out.println("Start:\treading " + paperFilePath);
         try {
-            TreeMap<Integer, Integer> refPaperCountMap = new TreeMap<>();
+            Map<Integer, Integer> refPaperCountMap = new TreeMap<>();
             BufferedReader br = new BufferedReader(new FileReader(new File(paperFilePath)));
             String line;
             while ((line = br.readLine()) != null) {
@@ -102,11 +99,7 @@ public class HistogramMaker {
                 int year = Integer.parseInt(paper.year);
                 if (startYear <= year && year <= endYear) {
                     int refPaperSize = paper.refPaperIds.length;
-                    if (!refPaperCountMap.containsKey(refPaperSize)) {
-                        refPaperCountMap.put(refPaperSize, 1);
-                    } else {
-                        refPaperCountMap.put(refPaperSize, refPaperCountMap.get(refPaperSize) + 1);
-                    }
+                    refPaperCountMap.put(refPaperSize, refPaperCountMap.getOrDefault(refPaperSize, 0) + 1);
                 }
             }
 
@@ -128,7 +121,7 @@ public class HistogramMaker {
     private static void mergeHistogramFiles(String prefix, List<String> suffixList, String outputFilePath) {
         try {
             int[] counts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
-            TreeMap<Integer, Integer> countMap = new TreeMap<>();
+            Map<Integer, Integer> countMap = new TreeMap<>();
             for (String suffix : suffixList) {
                 File file = new File(prefix + suffix);
                 BufferedReader br = new BufferedReader(new FileReader(file));
@@ -139,10 +132,8 @@ public class HistogramMaker {
                     int value = Integer.parseInt(elements[1]);
                     if (key < counts.length) {
                         counts[key] += value;
-                    } else if (!countMap.containsKey(key)) {
-                        countMap.put(key, value);
                     } else {
-                        countMap.put(key, countMap.get(key) + value);
+                        countMap.put(key, countMap.getOrDefault(key, 0) + value);
                     }
                 }
 
@@ -181,14 +172,14 @@ public class HistogramMaker {
 
                 int[] refAuthorCounts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
                 int[] authorCounts = MiscUtil.initIntArray(DEFAULT_ARRAY_SIZE, 0);
-                TreeMap<Integer, Integer> exRefAuthorCountMap = new TreeMap<>();
-                TreeMap<Integer, Integer> exAuthorCountMap = new TreeMap<>();
+                Map<Integer, Integer> exRefAuthorCountMap = new TreeMap<>();
+                Map<Integer, Integer> exAuthorCountMap = new TreeMap<>();
                 List<File> authorFileList = FileUtil.getFileListR(authorDir.getPath());
                 int size = authorFileList.size();
                 for (int j = 0; j < size; j++) {
                     File authorFile = authorFileList.remove(0);
                     int totalCount = 0;
-                    HashSet<String> refPaperIdSet = new HashSet<>();
+                    Set<String> refPaperIdSet = new HashSet<>();
                     BufferedReader br = new BufferedReader(new FileReader(authorFile));
                     String line;
                     while ((line = br.readLine()) != null) {
@@ -202,19 +193,15 @@ public class HistogramMaker {
                     br.close();
                     if (totalCount < authorCounts.length) {
                         authorCounts[totalCount]++;
-                    } else if (!exAuthorCountMap.containsKey(totalCount)) {
-                        exAuthorCountMap.put(totalCount, 1);
                     } else {
-                        exAuthorCountMap.put(totalCount, exAuthorCountMap.get(totalCount) + 1);
+                        exAuthorCountMap.put(totalCount, exAuthorCountMap.getOrDefault(totalCount, 0) + 1);
                     }
 
                     int refPaperSize = refPaperIdSet.size();
                     if (refPaperSize < refAuthorCounts.length) {
                         refAuthorCounts[refPaperSize]++;
-                    } else if (!exRefAuthorCountMap.containsKey(refPaperSize)) {
-                        exRefAuthorCountMap.put(refPaperSize, 1);
                     } else {
-                        exRefAuthorCountMap.put(refPaperSize, exRefAuthorCountMap.get(refPaperSize) + 1);
+                        exRefAuthorCountMap.put(refPaperSize, exRefAuthorCountMap.getOrDefault(refPaperSize, 0) + 1);
                     }
                 }
 

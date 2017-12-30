@@ -47,7 +47,6 @@ public class AuthorEstimator {
     private static void setModelOptions(Options options) {
         RandomModel.setOptions(options);
         HillProvostBestModel.setOptions(options);
-        NaiveBayesModel.setOptions(options);
         MultiNaiveBayesModel.setOptions(options);
         LogisticRegressionModel.setOptions(options);
     }
@@ -63,8 +62,6 @@ public class AuthorEstimator {
             return new SocialCitationModel(line);
         } else if (SelfCitationModel.checkIfValid(modelType)) {
             return new SelfCitationModel(line);
-        } else if (NaiveBayesModel.checkIfValid(modelType, cl)) {
-            return new NaiveBayesModel(line, cl);
         } else if (MultiNaiveBayesModel.checkIfValid(modelType, cl)) {
             return new MultiNaiveBayesModel(line, cl);
         } else if (LogisticRegressionModel.checkIfValid(modelType, cl)) {

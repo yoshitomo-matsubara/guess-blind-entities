@@ -57,12 +57,8 @@ public class MinimumExtractor {
         return true;
     }
 
-    private static void updateCountMap(HashMap<String, Integer> countMap, String venueId) {
-        if (!countMap.containsKey(venueId)) {
-            countMap.put(venueId, 1);
-        } else {
-            countMap.put(venueId, countMap.get(venueId) + 1);
-        }
+    private static void updateCountMap(Map<String, Integer> countMap, String venueId) {
+        countMap.put(venueId, countMap.getOrDefault(venueId, 0) + 1);
     }
 
     private static void extractFromPapersFile(String inputFilePath, String delimiter, String outputDirPath) {
@@ -74,8 +70,8 @@ public class MinimumExtractor {
         File inputFile = new File(inputFilePath);
         File outputFile = new File(outputDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
         try {
-            HashMap<String, Integer> jpaperCountMap = new HashMap<>();
-            HashMap<String, Integer> cpaperCountMap = new HashMap<>();
+            Map<String, Integer> jpaperCountMap = new HashMap<>();
+            Map<String, Integer> cpaperCountMap = new HashMap<>();
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
             BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
             String line;
@@ -107,16 +103,16 @@ public class MinimumExtractor {
         System.out.println("End:\textracting from " + inputFilePath);
     }
 
-    private static HashSet<String> readIdListFile(File inputFile, String delimiter,
+    private static Set<String> readIdListFile(File inputFile, String delimiter,
                                                               int keyIdx, int valueIdx, int minIdLength) {
-        HashSet<String> prefixSet = new HashSet<>();
+        Set<String> prefixSet = new HashSet<>();
         try {
             System.out.println("\tStart:\treading " + inputFile.getPath());
             BufferedReader br = new BufferedReader(new FileReader(inputFile));
             int count = 0;
             String dirPath = inputFile.getParent();
-            HashSet<String> fileNameSet = new HashSet<>();
-            HashMap<String, List<String>> bufferMap = new HashMap<>();
+            Set<String> fileNameSet = new HashSet<>();
+            Map<String, List<String>> bufferMap = new HashMap<>();
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(delimiter);
@@ -145,8 +141,8 @@ public class MinimumExtractor {
         return prefixSet;
     }
 
-    private static HashMap<String, List<String>> readDistributedFiles(String inputFilePath, String delimiter) {
-        HashMap<String, List<String>> hashMap = new HashMap<>();
+    private static Map<String, List<String>> readDistributedFiles(String inputFilePath, String delimiter) {
+        Map<String, List<String>> map = new HashMap<>();
         try {
             System.out.println("\tStart:\treading " + inputFilePath);
             File inputFile = new File(inputFilePath);
@@ -154,10 +150,10 @@ public class MinimumExtractor {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(delimiter);
-                if (!hashMap.containsKey(elements[0])) {
-                    hashMap.put(elements[0], new ArrayList<>());
+                if (!map.containsKey(elements[0])) {
+                    map.put(elements[0], new ArrayList<>());
                 }
-                hashMap.get(elements[0]).add(elements[1]);
+                map.get(elements[0]).add(elements[1]);
             }
 
             br.close();
@@ -167,7 +163,7 @@ public class MinimumExtractor {
             System.err.println("Exception @ readDistributedFiles");
             e.printStackTrace();
         }
-        return hashMap;
+        return map;
     }
 
     private static void extractFromIdListFile(String inputFilePath, String delimiter, int keyIdx, int valueIdx,
@@ -179,13 +175,13 @@ public class MinimumExtractor {
         System.out.println("Start:\textracting from " + inputFilePath);
         try {
             File inputFile = new File(inputFilePath);
-            HashSet<String> prefixSet = readIdListFile(inputFile, delimiter, keyIdx, valueIdx, minIdLength);
+            Set<String> prefixSet = readIdListFile(inputFile, delimiter, keyIdx, valueIdx, minIdLength);
             File outputFile = new File(outputDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
             boolean first = true;
             Iterator<String> ite = prefixSet.iterator();
             while (ite.hasNext()) {
                 String prefix = ite.next();
-                HashMap<String, List<String>> distributedMap =
+                Map<String, List<String>> distributedMap =
                         readDistributedFiles(inputFile.getParent() + "/" + TMP_FILE_PREFIX + prefix, delimiter);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
                 for (String key : distributedMap.keySet()) {

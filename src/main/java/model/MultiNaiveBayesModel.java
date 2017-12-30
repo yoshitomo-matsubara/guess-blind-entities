@@ -9,12 +9,12 @@ import structure.Paper;
 public class MultiNaiveBayesModel extends BaseModel {
     public static final String TYPE = "mnb";
     public static final String NAME = "Multinomial Naive Bayes Based Model";
-    private static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
-    private static final String TOTAL_UNIQUE_CITATION_SIZE_OPTION = "tucs";
-    private static final String SMOOTHING_PRIOR_OPTION = "sp";
-    private final int totalOverlapPaperSize, totalCitationIdSize;
-    private final double alpha, logPa;
-    private double nonHitLogProb;
+    protected static final String TOTAL_OVERLAP_PAPER_ID_SIZE_OPTION = "topis";
+    protected static final String TOTAL_UNIQUE_CITATION_SIZE_OPTION = "tucs";
+    protected static final String SMOOTHING_PRIOR_OPTION = "sp";
+    protected final int totalOverlapPaperSize, totalCitationIdSize;
+    protected final double alpha, logPa;
+    protected double nonHitLogProb;
 
     public MultiNaiveBayesModel(Author author, CommandLine cl) {
         super(author);
@@ -34,7 +34,7 @@ public class MultiNaiveBayesModel extends BaseModel {
         this.nonHitLogProb = Math.log(calcProb(0));
     }
 
-    private double calcProb(int count) {
+    protected double calcProb(int count) {
         double numerator = (double) count + this.alpha;
         double denominator = (double) this.totalCitationCount + this.alpha * (double) this.totalCitationIdSize;
         return numerator / denominator;

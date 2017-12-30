@@ -53,6 +53,20 @@ public class Evaluator {
         return array;
     }
 
+    private static String createHeader(String halThrStr, int[] topMs) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("paper ID" + Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER + "best ranking"
+                + Config.FIRST_DELIMITER + "author hit count" + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X"
+                + Config.FIRST_DELIMITER + "Recall@X");
+        for (int i = 0; i < topMs.length; i++) {
+            String mStr = String.valueOf(topMs[i]);
+            sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + "author hit count@" + mStr
+                    + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + mStr + Config.FIRST_DELIMITER + "Recall@"
+                    + mStr);
+        }
+        return sb.toString();
+    }
+
     private static int decideThreshold(Paper paper, int halThr) {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
@@ -152,22 +166,70 @@ public class Evaluator {
         return list;
     }
 
+    private static List<String> createFooter(String halThrStr, int[] topMs, int trueAuthorCount, int authorX, int overThrAtX,
+                                       double recallAtX, int[] authorMs, int[] overThrAtMs, double[] recallAtMs,
+                                       int blindPaperSize, int guessablePaperSize) {
+        List<String> subOutputLineList = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        sb.append(Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER
+                + "hit author count @ X" + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X"
+                + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
+        for (int i = 0; i < topMs.length; i++) {
+            sb.append(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
+                    + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + String.valueOf(topMs[i])
+                    + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
+        }
+
+        subOutputLineList.add(sb.toString());
+        sb = new StringBuilder();
+        sb.append("total" + Config.FIRST_DELIMITER + String.valueOf(trueAuthorCount) + Config.FIRST_DELIMITER
+                + String.valueOf(authorX) + Config.FIRST_DELIMITER + String.valueOf(overThrAtX)
+                + Config.FIRST_DELIMITER + String.valueOf(recallAtX) + Config.FIRST_DELIMITER);
+        for (int i = 0; i < authorMs.length; i++) {
+            sb.append(Config.FIRST_DELIMITER + String.valueOf(authorMs[i])
+                    + Config.FIRST_DELIMITER + String.valueOf(overThrAtMs[i]) + Config.FIRST_DELIMITER
+                    + String.valueOf(recallAtMs[i]) + Config.FIRST_DELIMITER);
+        }
+
+        subOutputLineList.add(sb.toString());
+        sb = new StringBuilder();
+        double bps = (double) blindPaperSize;
+        sb.append("avg" + Config.FIRST_DELIMITER + String.valueOf((double) trueAuthorCount / bps)
+                + Config.FIRST_DELIMITER + String.valueOf((double) authorX / bps)
+                + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtX / bps)
+                + Config.FIRST_DELIMITER + String.valueOf(recallAtX / bps) + Config.FIRST_DELIMITER);
+        for (int i = 0; i < authorMs.length; i++) {
+            sb.append(Config.FIRST_DELIMITER + String.valueOf((double) authorMs[i] / bps)
+                    + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtMs[i] / bps)
+                    + Config.FIRST_DELIMITER + String.valueOf(recallAtMs[i] / bps) + Config.FIRST_DELIMITER);
+        }
+
+        subOutputLineList.add(sb.toString());
+        sb = new StringBuilder();
+        sb.append("metrics" + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
+                + String.valueOf((double) overThrAtX / bps * 100.0d) + Config.FIRST_DELIMITER
+                + String.valueOf(recallAtX / bps * 100.0d) + Config.FIRST_DELIMITER);
+        for (int i = 0; i < authorMs.length; i++) {
+            sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
+                    + String.valueOf((double) overThrAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER
+                    + String.valueOf(recallAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER);
+        }
+
+        subOutputLineList.add(sb.toString());
+        subOutputLineList.add("total number of blind papers" + Config.FIRST_DELIMITER + String.valueOf(blindPaperSize));
+        double guessablePct = (double) guessablePaperSize / (double) blindPaperSize * 100.0d;
+        subOutputLineList.add("percentage of guessable test papers" + Config.FIRST_DELIMITER + String.valueOf(guessablePct));
+        return subOutputLineList;
+    }
+
     private static void evaluate(String inputDirPath, String topMsStr, int halThr,
                                  String uplOutputFilePath, String outputFilePath) {
         try {
+            List<String> outputLineList = new ArrayList<>();
             String halThrStr = halThr != HALX_LABEL ? String.valueOf(halThr) : "X";
             int[] topMs = convertToIntArray(topMsStr);
             FileUtil.makeParentDir(outputFilePath);
-            File outputFile = new File(outputFilePath);
-            BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
-            bw.write("paper ID\ttrue author count\tbest ranking\tauthor hit count\tHAL" + halThrStr + "@X\tRecall@X\t");
-            for (int i = 0; i < topMs.length; i++) {
-                String mStr = String.valueOf(topMs[i]);
-                bw.write("\tauthor hit count@" + mStr + "\tHAL" + halThrStr + "@" + mStr
-                        + "\tRecall@" + mStr + "\t");
-            }
-
-            bw.newLine();
+            outputLineList.add(createHeader(halThrStr, topMs));
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);
             if (inputDirList.size() == 0) {
                 inputDirList.add(new File(inputDirPath));
@@ -208,8 +270,7 @@ public class Evaluator {
                     }
 
                     String outputLine = evaluate(resultList, topMs, threshold, paper);
-                    bw.write(outputLine);
-                    bw.newLine();
+                    outputLineList.add(outputLine);
                     List<String> elementList = extractElements(outputLine);
                     trueAuthorCount += Integer.parseInt(elementList.remove(0));
                     authorX += Integer.parseInt(elementList.remove(0));
@@ -226,59 +287,14 @@ public class Evaluator {
                 }
             }
 
-            bw.newLine();
-            bw.write(Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER
-                    + "hit author count @ X" + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X"
-                    + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
-            for (int i = 0; i < topMs.length; i++) {
-                bw.write(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + String.valueOf(topMs[i])
-                        + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
-            }
-
-            bw.newLine();
-            bw.write("total" + Config.FIRST_DELIMITER + String.valueOf(trueAuthorCount) + Config.FIRST_DELIMITER
-                    + String.valueOf(authorX) + Config.FIRST_DELIMITER + String.valueOf(overThrAtX)
-                    + Config.FIRST_DELIMITER + String.valueOf(recallAtX) + Config.FIRST_DELIMITER);
-            for (int i = 0; i < authorMs.length; i++) {
-                bw.write(Config.FIRST_DELIMITER + String.valueOf(authorMs[i])
-                        + Config.FIRST_DELIMITER + String.valueOf(overThrAtMs[i]) + Config.FIRST_DELIMITER
-                        + String.valueOf(recallAtMs[i]) + Config.FIRST_DELIMITER);
-            }
-
-            bw.newLine();
-            double bps = (double) blindPaperSize;
-            bw.write("avg" + Config.FIRST_DELIMITER + String.valueOf((double) trueAuthorCount / bps)
-                    + Config.FIRST_DELIMITER + String.valueOf((double) authorX / bps)
-                    + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtX / bps)
-                    + Config.FIRST_DELIMITER + String.valueOf(recallAtX / bps) + Config.FIRST_DELIMITER);
-            for (int i = 0; i < authorMs.length; i++) {
-                bw.write(Config.FIRST_DELIMITER + String.valueOf((double) authorMs[i] / bps)
-                        + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtMs[i] / bps)
-                        + Config.FIRST_DELIMITER + String.valueOf(recallAtMs[i] / bps) + Config.FIRST_DELIMITER);
-            }
-
-            bw.newLine();
-            bw.write("metrics" + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
-                    + String.valueOf((double) overThrAtX / bps * 100.0d) + Config.FIRST_DELIMITER
-                    + String.valueOf(recallAtX / bps * 100.0d) + Config.FIRST_DELIMITER);
-            for (int i = 0; i < authorMs.length; i++) {
-                bw.write(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
-                        + String.valueOf((double) overThrAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER
-                        + String.valueOf(recallAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER);
-            }
-
-            bw.newLine();
-            bw.write("total number of blind papers" + Config.FIRST_DELIMITER + String.valueOf(blindPaperSize));
-            bw.newLine();
-            double guessablePct = (double) guessablePaperSize / (double) blindPaperSize * 100.0d;
-            bw.write("percentage of guessable test papers" + Config.FIRST_DELIMITER + String.valueOf(guessablePct));
-            bw.newLine();
-            bw.close();
+            outputLineList.add("");
+            outputLineList.addAll(createFooter(halThrStr, topMs, trueAuthorCount, authorX, overThrAtX, recallAtX,
+                    authorMs, overThrAtMs, recallAtMs, blindPaperSize, guessablePaperSize));
+            FileUtil.writeFile(outputLineList, outputFilePath);
             if (uplOutputFilePath != null) {
                 FileUtil.makeParentDir(uplOutputFilePath);
                 File uplOutputFile = new File(uplOutputFilePath);
-                bw = new BufferedWriter(new FileWriter(uplOutputFile));
+                BufferedWriter bw = new BufferedWriter(new FileWriter(uplOutputFile));
                 for (String unguessablePaperId : unguessablePaperIdList) {
                     bw.write(unguessablePaperId);
                     bw.newLine();

@@ -39,7 +39,7 @@ public class VenueMerger {
     private static void merge(String tmpDirPath, boolean first, String prefix, String outputFilePath) {
         try {
             File[] tmpFiles = getTmpFiles(tmpDirPath, prefix);
-            HashMap<String, List<String>> mergedMap = new HashMap<>();
+            Map<String, List<String>> mergedMap = new HashMap<>();
             for (int i = 0; i < tmpFiles.length; i++) {
                 BufferedReader br = new BufferedReader(new FileReader(tmpFiles[i]));
                 String line;
@@ -85,7 +85,7 @@ public class VenueMerger {
         }
     }
 
-    private static void deleteUnusedFiles(String tmpDirPath, String fileNamePrefix, HashSet<String> prefixSet) {
+    private static void deleteUnusedFiles(String tmpDirPath, String fileNamePrefix, Set<String> prefixSet) {
         Iterator<String> ite = prefixSet.iterator();
         while (ite.hasNext()) {
             File file = new File(tmpDirPath + "/" + fileNamePrefix + ite.next());
@@ -102,9 +102,9 @@ public class VenueMerger {
             tmpOutputDirPath = "./";
         }
 
-        HashSet<String> prefixSetP = FileUtil.splitFile(papersFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
+        Set<String> prefixSetP = FileUtil.splitFile(papersFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
                 FIELD_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, tmpOutputDirPath);
-        HashSet<String> prefixSetK = FileUtil.splitFile(paperKeysFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
+        Set<String> prefixSetK = FileUtil.splitFile(paperKeysFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
                 PUBLISHER_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPER_KEYWORDS_FILE_PREFIX, tmpOutputDirPath);
         Iterator<String> ite = prefixSetP.iterator();
         boolean first = true;

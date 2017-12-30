@@ -3,7 +3,6 @@ package main;
 import common.Config;
 import common.FileUtil;
 import common.MiscUtil;
-import model.CommonCitationModel;
 import model.LogisticRegressionModel;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -126,8 +125,8 @@ public class LogRegParamEstimator {
         return trainPaperList;
     }
 
-    private static Pair<HashMap<String, LogisticRegressionModel>, List<String>> readModelFiles(String modelDirPath) {
-        HashMap<String, LogisticRegressionModel> modelMap = new HashMap<>();
+    private static Pair<Map<String, LogisticRegressionModel>, List<String>> readModelFiles(String modelDirPath) {
+        Map<String, LogisticRegressionModel> modelMap = new HashMap<>();
         List<String> trainAuthorIdList = new ArrayList<>();
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
         System.out.println("Start:\treading model files");
@@ -186,7 +185,7 @@ public class LogRegParamEstimator {
     }
 
     private static void updateParams(double[] params, List<Paper> batchPaperList,
-                                     HashMap<String, LogisticRegressionModel> modelMap, List<String> trainAuthorIdList,
+                                     Map<String, LogisticRegressionModel> modelMap, List<String> trainAuthorIdList,
                                      int negativeSampleSize, double regParam, double learnRate) {
         double[] gradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
         int count = 0;
@@ -200,6 +199,12 @@ public class LogRegParamEstimator {
                     continue;
                 }
 
+                double[] posFeatureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
+                if (!LogisticRegressionModel.checkIfValidValues(posFeatureValues)) {
+                    continue;
+                }
+
+                double[] posGradParams = calcDifferentiatedLogLogReg(params, posFeatureValues);
                 int sampleCount = 0;
                 double[] negGradParams = MiscUtil.initDoubleArray(params.length, 0.0d);
                 while (sampleCount < negativeSampleSize) {
@@ -209,16 +214,13 @@ public class LogRegParamEstimator {
                         continue;
                     }
 
-                    double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(id), paper);
-                    double[] subParams = calcDifferentiatedLogLogReg(params, featureValues);
+                    double[] negFeatureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(id), paper);
+                    double[] subParams = calcDifferentiatedLogLogReg(params, negFeatureValues);
                     for (int i = 0; i < subParams.length; i++) {
                         negGradParams[i] += subParams[i];
                     }
                     sampleCount++;
                 }
-
-                double[] featureValues = LogisticRegressionModel.extractFeatureValues(modelMap.get(authorId), paper);
-                double[] posGradParams = calcDifferentiatedLogLogReg(params, featureValues);
                 for (int i = 0; i < gradParams.length; i++) {
                     gradParams[i] += posGradParams[i] - negGradParams[i] / (double) negativeSampleSize;
                 }
@@ -262,7 +264,7 @@ public class LogRegParamEstimator {
         }
     }
 
-    private static void showLogLikelihood(double[] params, List<Paper> paperList, HashMap<String, LogisticRegressionModel> modelMap,
+    private static void showLogLikelihood(double[] params, List<Paper> paperList, Map<String, LogisticRegressionModel> modelMap,
                                           List<String> trainAuthorIdList, int negativeSampleSize, double regParam) {
         double logLikelihood = 0.0d;
         int count = 0;
@@ -311,6 +313,8 @@ public class LogRegParamEstimator {
         for (int i = 0; i < params.length; i++) {
             norm += Math.pow(params[i] - preParams[i], 2.0d);
         }
+
+        System.out.println("\t\tNorm of parameter difference: " + String.valueOf(norm));
         return Math.sqrt(norm) < threshold;
     }
 
@@ -327,8 +331,8 @@ public class LogRegParamEstimator {
         double threshold = Double.parseDouble(optionParams[5]);
         int startIdx = Integer.parseInt(optionParams[6]);
         List<Paper> trainPaperList = readPaperFiles(trainDirPath);
-        Pair<HashMap<String, LogisticRegressionModel>, List<String>> pair = readModelFiles(modelDirPath);
-        HashMap<String, LogisticRegressionModel> modelMap = pair.first;
+        Pair<Map<String, LogisticRegressionModel>, List<String>> pair = readModelFiles(modelDirPath);
+        Map<String, LogisticRegressionModel> modelMap = pair.first;
         List<String> trainAuthorIdList = pair.second;
         int t = 0;
         System.out.println("Start:\testimating parameters");

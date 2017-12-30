@@ -11,12 +11,12 @@ import java.util.Random;
 public class RandomModel extends BaseModel {
     public static final String TYPE = "rand";
     public static final String NAME = "Random Model";
-    private static final String GUESSABLE_ONLY_OPTION = "go";
-    private static final String PRUNING_RATE_OPTION = "prate";
-    private static final double DEFAULT_PRUNING_RATE = 0.95d;
-    private final Random rand;
-    private final boolean guessableOnly;
-    private final double pruningRate;
+    protected static final String GUESSABLE_ONLY_OPTION = "go";
+    protected static final String PRUNING_RATE_OPTION = "prate";
+    protected static final double DEFAULT_PRUNING_RATE = 0.95d;
+    protected final Random rand;
+    protected final boolean guessableOnly;
+    protected final double pruningRate;
 
     public RandomModel(Author author, CommandLine cl) {
         super(author);
