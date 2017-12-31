@@ -57,11 +57,11 @@ public class Evaluator {
         StringBuilder sb = new StringBuilder();
         sb.append("paper ID" + Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER + "best ranking"
                 + Config.FIRST_DELIMITER + "author hit count" + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X"
-                + Config.FIRST_DELIMITER + "Recall@X");
+                + Config.FIRST_DELIMITER + "coverage@X");
         for (int i = 0; i < topMs.length; i++) {
             String mStr = String.valueOf(topMs[i]);
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + "author hit count@" + mStr
-                    + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + mStr + Config.FIRST_DELIMITER + "Recall@"
+                    + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + mStr + Config.FIRST_DELIMITER + "coverage@"
                     + mStr);
         }
         return sb.toString();
@@ -137,17 +137,17 @@ public class Evaluator {
 
         StringBuilder sb = new StringBuilder();
         int overThrAtX = calcHal(authorSizeX, threshold);
-        double recallAtX = (double) authorSizeX / (double) trueAuthorSize;
+        double coverageAtX = (double) authorSizeX / (double) trueAuthorSize;
         sb.append(paper.id + Config.FIRST_DELIMITER + String.valueOf(trueAuthorSize) + Config.FIRST_DELIMITER
                 + String.valueOf(bestRanking) + Config.FIRST_DELIMITER
                 + String.valueOf(authorSizeX) + Config.FIRST_DELIMITER
-                + String.valueOf(overThrAtX) + Config.FIRST_DELIMITER + String.valueOf(recallAtX));
+                + String.valueOf(overThrAtX) + Config.FIRST_DELIMITER + String.valueOf(coverageAtX));
         for (int i = 0; i < authorSizeMs.length; i++) {
             int overThrAtM = calcHal(authorSizeMs[i], threshold);
-            double recallAtM = (double) authorSizeMs[i] / (double) topMs[i];
+            double coverageAtM = (double) authorSizeMs[i] / (double) trueAuthorSize;
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + String.valueOf(authorSizeMs[i])
                     + Config.FIRST_DELIMITER + String.valueOf(overThrAtM)
-                    + Config.FIRST_DELIMITER + String.valueOf(recallAtM));
+                    + Config.FIRST_DELIMITER + String.valueOf(coverageAtM));
         }
         return sb.toString();
     }
@@ -167,28 +167,28 @@ public class Evaluator {
     }
 
     private static List<String> createFooter(String halThrStr, int[] topMs, int trueAuthorCount, int authorX, int overThrAtX,
-                                       double recallAtX, int[] authorMs, int[] overThrAtMs, double[] recallAtMs,
+                                       double coverageAtX, int[] authorMs, int[] overThrAtMs, double[] coverageAtMs,
                                        int blindPaperSize, int guessablePaperSize) {
         List<String> subOutputLineList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         sb.append(Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER
                 + "hit author count @ X" + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@X"
-                + Config.FIRST_DELIMITER + "Recall@X" + Config.FIRST_DELIMITER);
+                + Config.FIRST_DELIMITER + "coverage@X" + Config.FIRST_DELIMITER);
         for (int i = 0; i < topMs.length; i++) {
             sb.append(Config.FIRST_DELIMITER + "author hit count @ " + String.valueOf(topMs[i])
                     + Config.FIRST_DELIMITER + "HAL" + halThrStr + "@" + String.valueOf(topMs[i])
-                    + Config.FIRST_DELIMITER + "Recall@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
+                    + Config.FIRST_DELIMITER + "coverage@" + String.valueOf(topMs[i]) + Config.FIRST_DELIMITER);
         }
 
         subOutputLineList.add(sb.toString());
         sb = new StringBuilder();
         sb.append("total" + Config.FIRST_DELIMITER + String.valueOf(trueAuthorCount) + Config.FIRST_DELIMITER
                 + String.valueOf(authorX) + Config.FIRST_DELIMITER + String.valueOf(overThrAtX)
-                + Config.FIRST_DELIMITER + String.valueOf(recallAtX) + Config.FIRST_DELIMITER);
+                + Config.FIRST_DELIMITER + String.valueOf(coverageAtX) + Config.FIRST_DELIMITER);
         for (int i = 0; i < authorMs.length; i++) {
             sb.append(Config.FIRST_DELIMITER + String.valueOf(authorMs[i])
                     + Config.FIRST_DELIMITER + String.valueOf(overThrAtMs[i]) + Config.FIRST_DELIMITER
-                    + String.valueOf(recallAtMs[i]) + Config.FIRST_DELIMITER);
+                    + String.valueOf(coverageAtMs[i]) + Config.FIRST_DELIMITER);
         }
 
         subOutputLineList.add(sb.toString());
@@ -197,22 +197,22 @@ public class Evaluator {
         sb.append("avg" + Config.FIRST_DELIMITER + String.valueOf((double) trueAuthorCount / bps)
                 + Config.FIRST_DELIMITER + String.valueOf((double) authorX / bps)
                 + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtX / bps)
-                + Config.FIRST_DELIMITER + String.valueOf(recallAtX / bps) + Config.FIRST_DELIMITER);
+                + Config.FIRST_DELIMITER + String.valueOf(coverageAtX / bps) + Config.FIRST_DELIMITER);
         for (int i = 0; i < authorMs.length; i++) {
             sb.append(Config.FIRST_DELIMITER + String.valueOf((double) authorMs[i] / bps)
                     + Config.FIRST_DELIMITER + String.valueOf((double) overThrAtMs[i] / bps)
-                    + Config.FIRST_DELIMITER + String.valueOf(recallAtMs[i] / bps) + Config.FIRST_DELIMITER);
+                    + Config.FIRST_DELIMITER + String.valueOf(coverageAtMs[i] / bps) + Config.FIRST_DELIMITER);
         }
 
         subOutputLineList.add(sb.toString());
         sb = new StringBuilder();
         sb.append("metrics" + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
                 + String.valueOf((double) overThrAtX / bps * 100.0d) + Config.FIRST_DELIMITER
-                + String.valueOf(recallAtX / bps * 100.0d) + Config.FIRST_DELIMITER);
+                + String.valueOf(coverageAtX / bps * 100.0d) + Config.FIRST_DELIMITER);
         for (int i = 0; i < authorMs.length; i++) {
             sb.append(Config.FIRST_DELIMITER + Config.FIRST_DELIMITER
                     + String.valueOf((double) overThrAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER
-                    + String.valueOf(recallAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER);
+                    + String.valueOf(coverageAtMs[i] / bps * 100.0d) + Config.FIRST_DELIMITER);
         }
 
         subOutputLineList.add(sb.toString());
@@ -240,10 +240,10 @@ public class Evaluator {
             int trueAuthorCount = 0;
             int authorX = 0;
             int overThrAtX = 0;
-            double recallAtX = 0.0d;
+            double coverageAtX = 0.0d;
             int[] authorMs = MiscUtil.initIntArray(topMs.length, 0);
             int[] overThrAtMs = MiscUtil.initIntArray(topMs.length, 0);
-            double[] recallAtMs = MiscUtil.initDoubleArray(topMs.length, 0.0d);
+            double[] coverageAtMs = MiscUtil.initDoubleArray(topMs.length, 0.0d);
             List<String> unguessablePaperIdList = new ArrayList<>();
             int dirSize = inputDirList.size();
             for (int i = 0; i < dirSize; i++) {
@@ -275,21 +275,21 @@ public class Evaluator {
                     trueAuthorCount += Integer.parseInt(elementList.remove(0));
                     authorX += Integer.parseInt(elementList.remove(0));
                     overThrAtX += Integer.parseInt(elementList.remove(0));
-                    recallAtX += Double.parseDouble(elementList.remove(0));
+                    coverageAtX += Double.parseDouble(elementList.remove(0));
                     guessablePaperSize++;
                     int k = 0;
                     while (elementList.size() > 0) {
                         authorMs[k] += Integer.parseInt(elementList.remove(0));
                         overThrAtMs[k] += Integer.parseInt(elementList.remove(0));
-                        recallAtMs[k] += Double.parseDouble(elementList.remove(0));
+                        coverageAtMs[k] += Double.parseDouble(elementList.remove(0));
                         k++;
                     }
                 }
             }
 
             outputLineList.add("");
-            outputLineList.addAll(createFooter(halThrStr, topMs, trueAuthorCount, authorX, overThrAtX, recallAtX,
-                    authorMs, overThrAtMs, recallAtMs, blindPaperSize, guessablePaperSize));
+            outputLineList.addAll(createFooter(halThrStr, topMs, trueAuthorCount, authorX, overThrAtX, coverageAtX,
+                    authorMs, overThrAtMs, coverageAtMs, blindPaperSize, guessablePaperSize));
             FileUtil.writeFile(outputLineList, outputFilePath);
             if (uplOutputFilePath != null) {
                 FileUtil.makeParentDir(uplOutputFilePath);
