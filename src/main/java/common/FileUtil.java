@@ -55,7 +55,11 @@ public class FileUtil {
     }
 
     public static List<String> readFile(String filePath) {
-        return readFile(new File(filePath));
+        File file = new File(filePath);
+        if (file.exists()) {
+            return readFile(file);
+        }
+        return null;
     }
 
     public static void makeDirIfNotExist(String dirPath) {

@@ -1,6 +1,7 @@
 package model;
 
 import common.Config;
+import common.FileUtil;
 import common.MiscUtil;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -8,6 +9,7 @@ import structure.Author;
 import structure.Paper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LogisticRegressionModel extends SocialCitationModel {
@@ -57,7 +59,10 @@ public class LogisticRegressionModel extends SocialCitationModel {
     public LogisticRegressionModel(String line, CommandLine cl) {
         this(line);
         String paramStr = cl.getOptionValue(PARAM_OPTION);
-        String[] paramElements = paramStr.split(Config.OPTION_DELIMITER);
+        List<String> paramLines = FileUtil.readFile(paramStr);
+        boolean readable = paramLines != null && paramLines.size() > 1;
+        String[] paramElements = readable ? paramLines.get(paramLines.size() - 1).split(Config.FIRST_DELIMITER)
+                : paramStr.split(Config.OPTION_DELIMITER);
         this.params = new double[PARAM_SIZE];
         for (int i = 0; i < this.params.length; i++) {
             this.params[i] = Double.parseDouble(paramElements[i]);
