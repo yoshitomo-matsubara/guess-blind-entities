@@ -175,9 +175,7 @@ public class StatisticalAnalyzer {
                 String line;
                 while ((line = br.readLine()) != null) {
                     Paper paper = new Paper(line);
-                    Iterator<String> ite = paper.getAuthorSet().iterator();
-                    while (ite.hasNext()) {
-                        String authorId = ite.next();
+                    for (String authorId : paper.getAuthorIdSet()) {
                         if (!testAuthorIdSet.contains(authorId)) {
                             testAuthorIdSet.add(authorId);
                         }

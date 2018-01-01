@@ -192,9 +192,7 @@ public class LogRegParamEstimator {
         Random rand = new Random();
         while (batchPaperList.size() > 0) {
             Paper paper = batchPaperList.remove(0);
-            Iterator<String> ite = paper.getAuthorSet().iterator();
-            while (ite.hasNext()) {
-                String authorId = ite.next();
+            for (String authorId : paper.getAuthorIdSet()) {
                 if (!modelMap.containsKey(authorId)) {
                     continue;
                 }
@@ -271,9 +269,7 @@ public class LogRegParamEstimator {
         Random rand = new Random();
         while (paperList.size() > 0) {
             Paper paper = paperList.remove(0);
-            Iterator<String> ite = paper.getAuthorSet().iterator();
-            while (ite.hasNext()) {
-                String authorId = ite.next();
+            for (String authorId : paper.getAuthorIdSet()) {
                 if (!modelMap.containsKey(authorId)) {
                     continue;
                 }

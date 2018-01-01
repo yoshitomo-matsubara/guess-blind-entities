@@ -3,7 +3,6 @@ package structure;
 import common.Config;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class Paper {
@@ -24,7 +23,7 @@ public class Paper {
         this.refPaperIds = elements[4].split(Config.SECOND_DELIMITER);
     }
 
-    public Set<String> getAuthorSet() {
+    public Set<String> getAuthorIdSet() {
         return this.authorIdSet;
     }
 
@@ -38,9 +37,8 @@ public class Paper {
 
     public String toString() {
         StringBuilder authorIdSetSb = new StringBuilder();
-        Iterator<String> authorIdIte = authorIdSet.iterator();
-        while (authorIdIte.hasNext()) {
-            String str = authorIdSetSb.length() == 0 ? authorIdIte.next() : Config.SECOND_DELIMITER + authorIdIte.next();
+        for (String authorId : this.authorIdSet) {
+            String str = authorIdSetSb.length() == 0 ? authorId : Config.SECOND_DELIMITER + authorId;
             authorIdSetSb.append(str);
         }
 

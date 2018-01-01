@@ -41,9 +41,8 @@ public class MiscUtil {
     }
 
     public static boolean checkIfAuthorExists(Set<String> authorIdSet, Set<String> trainingAuthorIdSet) {
-        Iterator<String> ite = authorIdSet.iterator();
-        while (ite.hasNext()) {
-            if (trainingAuthorIdSet.contains(ite.next())) {
+        for (String authorId : authorIdSet) {
+            if (trainingAuthorIdSet.contains(authorId)) {
                 return true;
             }
         }

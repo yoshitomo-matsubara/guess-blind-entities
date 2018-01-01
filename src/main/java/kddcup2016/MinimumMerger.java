@@ -86,9 +86,8 @@ public class MinimumMerger {
     }
 
     private static void deleteUnusedFiles(String tmpDirPath, String fileNamePrefix, Set<String> prefixSet) {
-        Iterator<String> ite = prefixSet.iterator();
-        while (ite.hasNext()) {
-            File file = new File(tmpDirPath + "/" + fileNamePrefix + ite.next());
+        for (String prefix : prefixSet) {
+            File file = new File(tmpDirPath + "/" + fileNamePrefix + prefix);
             if (file.exists()) {
                 file.delete();
             }
@@ -108,10 +107,8 @@ public class MinimumMerger {
                 PREFIX_SIZE, BUFFER_SIZE, TMP_AFFILS_FILE_PREFIX, outputTmpDirPath);
         Set<String> prefixSetR = FileUtil.splitFile(refsFilePath,
                 PREFIX_SIZE, BUFFER_SIZE, TMP_REFS_FILE_PREFIX, outputTmpDirPath);
-        Iterator<String> ite = prefixSetP.iterator();
         boolean first = true;
-        while (ite.hasNext()) {
-            String prefix = ite.next();
+        for (String prefix : prefixSetP) {
             if (prefixSetA.contains(prefix) && prefixSetR.contains(prefix)) {
                 merge(outputTmpDirPath, first, prefix, outputFilePath);
                 first = false;

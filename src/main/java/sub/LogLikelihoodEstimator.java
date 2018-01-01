@@ -91,10 +91,8 @@ public class LogLikelihoodEstimator {
             String line;
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
-                Set<String> authorIdSet = paper.getAuthorSet();
-                Iterator<String> ite = authorIdSet.iterator();
-                while (ite.hasNext()) {
-                    String authorId = ite.next();
+                Set<String> authorIdSet = paper.getAuthorIdSet();
+                for (String authorId : authorIdSet) {
                     if (modelMap.containsKey(authorId) && totalProbMap.containsKey(paper.id)) {
                         double totalProb = totalProbMap.get(paper.id);
                         if (totalProb > 0.0d) {

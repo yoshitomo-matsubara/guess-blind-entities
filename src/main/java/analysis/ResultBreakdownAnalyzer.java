@@ -82,7 +82,7 @@ public class ResultBreakdownAnalyzer {
     private static void evaluate(List<Result> resultList, int[] topMs, Paper paper,
                                  TreeMap<String, Integer> entityCountMap,
                                  TreeMap<String, Integer[]> identifiedEntityCountMap) {
-        for (String entityId : paper.getAuthorSet()) {
+        for (String entityId : paper.getAuthorIdSet()) {
             if (!entityCountMap.containsKey(entityId)) {
                 entityCountMap.put(entityId, 1);
             } else {

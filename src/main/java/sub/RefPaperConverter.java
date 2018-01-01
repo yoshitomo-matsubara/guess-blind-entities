@@ -40,9 +40,8 @@ public class RefPaperConverter {
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
                 StringBuilder sb = new StringBuilder();
-                Iterator<String> ite = paper.getAuthorSet().iterator();
-                while (ite.hasNext()) {
-                    String str = sb.length() == 0 ? ite.next() : Config.SECOND_DELIMITER + ite.next();
+                for (String authorId : paper.getAuthorIdSet()) {
+                    String str = sb.length() == 0 ? authorId : Config.SECOND_DELIMITER + authorId;
                     sb.append(str);
                 }
                 paperMap.put(paper.id, sb.toString());
