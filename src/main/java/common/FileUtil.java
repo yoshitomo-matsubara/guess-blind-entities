@@ -231,12 +231,12 @@ public class FileUtil {
         return prefixSet;
     }
 
-    public static void writeFile(Map<String, Integer> Map, String outputFilePath) {
+    public static void writeFile(Map<String, Integer> map, String outputFilePath) {
         try {
             File publisherFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(publisherFile));
-            for (String venueId : Map.keySet()) {
-                bw.write(venueId + Config.FIRST_DELIMITER + String.valueOf(Map.get(venueId)));
+            for (String venueId : map.keySet()) {
+                bw.write(venueId + Config.FIRST_DELIMITER + String.valueOf(map.get(venueId)));
                 bw.newLine();
             }
             bw.close();
