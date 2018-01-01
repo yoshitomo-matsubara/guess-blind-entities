@@ -79,9 +79,8 @@ public class ResultBreakdownAnalyzer {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
 
-    private static void evaluate(List<Result> resultList, int[] topMs, Paper paper,
-                                 TreeMap<String, Integer> entityCountMap,
-                                 TreeMap<String, Integer[]> identifiedEntityCountMap) {
+    private static void evaluate(List<Result> resultList, int[] topMs, Paper paper, Map<String, Integer> entityCountMap,
+                                 Map<String, Integer[]> identifiedEntityCountMap) {
         for (String entityId : paper.getAuthorIdSet()) {
             if (!entityCountMap.containsKey(entityId)) {
                 entityCountMap.put(entityId, 1);
@@ -125,9 +124,8 @@ public class ResultBreakdownAnalyzer {
         return total;
     }
 
-    private static void writeFiles(TreeMap<String, Integer> entityCountMap,
-                                   TreeMap<String, Integer[]> identifiedEntityCountMap, int blindPaperSize,
-                                   int guessablePaperSize, int halThr, int[] topMs,
+    private static void writeFiles(Map<String, Integer> entityCountMap, Map<String, Integer[]> identifiedEntityCountMap,
+                                   int blindPaperSize, int guessablePaperSize, int halThr, int[] topMs,
                                    String entityType, String idFilePath, String outputDirPath) {
         Map<String, String> entityMap = buildEntityMap(entityType, idFilePath);
         FileUtil.makeDirIfNotExist(outputDirPath);
@@ -175,8 +173,8 @@ public class ResultBreakdownAnalyzer {
             return;
         }
         try {
-            TreeMap<String, Integer> entityCountMap = new TreeMap<>();
-            TreeMap<String, Integer[]> identifiedEntityCountMap = new TreeMap<>();
+            Map<String, Integer> entityCountMap = new TreeMap<>();
+            Map<String, Integer[]> identifiedEntityCountMap = new TreeMap<>();
             int[] topMs = MiscUtil.convertToIntArray(topMsStr);
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);
             if (inputDirList.size() == 0) {
