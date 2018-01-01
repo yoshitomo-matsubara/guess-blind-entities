@@ -3,10 +3,7 @@ package common;
 import org.apache.commons.cli.*;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MiscUtil {
     public static void setOption(String optionArg, boolean hasArg, boolean required, String desc, Options options) {
@@ -73,5 +70,20 @@ public class MiscUtil {
         for (int i = 0; i < outputArray.length; i++) {
             outputArray[i] = inputArray[i];
         }
+    }
+
+    public static int[] convertToIntArray(String str) {
+        String[] elements = str.split(Config.OPTION_DELIMITER);
+        List<Integer> list = new ArrayList<>();
+        for (String element : elements) {
+            list.add(Integer.parseInt(element));
+        }
+
+        Collections.sort(list);
+        int[] array = new int[list.size()];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = list.get(i);
+        }
+        return array;
     }
 }
