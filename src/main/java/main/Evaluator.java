@@ -38,21 +38,6 @@ public class Evaluator {
         return options;
     }
 
-    private static int[] convertToIntArray(String str) {
-        String[] elements = str.split(Config.OPTION_DELIMITER);
-        List<Integer> list = new ArrayList<>();
-        for (String element : elements) {
-            list.add(Integer.parseInt(element));
-        }
-
-        Collections.sort(list);
-        int[] array = new int[list.size()];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = list.get(i);
-        }
-        return array;
-    }
-
     private static String createHeader(String halThrStr, int[] topMs) {
         StringBuilder sb = new StringBuilder();
         sb.append("paper ID" + Config.FIRST_DELIMITER + "true author count" + Config.FIRST_DELIMITER + "best ranking"
@@ -71,7 +56,7 @@ public class Evaluator {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
 
-    private static Pair<Paper, List<Result>> readScoreFile(File file, int halThr) {
+    public static Pair<Paper, List<Result>> readScoreFile(File file, int halThr) {
         List<Result> resultList = new ArrayList<>();
         Paper paper = null;
         try {
@@ -227,7 +212,7 @@ public class Evaluator {
         try {
             List<String> outputLineList = new ArrayList<>();
             String halThrStr = halThr != HALX_LABEL ? String.valueOf(halThr) : "X";
-            int[] topMs = convertToIntArray(topMsStr);
+            int[] topMs = MiscUtil.convertToIntArray(topMsStr);
             FileUtil.makeParentDir(outputFilePath);
             outputLineList.add(createHeader(halThrStr, topMs));
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);
