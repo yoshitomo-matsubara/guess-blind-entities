@@ -136,7 +136,7 @@ public class Collector {
     }
 
     private static Map<String, List<Double[]>> buildMinMaxMap(List<File> inputFileList, boolean isTraining) {
-        System.out.println("Start: buildMinMaxMap");
+        System.out.println("Start: building min-max map");
         Map<String, List<Double[]>> paramListMap = new HashMap<>();
         try {
             for (File inputFile :inputFileList) {
@@ -179,7 +179,7 @@ public class Collector {
             e.printStackTrace();
         }
 
-        System.out.println("end: buildMinMaxMap");
+        System.out.println("end: building min-max map");
         return paramListMap;
     }
 
