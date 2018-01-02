@@ -33,7 +33,7 @@ public class LogRegParamEstimator {
     private static final double DEFAULT_RANDOM_VALUE_SCALE = 1e-1d;
     private static final double DEFAULT_REGULATION_PARAM = 1e-1d;
     private static final double DEFAULT_LEARNING_RATE = 1e-1d;
-    private static final double DEFAULT_THRESHOLD = 1e-4d;
+    private static final double DEFAULT_THRESHOLD = 1e-3d;
 
     private static Options getOptions() {
         Options options = new Options();
