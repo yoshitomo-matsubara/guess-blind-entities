@@ -203,9 +203,9 @@ public class ResultBreakdownAnalyzer {
                     evaluate(resultList, topMs, paper, entityCountMap, identifiedEntityCountMap);
                     guessablePaperSize++;
                 }
-                writeFiles(entityCountMap, identifiedEntityCountMap, blindPaperSize, guessablePaperSize,
-                        halThr, topMs, entityType, idFilePath, outputDirPath);
             }
+            writeFiles(entityCountMap, identifiedEntityCountMap, blindPaperSize, guessablePaperSize,
+                    halThr, topMs, entityType, idFilePath, outputDirPath);
         } catch (Exception e) {
             System.err.println("Exception @ analyze");
             e.printStackTrace();
