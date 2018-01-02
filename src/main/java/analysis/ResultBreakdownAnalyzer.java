@@ -94,18 +94,16 @@ public class ResultBreakdownAnalyzer {
         int resultSize = resultList.size();
         for (int i = 0; i < resultSize; i++) {
             Result result = resultList.get(i);
-            if (paper.checkIfAuthor(result.authorId)) {
-                if (result.score > 0.0d) {
-                    if (i < trueAuthorSize) {
-                        initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
-                        identifiedEntityCountMap.get(result.authorId)[0]++;
-                    }
+            if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
+                if (i < trueAuthorSize) {
+                    initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
+                    identifiedEntityCountMap.get(result.authorId)[0]++;
+                }
 
-                    for (int j = 0; j < topMs.length; j++) {
-                        if (i < topMs[j]) {
-                            initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
-                            identifiedEntityCountMap.get(result.authorId)[j + 1]++;
-                        }
+                for (int j = 0; j < topMs.length; j++) {
+                    if (i < topMs[j]) {
+                        initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
+                        identifiedEntityCountMap.get(result.authorId)[j + 1]++;
                     }
                 }
             }
