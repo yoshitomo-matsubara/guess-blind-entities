@@ -85,4 +85,13 @@ public class MiscUtil {
         }
         return array;
     }
+
+    public static String convertListToString(List<?> list, String delimiter) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            String str = sb.length() == 0 ? String.valueOf(list.get(i)) : delimiter + String.valueOf(list.get(i));
+            sb.append(str);
+        }
+        return sb.toString();
+    }
 }
