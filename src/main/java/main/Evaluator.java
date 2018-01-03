@@ -84,7 +84,7 @@ public class Evaluator {
         return new Pair<>(paper, resultList);
     }
 
-    private static int calcHal(int count, int threshold) {
+    public static int calcHal(int count, int threshold) {
         return count >= threshold ? 1 : 0;
     }
 
@@ -108,7 +108,7 @@ public class Evaluator {
                     }
 
                     for (int j = 0; j < authorSizeMs.length; j++) {
-                        if (i < topMs[j]) {
+                        if (i < authorSizeMs[j]) {
                             authorSizeMs[j]++;
                         }
                     }

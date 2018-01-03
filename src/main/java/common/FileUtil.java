@@ -111,10 +111,10 @@ public class FileUtil {
         }
     }
 
-    public static void distributeFiles(Map<String, List<String>> Map, Set<String> fileNameSet,
+    public static void distributeFiles(Map<String, List<String>> map, Set<String> fileNameSet,
                                        boolean subDirMode, int suffixSize, String outputDirPath) {
         try {
-            for (String key : Map.keySet()) {
+            for (String key : map.keySet()) {
                 String outputFilePath = subDirMode ?
                         outputDirPath + "/" + key.substring(key.length() - suffixSize) + "/" + key
                         : outputDirPath + "/" + key;
@@ -122,7 +122,7 @@ public class FileUtil {
                 File outputFile = new File(outputFilePath);
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
-                List<String> valueList = Map.get(key);
+                List<String> valueList = map.get(key);
                 for (String value : valueList) {
                     bw.write(value);
                     bw.newLine();
@@ -135,18 +135,18 @@ public class FileUtil {
             System.err.println("Exception @ distributeFiles");
             e.printStackTrace();
         }
-        Map.clear();
+        map.clear();
     }
 
-    public static void distributeFiles(Map<String, List<String>> Map,
+    public static void distributeFiles(Map<String, List<String>> map,
                                        Set<String> fileNameSet, String tmpFilePrefix, String outputDirPath) {
         try {
-            for (String initial : Map.keySet()) {
+            for (String initial : map.keySet()) {
                 File outputFile = new File(outputDirPath + "/" + tmpFilePrefix + initial);
                 makeParentDir(outputFile.getPath());
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
-                List<String> valueList = Map.get(initial);
+                List<String> valueList = map.get(initial);
                 for (String value : valueList) {
                     bw.write(value);
                     bw.newLine();
@@ -159,7 +159,7 @@ public class FileUtil {
             System.err.println("Exception @ distributeFiles");
             e.printStackTrace();
         }
-        Map.clear();
+        map.clear();
     }
 
     public static Set<String> splitFile(String inputFilePath, int prefixLength,
