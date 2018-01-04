@@ -22,11 +22,13 @@ public class ResultBreakdownAnalyzer {
     private static final String AUTHOR = "author";
     private static final String AFFILIATION = "affil";
     private static final String NATIONALITY = "nation";
+    private static final String VENUE = "venue";
     private static final int DEFAULT_HAL_THRESHOLD = 1;
     private static final int HALX_LABEL = -1;
     private static final int[] AUTHOR_INDICES = new int[]{0, 1};
     private static final int[] AFFIL_INDICES = new int[]{0, 1};
     private static final int[] NATION_INDICES = new int[]{0, 3};
+    private static final int[] VENUE_INDICES = new int[]{0, 3};
 
     private static Options getOptions() {
         Options options = new Options();
@@ -46,14 +48,16 @@ public class ResultBreakdownAnalyzer {
 
     private static Map<String, String> buildEntityMap(String entityType, String idFilePath) {
         Map<String, String> entityMap = new HashMap<>();
-        int[] indices = entityType.equals(AUTHOR) ? AUTHOR_INDICES :
-                entityType.equals(AFFILIATION) ? AFFIL_INDICES : NATION_INDICES;
+        int[] indices = entityType.equals(AUTHOR) ? AUTHOR_INDICES
+                : entityType.equals(AFFILIATION) ? AFFIL_INDICES
+                : entityType.equals(NATIONALITY) ? NATION_INDICES : VENUE_INDICES;
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File(idFilePath)));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] elements = line.split(Config.FIRST_DELIMITER);
-                entityMap.put(elements[indices[0]], elements[indices[1]]);
+                int endIdx = elements.length > indices[1] ? indices[1] : elements.length - 1;
+                entityMap.put(elements[indices[0]], elements[endIdx]);
             }
             br.close();
         } catch (Exception e) {
@@ -79,14 +83,18 @@ public class ResultBreakdownAnalyzer {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
 
-    private static void evaluate(List<Result> resultList, int[] topMs, Paper paper, Map<String, Integer> entityCountMap,
-                                 Map<String, Integer[]> identifiedEntityCountMap) {
+    private static void evaluate(List<Result> resultList, int[] topMs, Paper paper, boolean guessable,
+                                 Map<String, Integer> entityCountMap, Map<String, Integer[]> identifiedEntityCountMap) {
         for (String entityId : paper.getAuthorIdSet()) {
             if (!entityCountMap.containsKey(entityId)) {
                 entityCountMap.put(entityId, 1);
             } else {
                 entityCountMap.put(entityId, entityCountMap.get(entityId) + 1);
             }
+        }
+
+        if (!guessable) {
+            return;
         }
 
         Collections.sort(resultList);
@@ -111,6 +119,48 @@ public class ResultBreakdownAnalyzer {
             if (i >= topMs[topMs.length - 1]) {
                 break;
             }
+        }
+    }
+
+    private static void evaluate(List<Result> resultList, int[] topMs, int threshold, Paper paper, boolean guessable,
+                                 Map<String, Integer> entityCountMap, Map<String, Integer[]> identifiedEntityCountMap) {
+        if (!entityCountMap.containsKey(paper.venueId)) {
+            entityCountMap.put(paper.venueId, 1);
+        } else {
+            entityCountMap.put(paper.venueId, entityCountMap.get(paper.venueId) + 1);
+        }
+
+        if (!guessable) {
+            return;
+        }
+
+        Collections.sort(resultList);
+        int trueAuthorSize = paper.getAuthorSize();
+        int resultSize = resultList.size();
+        int[] authorSizeMs = MiscUtil.initIntArray(topMs.length + 1, 0);
+        for (int i = 0; i < resultSize; i++) {
+            Result result = resultList.get(i);
+            if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
+                if (i < trueAuthorSize) {
+                    authorSizeMs[0]++;
+                }
+
+                for (int j = 1; j < authorSizeMs.length; j++) {
+                    if (i < topMs[j - 1]) {
+                        authorSizeMs[j]++;
+                    }
+                }
+            }
+
+            if (i >= topMs[topMs.length - 1]) {
+                break;
+            }
+        }
+
+        initArrayMapIfEmpty(paper.venueId, topMs.length + 1, identifiedEntityCountMap);
+        for (int i = 0; i < authorSizeMs.length; i++) {
+            int overThrAtM = Evaluator.calcHal(authorSizeMs[i], threshold);
+            identifiedEntityCountMap.get(paper.venueId)[i] += overThrAtM;
         }
     }
 
@@ -167,7 +217,8 @@ public class ResultBreakdownAnalyzer {
 
     private static void analyze(String inputDirPath, String entityType, String idFilePath, String topMsStr,
                                  int halThr, String outputDirPath) {
-        if (!entityType.equals(AUTHOR) && !entityType.equals(AFFILIATION) && !entityType.equals(NATIONALITY)) {
+        if (!entityType.equals(AUTHOR) && !entityType.equals(AFFILIATION)
+                && !entityType.equals(NATIONALITY) && !entityType.equals(VENUE)) {
             return;
         }
         try {
@@ -193,14 +244,17 @@ public class ResultBreakdownAnalyzer {
                     Paper paper = resultPair.first;
                     List<Result> resultList = resultPair.second;
                     int threshold = decideThreshold(paper, halThr);
-                    if (paper.getAuthorSize() < threshold || resultList.size() == 0) {
-                        if (paper.getAuthorSize() < threshold) {
-                            blindPaperSize--;
-                        }
-                        continue;
+                    if (paper.getAuthorSize() < threshold) {
+                        blindPaperSize--;
                     }
 
-                    evaluate(resultList, topMs, paper, entityCountMap, identifiedEntityCountMap);
+                    boolean guessable = resultList.size() > 0;
+                    if (!entityType.equals(VENUE)) {
+                        evaluate(resultList, topMs, paper, guessable, entityCountMap, identifiedEntityCountMap);
+                    } else {
+                        evaluate(resultList, topMs, threshold, paper, guessable,
+                                entityCountMap, identifiedEntityCountMap);
+                    }
                     guessablePaperSize++;
                 }
             }
