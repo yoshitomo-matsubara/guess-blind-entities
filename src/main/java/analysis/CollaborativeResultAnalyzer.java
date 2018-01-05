@@ -2,6 +2,7 @@ package analysis;
 
 import common.Config;
 import common.FileUtil;
+import common.MathUtil;
 import common.MiscUtil;
 import main.Evaluator;
 import org.apache.commons.cli.CommandLine;
@@ -130,17 +131,6 @@ public class CollaborativeResultAnalyzer {
                 + Config.FIRST_DELIMITER + collabIdStr;
     }
 
-    private static double calcAverage(List<Integer> valueList) {
-        double sum = 0.0d;
-        if (valueList.size() == 0) {
-            return 0.0d;
-        }
-        for (int value : valueList) {
-            sum += (double) value;
-        }
-        return sum / (double) valueList.size();
-    }
-
     private static void writeSummaryFile(String header, Map<String, List<Integer>> trueEntityRankListMap,
                                          Map<String, List<Integer>> collabRankListMap, String outputFilePath) {
         try {
@@ -158,8 +148,8 @@ public class CollaborativeResultAnalyzer {
             for (String entityId : mergedEntityIdSet) {
                 List<Integer> trueEntityRankList =  trueEntityRankListMap.getOrDefault(entityId, new ArrayList<>());
                 List<Integer> collabRankList =  collabRankListMap.getOrDefault(entityId, new ArrayList<>());
-                double avgIdentifiedRank = calcAverage(trueEntityRankList);
-                double avgCollabRank = calcAverage(collabRankList);
+                double avgIdentifiedRank = MathUtil.calcAverage(trueEntityRankList);
+                double avgCollabRank = MathUtil.calcAverage(collabRankList);
                 String identifiedRankStr = MiscUtil.convertListToString(trueEntityRankList, Config.OPTION_DELIMITER);
                 String collabRankStr = MiscUtil.convertListToString(collabRankList, Config.OPTION_DELIMITER);
                 bw.write(entityId + Config.FIRST_DELIMITER + String.valueOf(avgIdentifiedRank)

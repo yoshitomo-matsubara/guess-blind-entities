@@ -2,6 +2,7 @@ package analysis;
 
 import common.Config;
 import common.FileUtil;
+import common.MathUtil;
 import common.MiscUtil;
 import main.Evaluator;
 import org.apache.commons.cli.CommandLine;
@@ -164,14 +165,6 @@ public class ResultBreakdownAnalyzer {
         }
     }
 
-    private static int calcTotalValue(Map<String, Integer> map) {
-        int total = 0;
-        for (String key : map.keySet()) {
-            total += map.get(key);
-        }
-        return total;
-    }
-
     private static void writeFiles(Map<String, Integer> entityCountMap, Map<String, Integer[]> identifiedEntityCountMap,
                                    int blindPaperSize, int guessablePaperSize, int halThr, int[] topMs,
                                    String entityType, String idFilePath, String outputDirPath) {
@@ -179,7 +172,7 @@ public class ResultBreakdownAnalyzer {
         FileUtil.makeDirIfNotExist(outputDirPath);
         try {
             String halThrStr = halThr != HALX_LABEL ? String.valueOf(halThr) : "x";
-            double totalTrueEntitySize = (double) calcTotalValue(entityCountMap);
+            double totalTrueEntitySize = (double) MathUtil.calcTotalValue(entityCountMap);
             for (int i = 0; i < topMs.length + 1; i++) {
                 String topStr = i == 0 ? "x" : String.valueOf(topMs[i - 1]);
                 String outputFilePath = outputDirPath + "/hal" + halThrStr + "-top" + topStr + ".csv";
