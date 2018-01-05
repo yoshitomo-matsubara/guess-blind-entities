@@ -71,7 +71,7 @@ public class MiscUtil {
         }
     }
 
-    public static void initArrayMapIfEmpty(int key, int arraySize, Map<Integer, Integer[]> arrayMap) {
+    public static void initArrayMapNotExist(int key, int arraySize, Map<Integer, Integer[]> arrayMap) {
         if (arrayMap.containsKey(key)) {
             return;
         }
@@ -83,7 +83,7 @@ public class MiscUtil {
         arrayMap.put(key, array);
     }
 
-    public static void initArrayMapIfEmpty(String key, int arraySize, Map<String, Integer[]> arrayMap) {
+    public static void initArrayMapIfNotExist(String key, int arraySize, Map<String, Integer[]> arrayMap) {
         if (arrayMap.containsKey(key)) {
             return;
         }

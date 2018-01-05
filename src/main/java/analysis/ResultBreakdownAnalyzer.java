@@ -93,13 +93,13 @@ public class ResultBreakdownAnalyzer {
             Result result = resultList.get(i);
             if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
                 if (i < trueAuthorSize) {
-                    MiscUtil.initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
+                    MiscUtil.initArrayMapIfNotExist(result.authorId, topMs.length + 1, identifiedEntityCountMap);
                     identifiedEntityCountMap.get(result.authorId)[0]++;
                 }
 
                 for (int j = 0; j < topMs.length; j++) {
                     if (i < topMs[j]) {
-                        MiscUtil.initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
+                        MiscUtil.initArrayMapIfNotExist(result.authorId, topMs.length + 1, identifiedEntityCountMap);
                         identifiedEntityCountMap.get(result.authorId)[j + 1]++;
                     }
                 }
@@ -146,7 +146,7 @@ public class ResultBreakdownAnalyzer {
             }
         }
 
-        MiscUtil.initArrayMapIfEmpty(paper.venueId, topMs.length + 1, identifiedEntityCountMap);
+        MiscUtil.initArrayMapIfNotExist(paper.venueId, topMs.length + 1, identifiedEntityCountMap);
         for (int i = 0; i < authorSizeMs.length; i++) {
             int overThrAtM = Evaluator.calcHal(authorSizeMs[i], threshold);
             identifiedEntityCountMap.get(paper.venueId)[i] += overThrAtM;
@@ -233,6 +233,7 @@ public class ResultBreakdownAnalyzer {
                     if (guessable) {
                         guessablePaperSize++;
                     }
+
                     if (!entityType.equals(VENUE)) {
                         evaluate(resultList, topMs, paper, guessable, entityCountMap, identifiedEntityCountMap);
                     } else {
