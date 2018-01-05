@@ -222,14 +222,14 @@ public class ResultBreakdownAnalyzer {
             return;
         }
         try {
-            Map<String, Integer> entityCountMap = new TreeMap<>();
-            Map<String, Integer[]> identifiedEntityCountMap = new TreeMap<>();
-            int[] topMs = MiscUtil.convertToIntArray(topMsStr);
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);
             if (inputDirList.size() == 0) {
                 inputDirList.add(new File(inputDirPath));
             }
 
+            Map<String, Integer> entityCountMap = new TreeMap<>();
+            Map<String, Integer[]> identifiedEntityCountMap = new TreeMap<>();
+            int[] topMs = MiscUtil.convertToIntArray(topMsStr);
             int blindPaperSize = 0;
             int guessablePaperSize = 0;
             int dirSize = inputDirList.size();
