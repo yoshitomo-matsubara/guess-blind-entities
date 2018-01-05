@@ -71,6 +71,37 @@ public class MiscUtil {
         }
     }
 
+    public static void initArrayMapIfEmpty(int key, int arraySize, Map<Integer, Integer[]> arrayMap) {
+        if (arrayMap.containsKey(key)) {
+            return;
+        }
+
+        Integer[] array = new Integer[arraySize];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = 0;
+        }
+        arrayMap.put(key, array);
+    }
+
+    public static void initArrayMapIfEmpty(String key, int arraySize, Map<String, Integer[]> arrayMap) {
+        if (arrayMap.containsKey(key)) {
+            return;
+        }
+
+        Integer[] array = new Integer[arraySize];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = 0;
+        }
+        arrayMap.put(key, array);
+    }
+
+    public static void putAndInitListIfNotExist(String key, int value, Map<String, List<Integer>> map) {
+        if (!map.containsKey(key)) {
+            map.put(key, new ArrayList<>());
+        }
+        map.get(key).add(value);
+    }
+
     public static int[] convertToIntArray(String str) {
         String[] elements = str.split(Config.OPTION_DELIMITER);
         List<Integer> list = new ArrayList<>();

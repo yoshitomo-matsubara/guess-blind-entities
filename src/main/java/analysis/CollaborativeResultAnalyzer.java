@@ -77,13 +77,6 @@ public class CollaborativeResultAnalyzer {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
 
-    private static void putAndInitListIfNotExist(String key, int value, Map<String, List<Integer>> map) {
-        if (!map.containsKey(key)) {
-            map.put(key, new ArrayList<>());
-        }
-        map.get(key).add(value);
-    }
-
     private static String evaluate(List<Result> resultList, Paper paper, Map<String, Set<String>> collabSetMap,
                                    Map<String, List<Integer>> trueEntityRankListMap,
                                    Map<String, List<Integer>> collabRankListMap) {
@@ -109,12 +102,12 @@ public class CollaborativeResultAnalyzer {
             if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
                 trueEntityRankList.add(rank);
                 trueEntityIdList.add(result.authorId);
-                putAndInitListIfNotExist(result.authorId, rank, trueEntityRankListMap);
+                MiscUtil.putAndInitListIfNotExist(result.authorId, rank, trueEntityRankListMap);
             } else if (!paper.checkIfAuthor(result.authorId) && mergedCollabSet.contains(result.authorId)
                     && result.score > 0.0d) {
                 collabRankList.add(rank);
                 collabIdList.add(result.authorId);
-                putAndInitListIfNotExist(result.authorId, rank, collabRankListMap);
+                MiscUtil.putAndInitListIfNotExist(result.authorId, rank, collabRankListMap);
             }
 
             if (trueEntityIdList.size() + collabIdList.size() >= maxCount) {

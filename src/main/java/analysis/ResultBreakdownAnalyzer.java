@@ -68,18 +68,6 @@ public class ResultBreakdownAnalyzer {
         return entityMap;
     }
 
-    private static void initArrayMapIfEmpty(String key, int arraySize, Map<String, Integer[]> arrayMap) {
-        if (arrayMap.containsKey(key)) {
-            return;
-        }
-
-        Integer[] array = new Integer[arraySize];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = 0;
-        }
-        arrayMap.put(key, array);
-    }
-
     private static int decideThreshold(Paper paper, int halThr) {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
@@ -105,13 +93,13 @@ public class ResultBreakdownAnalyzer {
             Result result = resultList.get(i);
             if (paper.checkIfAuthor(result.authorId) && result.score > 0.0d) {
                 if (i < trueAuthorSize) {
-                    initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
+                    MiscUtil.initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
                     identifiedEntityCountMap.get(result.authorId)[0]++;
                 }
 
                 for (int j = 0; j < topMs.length; j++) {
                     if (i < topMs[j]) {
-                        initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
+                        MiscUtil.initArrayMapIfEmpty(result.authorId, topMs.length + 1, identifiedEntityCountMap);
                         identifiedEntityCountMap.get(result.authorId)[j + 1]++;
                     }
                 }
@@ -158,7 +146,7 @@ public class ResultBreakdownAnalyzer {
             }
         }
 
-        initArrayMapIfEmpty(paper.venueId, topMs.length + 1, identifiedEntityCountMap);
+        MiscUtil.initArrayMapIfEmpty(paper.venueId, topMs.length + 1, identifiedEntityCountMap);
         for (int i = 0; i < authorSizeMs.length; i++) {
             int overThrAtM = Evaluator.calcHal(authorSizeMs[i], threshold);
             identifiedEntityCountMap.get(paper.venueId)[i] += overThrAtM;
