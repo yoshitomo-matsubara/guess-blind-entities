@@ -242,13 +242,15 @@ public class ResultBreakdownAnalyzer {
                     }
 
                     boolean guessable = resultList.size() > 0;
+                    if (guessable) {
+                        guessablePaperSize++;
+                    }
                     if (!entityType.equals(VENUE)) {
                         evaluate(resultList, topMs, paper, guessable, entityCountMap, identifiedEntityCountMap);
                     } else {
                         evaluate(resultList, topMs, threshold, paper, guessable,
                                 entityCountMap, identifiedEntityCountMap);
                     }
-                    guessablePaperSize++;
                 }
             }
             writeFiles(entityCountMap, identifiedEntityCountMap, blindPaperSize, guessablePaperSize,
