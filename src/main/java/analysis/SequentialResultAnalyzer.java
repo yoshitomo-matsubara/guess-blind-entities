@@ -291,7 +291,7 @@ public class SequentialResultAnalyzer {
     private static void analyze(String inputDirPath, String affilsFilePath, String modelDirPath, String topMsStr,
                                 int halThr, String outputDirPath) {
         try {
-            int[] topMs = MiscUtil.convertToIntArray(topMsStr);
+            int[] topMs = MiscUtil.convertToIntArray(topMsStr, Config.OPTION_DELIMITER);
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);
             if (inputDirList.size() == 0) {
                 inputDirList.add(new File(inputDirPath));

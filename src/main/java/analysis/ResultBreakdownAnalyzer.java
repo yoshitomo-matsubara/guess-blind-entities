@@ -210,7 +210,7 @@ public class ResultBreakdownAnalyzer {
 
             Map<String, Integer> entityCountMap = new TreeMap<>();
             Map<String, Integer[]> identifiedEntityCountMap = new TreeMap<>();
-            int[] topMs = MiscUtil.convertToIntArray(topMsStr);
+            int[] topMs = MiscUtil.convertToIntArray(topMsStr, Config.OPTION_DELIMITER);
             int blindPaperSize = 0;
             int guessablePaperSize = 0;
             int dirSize = inputDirList.size();

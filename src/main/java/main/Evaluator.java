@@ -212,7 +212,7 @@ public class Evaluator {
         try {
             List<String> outputLineList = new ArrayList<>();
             String halThrStr = halThr != HALX_LABEL ? String.valueOf(halThr) : "X";
-            int[] topMs = MiscUtil.convertToIntArray(topMsStr);
+            int[] topMs = MiscUtil.convertToIntArray(topMsStr, Config.OPTION_DELIMITER);
             FileUtil.makeParentDir(outputFilePath);
             outputLineList.add(createHeader(halThrStr, topMs));
             List<File> inputDirList = FileUtil.getDirList(inputDirPath);

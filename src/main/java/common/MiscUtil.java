@@ -102,8 +102,8 @@ public class MiscUtil {
         map.get(key).add(value);
     }
 
-    public static int[] convertToIntArray(String str) {
-        String[] elements = str.split(Config.OPTION_DELIMITER);
+    public static int[] convertToIntArray(String str, String delimiter) {
+        String[] elements = str.split(delimiter);
         List<Integer> list = new ArrayList<>();
         for (String element : elements) {
             list.add(Integer.parseInt(element));
