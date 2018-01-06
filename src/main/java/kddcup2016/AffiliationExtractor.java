@@ -128,7 +128,7 @@ public class AffiliationExtractor {
             File inputFile = new File(inputFilePath);
             String tmpOutputDirPath = tmpDirPath != null ? tmpDirPath : inputFile.getParent();
             Set<String> prefixSet =
-                    readIdListFile(inputFile, delimiter, keyIdx,valueIdxA, valueIdxB,minIdLength, tmpOutputDirPath);
+                    readIdListFile(inputFile, delimiter, keyIdx, valueIdxA, valueIdxB, minIdLength, tmpOutputDirPath);
             File outputFile = new File(outputDirPath + "/" + EXTRA_FILE_PREFIX + inputFile.getName());
             boolean first = true;
             for (String prefix : prefixSet) {
