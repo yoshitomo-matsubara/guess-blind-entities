@@ -39,6 +39,14 @@ public class FileUtil {
         return dirList;
     }
 
+    public static List<File> getFileList(List<File> dirList) {
+        List<File> fileList = new ArrayList<>();
+        for (File dir : dirList) {
+            fileList.addAll(getFileList(dir.getPath()));
+        }
+        return fileList;
+    }
+
     public static List<String> readFile(File file) {
         List<String> lineList = new ArrayList<>();
         try {
@@ -69,9 +77,18 @@ public class FileUtil {
         }
     }
 
-    public static void makeParentDir(String filePath) {
+    public static String getParentDirPath(String filePath) {
         File file = new File(filePath);
-        String parentDirPath = file.getParent();
+        return file.getParent();
+    }
+
+    public static String getParentDirName(String filePath) {
+        String parentDirPath = getParentDirPath(filePath);
+        return (new File(parentDirPath)).getName();
+    }
+
+    public static void makeParentDir(String filePath) {
+        String parentDirPath = getParentDirPath(filePath);
         if (parentDirPath == null || parentDirPath.length() == 0) {
             return;
         }
@@ -246,6 +263,18 @@ public class FileUtil {
             bw.close();
         } catch (Exception e) {
             System.err.println("Exception @ writeFile");
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteFile(String filePath) {
+        File file = new File(filePath);
+        try {
+            if (file.exists()) {
+                file.delete();
+            }
+        } catch (Exception e) {
+            System.err.println("Exception @ deleteFile");
             e.printStackTrace();
         }
     }

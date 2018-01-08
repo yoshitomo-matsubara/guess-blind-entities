@@ -36,7 +36,7 @@ public class CollaborativeResultAnalyzer {
         return options;
     }
 
-    private static Map<String, Set<String>> buildCollabSetMap(String trainDirPath) {
+    public static Map<String, Set<String>> buildCollabSetMap(String trainDirPath) {
         System.out.println("Start: building collaborator set map");
         Map<String, Set<String>> collabSetMap = new TreeMap<>();
         List<File> trainFileList = FileUtil.getFileList(trainDirPath);
