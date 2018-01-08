@@ -16,7 +16,7 @@ public class AuthorDisambiguationHelper {
     private static final String TRAIN_DIR_OPTION = "tr";
     private static final String THRESHOLD_OPTION = "thr";
     private static final String DELIMITER = " ";
-    private static final int DEFAULT_THRESHOLD = 3;
+    private static final int DEFAULT_THRESHOLD = 1;
     private static final int INCOMPLETE_MATCH = -1;
     public static final int COMPLETE_MATCH = 0;
     public static final int ABBREVIATED_MATCH = 1;
@@ -118,6 +118,15 @@ public class AuthorDisambiguationHelper {
         return map;
     }
 
+    private static Set<String> buildTargetAuthorIdSet(String trainDirPath) {
+        Set<String> targetAuthorIdSet = new HashSet<>();
+        List<File> authorFileList = FileUtil.getFileList(FileUtil.getDirList(trainDirPath));
+        for (File authorFile : authorFileList) {
+            targetAuthorIdSet.add(authorFile.getName());
+        }
+        return targetAuthorIdSet;
+    }
+
     private static boolean checkIfCompleteMatching(String authorName, String coauthorName) {
         return authorName.equals(coauthorName);
     }
@@ -150,20 +159,11 @@ public class AuthorDisambiguationHelper {
     }
 
     private static void detectSimilarAuthors(Map<String, String> authorNameMap, Map<String, Set<String>> collabSetMap,
-                                             String outputFilePath) {
+                                             Set<String> targetAuthorIdSet, String outputFilePath) {
         List<String> outputLineList = new ArrayList<>();
         Set<String> doneIdPairSet = new HashSet<>();
-        int authorSize = collabSetMap.size();
-        int unitSize = authorSize / 20;
-        int count = 0;
-        System.out.println("Step\t0 / " + String.valueOf(authorSize));
-        for (String authorId : collabSetMap.keySet()) {
-            count++;
-            if (count % unitSize == 0) {
-                System.out.println("Step\t" + String.valueOf(count) + " / " + String.valueOf(authorSize));
-            }
-
-            if (!authorNameMap.containsKey(authorId)) {
+        for (String authorId : targetAuthorIdSet) {
+            if (!authorNameMap.containsKey(authorId) || !collabSetMap.containsKey(authorId)) {
                 continue;
             }
 
@@ -173,7 +173,8 @@ public class AuthorDisambiguationHelper {
             for (String firstLevelCoauthorId : firstLevelCollabSet) {
                 for (String secondLevelCoauthorId : collabSetMap.get(firstLevelCoauthorId)) {
                     if (!firstLevelCollabSet.contains(secondLevelCoauthorId)
-                            && !secondLevelCoauthorId.equals(authorId)) {
+                            && !secondLevelCoauthorId.equals(authorId)
+                            && targetAuthorIdSet.contains(secondLevelCoauthorId)) {
                         secondLevelMergedCollabSet.add(secondLevelCoauthorId);
                     }
                 }
@@ -195,15 +196,14 @@ public class AuthorDisambiguationHelper {
                 }
             }
         }
-
-        System.out.println("Step\t" + String.valueOf(authorSize) + " / " + String.valueOf(authorSize));
         FileUtil.writeFile(outputLineList, outputFilePath);
     }
 
     private static void analyze(String inputFilePath, String trainDirPath, int threshold, String outputFilePath) {
         Map<String, Set<String>> collabSetMap = buildFilteredCollabSetMap(trainDirPath, threshold);
         Map<String, String> authorNameMap = buildAuthorNameMap(inputFilePath, collabSetMap);
-        detectSimilarAuthors(authorNameMap, collabSetMap, outputFilePath);
+        Set<String> targetAuthorIdSet = buildTargetAuthorIdSet(trainDirPath);
+        detectSimilarAuthors(authorNameMap, collabSetMap, targetAuthorIdSet, outputFilePath);
     }
 
     public static void main(String[] args) {
