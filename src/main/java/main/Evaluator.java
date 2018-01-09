@@ -11,6 +11,7 @@ import structure.Result;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class Evaluator {
                     }
 
                     for (int j = 0; j < authorSizeMs.length; j++) {
-                        if (i < authorSizeMs[j]) {
+                        if (i < topMs[j]) {
                             authorSizeMs[j]++;
                         }
                     }
