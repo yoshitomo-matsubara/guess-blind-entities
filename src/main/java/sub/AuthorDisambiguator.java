@@ -254,7 +254,7 @@ public class AuthorDisambiguator {
             String disambiguatedAuthorId = disambiguatedMap.get(authorId);
             String disambiguatedAuthorFilePath = outputAuthorFilePathMap.get(disambiguatedAuthorId);
             FileUtil.overwriteFile(outputLineList, false, disambiguatedAuthorFilePath);
-            FileUtil.deleteFile(disambiguatedAuthorFilePath);
+            FileUtil.deleteFile(outputAuthorFile.getPath());
             System.out.println("Deleted and added " + authorId + " to " + disambiguatedAuthorId);
         }
     }
