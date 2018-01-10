@@ -59,9 +59,9 @@ public class LogisticRegressionModel extends SocialCitationModel {
     public LogisticRegressionModel(String line, CommandLine cl) {
         this(line);
         String paramStr = cl.getOptionValue(PARAM_OPTION);
-        List<String> paramLines = FileUtil.readFile(paramStr);
-        boolean readable = paramLines != null && paramLines.size() > 1;
-        String[] paramElements = readable ? paramLines.get(paramLines.size() - 1).split(Config.FIRST_DELIMITER)
+        List<String> paramLineList = FileUtil.readFile(paramStr);
+        boolean readable = paramLineList != null && paramLineList.size() > 1;
+        String[] paramElements = readable ? paramLineList.get(paramLineList.size() - 1).split(Config.FIRST_DELIMITER)
                 : paramStr.split(Config.OPTION_DELIMITER);
         this.params = new double[PARAM_SIZE];
         for (int i = 0; i < this.params.length; i++) {
