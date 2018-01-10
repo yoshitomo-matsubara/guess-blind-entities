@@ -196,7 +196,7 @@ public class AuthorDisambiguator {
         Random rand = new Random();
         for (String key : candidateListMap.keySet()) {
             List<Pair<String, String>> pairList = candidateListMap.get(key);
-            Pair<String, String> representativePair = pairList.get(rand.nextInt(pairList.size()));
+            Pair<String, String> representativePair = pairList.remove(rand.nextInt(pairList.size()));
             for (Pair<String, String> pair : pairList) {
                 disambiguatedMap.put(pair.first, representativePair.first);
             }

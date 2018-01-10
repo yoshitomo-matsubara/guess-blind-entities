@@ -271,7 +271,12 @@ public class FileUtil {
         File file = new File(filePath);
         try {
             if (file.exists()) {
-                file.delete();
+                boolean successful = file.delete();
+                if (!successful) {
+                    System.err.println("Failed to delete " + file.getPath());
+                }
+            } else {
+                System.err.println("Couldn't find " + file.getPath());
             }
         } catch (Exception e) {
             System.err.println("Exception @ deleteFile");
