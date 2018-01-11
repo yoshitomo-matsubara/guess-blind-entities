@@ -75,7 +75,7 @@ public class HillProvostBestModel extends BaseModel {
 
     @Override
     public String toString() {
-        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, [paper ID:weight]
+        // author ID, # of paper IDs, paper IDs, # of ref IDs, [ref ID:count], # of citations, [paper ID:icf weight]
         StringBuilder sb = new StringBuilder(super.toString());
         sb.append(Config.FIRST_DELIMITER);
         boolean first = true;
