@@ -135,8 +135,8 @@ public class Collector {
         }
     }
 
-    private static Map<String, List<Double[]>> extractMinMaxMap(List<File> inputFileList, boolean isTraining) {
-        System.out.println("Start: extractMinMaxMap");
+    private static Map<String, List<Double[]>> buildMinMaxMap(List<File> inputFileList, boolean isTraining) {
+        System.out.println("Start: building min-max map");
         Map<String, List<Double[]>> paramListMap = new HashMap<>();
         try {
             for (File inputFile :inputFileList) {
@@ -175,11 +175,11 @@ public class Collector {
                 br.close();
             }
         } catch (Exception e) {
-            System.err.println("Exception @ extractMinMaxMap");
+            System.err.println("Exception @ buildMinMaxMap");
             e.printStackTrace();
         }
 
-        System.out.println("end: extractMinMaxMap");
+        System.out.println("end: building min-max map");
         return paramListMap;
     }
 
@@ -194,7 +194,7 @@ public class Collector {
 
     private static void normalize(String inputDirPath, boolean isTraining, String outputDirPath) {
         List<File> inputFileList = isTraining ? FileUtil.getFileList(inputDirPath) : FileUtil.getFileListR(inputDirPath);
-        Map<String, List<Double[]>> paramListMap = extractMinMaxMap(inputFileList, isTraining);
+        Map<String, List<Double[]>> paramListMap = buildMinMaxMap(inputFileList, isTraining);
         try {
             for (File inputFile :inputFileList) {
                 BufferedReader br = new BufferedReader(new FileReader(inputFile));

@@ -3,10 +3,7 @@ package common;
 import org.apache.commons.cli.*;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MiscUtil {
     public static void setOption(String optionArg, boolean hasArg, boolean required, String desc, Options options) {
@@ -44,9 +41,8 @@ public class MiscUtil {
     }
 
     public static boolean checkIfAuthorExists(Set<String> authorIdSet, Set<String> trainingAuthorIdSet) {
-        Iterator<String> ite = authorIdSet.iterator();
-        while (ite.hasNext()) {
-            if (trainingAuthorIdSet.contains(ite.next())) {
+        for (String authorId : authorIdSet) {
+            if (trainingAuthorIdSet.contains(authorId)) {
                 return true;
             }
         }
@@ -73,5 +69,60 @@ public class MiscUtil {
         for (int i = 0; i < outputArray.length; i++) {
             outputArray[i] = inputArray[i];
         }
+    }
+
+    public static void initArrayMapNotExist(int key, int arraySize, Map<Integer, Integer[]> arrayMap) {
+        if (arrayMap.containsKey(key)) {
+            return;
+        }
+
+        Integer[] array = new Integer[arraySize];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = 0;
+        }
+        arrayMap.put(key, array);
+    }
+
+    public static void initArrayMapIfNotExist(String key, int arraySize, Map<String, Integer[]> arrayMap) {
+        if (arrayMap.containsKey(key)) {
+            return;
+        }
+
+        Integer[] array = new Integer[arraySize];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = 0;
+        }
+        arrayMap.put(key, array);
+    }
+
+    public static void putAndInitListIfNotExist(String key, int value, Map<String, List<Integer>> map) {
+        if (!map.containsKey(key)) {
+            map.put(key, new ArrayList<>());
+        }
+        map.get(key).add(value);
+    }
+
+    public static int[] convertToIntArray(String str, String delimiter) {
+        String[] elements = str.split(delimiter);
+        List<Integer> list = new ArrayList<>();
+        for (String element : elements) {
+            list.add(Integer.parseInt(element));
+        }
+
+        Collections.sort(list);
+        int[] array = new int[list.size()];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+
+    public static String convertListToString(List<?> list, String delimiter) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            String str = sb.length() == 0 ? String.valueOf(list.get(i)) : delimiter + String.valueOf(list.get(i));
+            sb.append(str);
+        }
+        return sb.toString();
     }
 }

@@ -178,9 +178,7 @@ public class MinimumExtractor {
             Set<String> prefixSet = readIdListFile(inputFile, delimiter, keyIdx, valueIdx, minIdLength);
             File outputFile = new File(outputDirPath + "/" + MIN_FILE_PREFIX + inputFile.getName());
             boolean first = true;
-            Iterator<String> ite = prefixSet.iterator();
-            while (ite.hasNext()) {
-                String prefix = ite.next();
+            for (String prefix : prefixSet) {
                 Map<String, List<String>> distributedMap =
                         readDistributedFiles(inputFile.getParent() + "/" + TMP_FILE_PREFIX + prefix, delimiter);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));

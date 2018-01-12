@@ -31,7 +31,7 @@ public class SeenFilter {
             String line;
             while ((line = br.readLine()) != null) {
                 Paper paper = new Paper(line);
-                if (MiscUtil.checkIfAuthorExists(paper.getAuthorSet(), authorIdSet)) {
+                if (MiscUtil.checkIfAuthorExists(paper.getAuthorIdSet(), authorIdSet)) {
                     bw.write(line);
                     bw.newLine();
                 }

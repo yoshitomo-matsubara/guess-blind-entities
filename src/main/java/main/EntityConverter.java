@@ -85,9 +85,7 @@ public class EntityConverter {
                     }
 
                     StringBuilder sb = new StringBuilder();
-                    Iterator<String> ite = entityIdSet.iterator();
-                    while (ite.hasNext()) {
-                        String entityId = ite.next();
+                    for (String entityId : entityIdSet) {
                         String str = sb.length() == 0 ? entityId : Config.SECOND_DELIMITER + entityId;
                         sb.append(str);
                     }

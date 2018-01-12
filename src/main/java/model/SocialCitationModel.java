@@ -55,9 +55,7 @@ public class SocialCitationModel extends BaseModel {
     public void train() {
         super.train();
         for (Paper paper : this.author.papers) {
-            Iterator<String> ite = paper.getAuthorSet().iterator();
-            while (ite.hasNext()) {
-                String coauthorId = ite.next();
+            for (String coauthorId : paper.getAuthorIdSet()) {
                 if (!coauthorId.equals(this.authorId)) {
                     this.coauthorIdSet.add(coauthorId);
                 }
@@ -67,9 +65,7 @@ public class SocialCitationModel extends BaseModel {
 
     @Override
     public void setSocialPaperIds(List<BaseModel> allModelList, Map<String, Integer> modelIdMap) {
-        Iterator<String> ite = this.coauthorIdSet.iterator();
-        while (ite.hasNext()) {
-            String coauthorId = ite.next();
+        for (String coauthorId : this.coauthorIdSet) {
             if (modelIdMap.containsKey(coauthorId)) {
                 int coauthorIndex = modelIdMap.get(coauthorId);
                 BaseModel model = allModelList.get(coauthorIndex);

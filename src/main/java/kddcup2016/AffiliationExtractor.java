@@ -128,12 +128,10 @@ public class AffiliationExtractor {
             File inputFile = new File(inputFilePath);
             String tmpOutputDirPath = tmpDirPath != null ? tmpDirPath : inputFile.getParent();
             Set<String> prefixSet =
-                    readIdListFile(inputFile, delimiter, keyIdx,valueIdxA, valueIdxB,minIdLength, tmpOutputDirPath);
+                    readIdListFile(inputFile, delimiter, keyIdx, valueIdxA, valueIdxB, minIdLength, tmpOutputDirPath);
             File outputFile = new File(outputDirPath + "/" + EXTRA_FILE_PREFIX + inputFile.getName());
             boolean first = true;
-            Iterator<String> ite = prefixSet.iterator();
-            while (ite.hasNext()) {
-                String prefix = ite.next();
+            for (String prefix : prefixSet) {
                 Map<String, List<String>> distributedMap =
                         readDistributedFiles(tmpOutputDirPath + "/" + TMP_FILE_PREFIX + prefix, delimiter, validPaperIdSet);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));

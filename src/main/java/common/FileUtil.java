@@ -39,6 +39,14 @@ public class FileUtil {
         return dirList;
     }
 
+    public static List<File> getFileList(List<File> dirList) {
+        List<File> fileList = new ArrayList<>();
+        for (File dir : dirList) {
+            fileList.addAll(getFileList(dir.getPath()));
+        }
+        return fileList;
+    }
+
     public static List<String> readFile(File file) {
         List<String> lineList = new ArrayList<>();
         try {
@@ -55,7 +63,11 @@ public class FileUtil {
     }
 
     public static List<String> readFile(String filePath) {
-        return readFile(new File(filePath));
+        File file = new File(filePath);
+        if (file.exists()) {
+            return readFile(file);
+        }
+        return null;
     }
 
     public static void makeDirIfNotExist(String dirPath) {
@@ -65,9 +77,18 @@ public class FileUtil {
         }
     }
 
-    public static void makeParentDir(String filePath) {
+    public static String getParentDirPath(String filePath) {
         File file = new File(filePath);
-        String parentDirPath = file.getParent();
+        return file.getParent();
+    }
+
+    public static String getParentDirName(String filePath) {
+        String parentDirPath = getParentDirPath(filePath);
+        return (new File(parentDirPath)).getName();
+    }
+
+    public static void makeParentDir(String filePath) {
+        String parentDirPath = getParentDirPath(filePath);
         if (parentDirPath == null || parentDirPath.length() == 0) {
             return;
         }
@@ -107,10 +128,10 @@ public class FileUtil {
         }
     }
 
-    public static void distributeFiles(Map<String, List<String>> Map, Set<String> fileNameSet,
+    public static void distributeFiles(Map<String, List<String>> map, Set<String> fileNameSet,
                                        boolean subDirMode, int suffixSize, String outputDirPath) {
         try {
-            for (String key : Map.keySet()) {
+            for (String key : map.keySet()) {
                 String outputFilePath = subDirMode ?
                         outputDirPath + "/" + key.substring(key.length() - suffixSize) + "/" + key
                         : outputDirPath + "/" + key;
@@ -118,7 +139,7 @@ public class FileUtil {
                 File outputFile = new File(outputFilePath);
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
-                List<String> valueList = Map.get(key);
+                List<String> valueList = map.get(key);
                 for (String value : valueList) {
                     bw.write(value);
                     bw.newLine();
@@ -131,18 +152,18 @@ public class FileUtil {
             System.err.println("Exception @ distributeFiles");
             e.printStackTrace();
         }
-        Map.clear();
+        map.clear();
     }
 
-    public static void distributeFiles(Map<String, List<String>> Map,
+    public static void distributeFiles(Map<String, List<String>> map,
                                        Set<String> fileNameSet, String tmpFilePrefix, String outputDirPath) {
         try {
-            for (String initial : Map.keySet()) {
+            for (String initial : map.keySet()) {
                 File outputFile = new File(outputDirPath + "/" + tmpFilePrefix + initial);
                 makeParentDir(outputFile.getPath());
                 String outputFileName = outputFile.getName();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, fileNameSet.contains(outputFileName)));
-                List<String> valueList = Map.get(initial);
+                List<String> valueList = map.get(initial);
                 for (String value : valueList) {
                     bw.write(value);
                     bw.newLine();
@@ -155,7 +176,7 @@ public class FileUtil {
             System.err.println("Exception @ distributeFiles");
             e.printStackTrace();
         }
-        Map.clear();
+        map.clear();
     }
 
     public static Set<String> splitFile(String inputFilePath, int prefixLength,
@@ -231,17 +252,34 @@ public class FileUtil {
         return prefixSet;
     }
 
-    public static void writeFile(Map<String, Integer> Map, String outputFilePath) {
+    public static void writeFile(Map<String, Integer> map, String outputFilePath) {
         try {
             File publisherFile = new File(outputFilePath);
             BufferedWriter bw = new BufferedWriter(new FileWriter(publisherFile));
-            for (String venueId : Map.keySet()) {
-                bw.write(venueId + Config.FIRST_DELIMITER + String.valueOf(Map.get(venueId)));
+            for (String venueId : map.keySet()) {
+                bw.write(venueId + Config.FIRST_DELIMITER + String.valueOf(map.get(venueId)));
                 bw.newLine();
             }
             bw.close();
         } catch (Exception e) {
             System.err.println("Exception @ writeFile");
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteFile(String filePath) {
+        File file = new File(filePath);
+        try {
+            if (file.exists()) {
+                boolean successful = file.delete();
+                if (!successful) {
+                    System.err.println("Failed to delete " + file.getPath());
+                }
+            } else {
+                System.err.println("Couldn't find " + file.getPath());
+            }
+        } catch (Exception e) {
+            System.err.println("Exception @ deleteFile");
             e.printStackTrace();
         }
     }

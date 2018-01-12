@@ -86,9 +86,8 @@ public class VenueMerger {
     }
 
     private static void deleteUnusedFiles(String tmpDirPath, String fileNamePrefix, Set<String> prefixSet) {
-        Iterator<String> ite = prefixSet.iterator();
-        while (ite.hasNext()) {
-            File file = new File(tmpDirPath + "/" + fileNamePrefix + ite.next());
+        for (String prefix : prefixSet) {
+            File file = new File(tmpDirPath + "/" + fileNamePrefix + prefix);
             if (file.exists()) {
                 file.delete();
             }
@@ -106,10 +105,8 @@ public class VenueMerger {
                 FIELD_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPERS_FILE_PREFIX, tmpOutputDirPath);
         Set<String> prefixSetK = FileUtil.splitFile(paperKeysFilePath, Config.FIRST_DELIMITER, PAPER_ID_INDEX,
                 PUBLISHER_ID_INDEX, PREFIX_SIZE, BUFFER_SIZE, TMP_PAPER_KEYWORDS_FILE_PREFIX, tmpOutputDirPath);
-        Iterator<String> ite = prefixSetP.iterator();
         boolean first = true;
-        while (ite.hasNext()) {
-            String prefix = ite.next();
+        for (String prefix : prefixSetP) {
             if (prefixSetK.contains(prefix)) {
                 merge(tmpOutputDirPath, first, prefix, outputFilePath);
                 first = false;
