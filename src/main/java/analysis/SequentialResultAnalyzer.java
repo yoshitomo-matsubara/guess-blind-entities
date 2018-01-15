@@ -240,10 +240,9 @@ public class SequentialResultAnalyzer {
                 String outputFilePath = outputDirPath + "/hal" + halThrStr + "-top" + topStr + ".csv";
                 BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
                 bw.write("Blind Paper Count" + Config.FIRST_DELIMITER + String.valueOf(blindPaperSize)
-                        + Config.FIRST_DELIMITER + "Guessable Paper Count" + Config.FIRST_DELIMITER
-                        + String.valueOf(guessablePaperSize) + Config.FIRST_DELIMITER
-                        + "Guessable Paper Count (# True Authors = " + String.valueOf(authorSize) + ")"
-                        + Config.FIRST_DELIMITER + String.valueOf(trueEntitySize));
+                        + Config.FIRST_DELIMITER + "Blind Paper Count (# True Authors = " + String.valueOf(authorSize)
+                        + ")" + Config.FIRST_DELIMITER + String.valueOf(trueEntitySize) + "Guessable Paper Count"
+                        + Config.FIRST_DELIMITER + String.valueOf(guessablePaperSize) + Config.FIRST_DELIMITER);
                 bw.newLine();
                 bw.write("Author Sequence Number" + Config.FIRST_DELIMITER + "Identified Entity Count"
                         + Config.FIRST_DELIMITER + "Identification Rate"
