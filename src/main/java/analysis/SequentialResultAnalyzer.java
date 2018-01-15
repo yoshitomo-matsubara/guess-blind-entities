@@ -116,8 +116,6 @@ public class SequentialResultAnalyzer {
         return modelIndicatorsMap;
     }
 
-
-
     private static int decideThreshold(Paper paper, int halThr) {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
