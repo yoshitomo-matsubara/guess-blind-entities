@@ -278,14 +278,7 @@ public class Evaluator {
                     authorMs, overThrAtMs, coverageAtMs, blindPaperSize, guessablePaperSize));
             FileUtil.writeFile(outputLineList, outputFilePath);
             if (uplOutputFilePath != null) {
-                FileUtil.makeParentDir(uplOutputFilePath);
-                File uplOutputFile = new File(uplOutputFilePath);
-                BufferedWriter bw = new BufferedWriter(new FileWriter(uplOutputFile));
-                for (String unguessablePaperId : unguessablePaperIdList) {
-                    bw.write(unguessablePaperId);
-                    bw.newLine();
-                }
-                bw.close();
+                FileUtil.writeFile(unguessablePaperIdList, uplOutputFilePath);
             }
         } catch (Exception e) {
             System.err.println("Exception @ evaluate");
