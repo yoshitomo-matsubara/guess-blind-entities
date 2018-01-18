@@ -14,12 +14,10 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 public class Collector {
-    private static final String INPUT_DIR_OPTION = "input";
     private static final String SHUFFLE_SIZE_OPTION = "shuffle";
     private static final String KEY_INDEX_OPTION = "key";
     private static final String NEGATIVE_SAMPLE_RATIO_OPTION = "negative";
     private static final String STEP_SIZE_OPTION = "step";
-    private static final String OUTPUT_DIR_OPTION = "output";
     private static final String NORMALIZATION = "normalize";
     private static final String TRAINING = "train";
     private static final int INVALID_VALUE = -1;
@@ -30,13 +28,13 @@ public class Collector {
 
     private static Options getOptions() {
         Options options = new Options();
-        MiscUtil.setOption(INPUT_DIR_OPTION, true, true, "[param] input dir", options);
+        MiscUtil.setOption(Config.INPUT_DIR_OPTION, true, true, "[param] input dir", options);
         MiscUtil.setOption(SHUFFLE_SIZE_OPTION, true, false, "[param, optional] shuffle size", options);
         MiscUtil.setOption(KEY_INDEX_OPTION, true, false, "[param, optional] key index", options);
         MiscUtil.setOption(NEGATIVE_SAMPLE_RATIO_OPTION, true, false, "[param, optional] negative sample ratio", options);
         MiscUtil.setOption(STEP_SIZE_OPTION, true, false, "[param, optional] step size", options);
         MiscUtil.setOption(NORMALIZATION, true, false, "[param, optional] normalization option", options);
-        MiscUtil.setOption(OUTPUT_DIR_OPTION, true, true, "[param] output dir", options);
+        MiscUtil.setOption(Config.OUTPUT_DIR_OPTION, true, true, "[param] output dir", options);
         return options;
     }
 
@@ -251,7 +249,7 @@ public class Collector {
     public static void main(String[] args) {
         Options options = getOptions();
         CommandLine cl = MiscUtil.setParams("Collector", options, args);
-        String inputDirPath = cl.getOptionValue(INPUT_DIR_OPTION);
+        String inputDirPath = cl.getOptionValue(Config.INPUT_DIR_OPTION);
         int shuffleSize = cl.hasOption(SHUFFLE_SIZE_OPTION) ?
                 Integer.parseInt(cl.getOptionValue(SHUFFLE_SIZE_OPTION)) : INVALID_VALUE;
         int keyIndex = cl.hasOption(KEY_INDEX_OPTION) ?
@@ -261,7 +259,7 @@ public class Collector {
         int stepSize = cl.hasOption(STEP_SIZE_OPTION) ?
                 Integer.parseInt(cl.getOptionValue(STEP_SIZE_OPTION)) : DEFAULT_STEP_SIZE;
         String rescaleTarget = cl.hasOption(NORMALIZATION) ? cl.getOptionValue(NORMALIZATION) : null;
-        String outputDirPath = cl.getOptionValue(OUTPUT_DIR_OPTION);
+        String outputDirPath = cl.getOptionValue(Config.OUTPUT_DIR_OPTION);
         collect(inputDirPath, shuffleSize, keyIndex, negSampleRatio, stepSize, rescaleTarget, outputDirPath);
     }
 }

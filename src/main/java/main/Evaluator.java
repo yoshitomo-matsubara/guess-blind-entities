@@ -9,17 +9,17 @@ import structure.Pair;
 import structure.Paper;
 import structure.Result;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.*;
 
 public class Evaluator {
     private static final String TOP_M_OPTION = "m";
     private static final String HAL_OPTION = "hal";
     private static final String HALX_OPTION = "halx";
     private static final String UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION = "uplo";
+    private static final String COLD_START_OPTION = "cold";
     private static final int DEFAULT_HAL_THRESHOLD = 1;
     private static final int HALX_LABEL = -1;
     private static final int INVALID_RANKING = -1;
@@ -34,9 +34,21 @@ public class Evaluator {
                         + ")", options);
         MiscUtil.setOption(HALX_OPTION, false, false,
                 "[param, optional] HAL (Hit At Least) threshold = # of true authors in each paper", options);
-        MiscUtil.setOption(UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION, true, false, "[optional, output] unguessable paper list output file", options);
+        MiscUtil.setOption(UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION, true, false, "[optional, output] unguessable paper list file", options);
+        MiscUtil.setOption(COLD_START_OPTION, true, false, "[optional, input] unguessable paper list file", options);
         MiscUtil.setOption(Config.OUTPUT_FILE_OPTION, true, true, "[output] output file", options);
         return options;
+    }
+
+    private static Set<String> buildColdStartPaperIdSet(String uplInputFilePath) {
+        if (uplInputFilePath == null) {
+            return null;
+        }
+
+        Set<String> coldStartPaperIdSet = new HashSet<>();
+        List<String> coldStartPaperIdList = FileUtil.readFile(uplInputFilePath);
+        coldStartPaperIdSet.addAll(coldStartPaperIdList);
+        return coldStartPaperIdSet;
     }
 
     private static String createHeader(String halThrStr, int[] topMs) {
@@ -209,8 +221,9 @@ public class Evaluator {
     }
 
     private static void evaluate(String inputDirPath, String topMsStr, int halThr,
-                                 String uplOutputFilePath, String outputFilePath) {
+                                 String uplOutputFilePath, String uplInputFilePath, String outputFilePath) {
         try {
+            Set<String> coldStartPaperIdSet = buildColdStartPaperIdSet(uplInputFilePath);
             List<String> outputLineList = new ArrayList<>();
             String halThrStr = halThr != HALX_LABEL ? String.valueOf(halThr) : "X";
             int[] topMs = MiscUtil.convertToIntArray(topMsStr, Config.OPTION_DELIMITER);
@@ -242,6 +255,11 @@ public class Evaluator {
                     Pair<Paper, List<Result>> resultPair = readScoreFile(inputFile, halThr);
                     Paper paper = resultPair.first;
                     List<Result> resultList = resultPair.second;
+                    if (coldStartPaperIdSet != null && !coldStartPaperIdSet.contains(paper.id)) {
+                        blindPaperSize--;
+                        continue;
+                    }
+
                     int threshold = decideThreshold(paper, halThr);
                     if (paper.getAuthorSize() < threshold || resultList.size() == 0) {
                         if (paper.getAuthorSize() < threshold) {
@@ -278,14 +296,7 @@ public class Evaluator {
                     authorMs, overThrAtMs, coverageAtMs, blindPaperSize, guessablePaperSize));
             FileUtil.writeFile(outputLineList, outputFilePath);
             if (uplOutputFilePath != null) {
-                FileUtil.makeParentDir(uplOutputFilePath);
-                File uplOutputFile = new File(uplOutputFilePath);
-                BufferedWriter bw = new BufferedWriter(new FileWriter(uplOutputFile));
-                for (String unguessablePaperId : unguessablePaperIdList) {
-                    bw.write(unguessablePaperId);
-                    bw.newLine();
-                }
-                bw.close();
+                FileUtil.writeFile(unguessablePaperIdList, uplOutputFilePath);
             }
         } catch (Exception e) {
             System.err.println("Exception @ evaluate");
@@ -302,7 +313,9 @@ public class Evaluator {
         halThr = cl.hasOption(HALX_OPTION) ? HALX_LABEL : halThr;
         String uplOutputFilePath = cl.hasOption(UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION) ?
                 cl.getOptionValue(UNGUESSABLE_PAPER_LIST_OUTPUT_OPTION) : null;
+        String uplInputFilePath = cl.hasOption(COLD_START_OPTION) ?
+                cl.getOptionValue(COLD_START_OPTION) : null;
         String outputFilePath = cl.getOptionValue(Config.OUTPUT_FILE_OPTION);
-        evaluate(inputDirPath, topMsStr, halThr, uplOutputFilePath, outputFilePath);
+        evaluate(inputDirPath, topMsStr, halThr, uplOutputFilePath, uplInputFilePath, outputFilePath);
     }
 }

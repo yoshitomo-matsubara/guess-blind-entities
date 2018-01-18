@@ -116,8 +116,6 @@ public class SequentialResultAnalyzer {
         return modelIndicatorsMap;
     }
 
-
-
     private static int decideThreshold(Paper paper, int halThr) {
         return halThr == HALX_LABEL ? paper.getAuthorSize() : halThr;
     }
@@ -191,10 +189,6 @@ public class SequentialResultAnalyzer {
         updateMaps(paper, modelIndicatorsMap, entityCountMap, identifiedEntityCountMap, indicatorListMap);
         int authorSize = paper.getAuthorSize();
         Map<Integer, Integer[]> subIdentifiedEntityCountMap = identifiedEntityCountMap.get(authorSize);
-        if (!entityCountMap.containsKey(authorSize)) {
-            entityCountMap.put(authorSize, new HashMap<>());
-        }
-
         if (!guessable) {
             return;
         }
@@ -246,21 +240,22 @@ public class SequentialResultAnalyzer {
                 String outputFilePath = outputDirPath + "/hal" + halThrStr + "-top" + topStr + ".csv";
                 BufferedWriter bw = new BufferedWriter(new FileWriter(new File(outputFilePath)));
                 bw.write("Blind Paper Count" + Config.FIRST_DELIMITER + String.valueOf(blindPaperSize)
-                        + Config.FIRST_DELIMITER + "Guessable Paper Count" + Config.FIRST_DELIMITER
-                        + String.valueOf(guessablePaperSize) + Config.FIRST_DELIMITER
-                        + "Guessable Paper Count (# True Authors = " + String.valueOf(authorSize) + ")"
-                        + Config.FIRST_DELIMITER + String.valueOf(trueEntitySize));
+                        + Config.FIRST_DELIMITER + "Blind Paper Count (# True Authors = " + String.valueOf(authorSize)
+                        + ")" + Config.FIRST_DELIMITER + String.valueOf(trueEntitySize) + Config.FIRST_DELIMITER
+                        + "Guessable Paper Count" + Config.FIRST_DELIMITER + String.valueOf(guessablePaperSize));
                 bw.newLine();
                 bw.write("Author Sequence Number" + Config.FIRST_DELIMITER + "Identified Entity Count"
-                        + Config.FIRST_DELIMITER + "Identified Entity Rate"
-                        + Config.FIRST_DELIMITER + "True Entity Coverage"
+                        + Config.FIRST_DELIMITER + "Identification Rate"
+                        + Config.FIRST_DELIMITER + "Identified Entity Coverage"
                         + Config.FIRST_DELIMITER + "Average # Publications"
                         + Config.FIRST_DELIMITER + "Average # Unique Citations"
                         + Config.FIRST_DELIMITER + "Average # Citations");
                 bw.newLine();
-                int totalTrueEntitySize = 0;
-                for (Integer[] values : subIdentifiedEntityCountMap.values()) {
-                    totalTrueEntitySize += values[i];
+                int totalIdentifiedEntitySize = 0;
+                for (int sequenceNumber : subEntityCountMap.keySet()) {
+                    int identifiedEntitySize = subIdentifiedEntityCountMap.containsKey(sequenceNumber) ?
+                            subIdentifiedEntityCountMap.get(sequenceNumber)[i] : 0;
+                    totalIdentifiedEntitySize += identifiedEntitySize;
                 }
 
                 for (int sequenceNumber : subEntityCountMap.keySet()) {
@@ -271,7 +266,7 @@ public class SequentialResultAnalyzer {
                             + String.valueOf(identifiedEntitySize) + Config.FIRST_DELIMITER
                             + String.valueOf(((double) identifiedEntitySize / (double) trueEntitySize))
                             + Config.FIRST_DELIMITER
-                            + String.valueOf(((double) identifiedEntitySize / (double) totalTrueEntitySize))
+                            + String.valueOf(((double) identifiedEntitySize / (double) totalIdentifiedEntitySize))
                             + Config.FIRST_DELIMITER
                             + String.valueOf(indicators[0])
                             + Config.FIRST_DELIMITER

@@ -23,7 +23,7 @@ public class ResultBreakdownAnalyzer {
     private static final String AUTHOR = "author";
     private static final String AFFILIATION = "affil";
     private static final String NATIONALITY = "nation";
-    private static final String VENUE = "venue";
+    private static final String VENUE_PREFIX = "venue";
     private static final int DEFAULT_HAL_THRESHOLD = 1;
     private static final int HALX_LABEL = -1;
     private static final int[] AUTHOR_INDICES = new int[]{0, 1};
@@ -199,7 +199,7 @@ public class ResultBreakdownAnalyzer {
     private static void analyze(String inputDirPath, String entityType, String idFilePath, String topMsStr,
                                  int halThr, String outputDirPath) {
         if (!entityType.equals(AUTHOR) && !entityType.equals(AFFILIATION)
-                && !entityType.equals(NATIONALITY) && !entityType.equals(VENUE)) {
+                && !entityType.equals(NATIONALITY) && !entityType.startsWith(VENUE_PREFIX)) {
             return;
         }
         try {
@@ -234,7 +234,7 @@ public class ResultBreakdownAnalyzer {
                         guessablePaperSize++;
                     }
 
-                    if (!entityType.equals(VENUE)) {
+                    if (!entityType.startsWith(VENUE_PREFIX)) {
                         evaluate(resultList, topMs, paper, guessable, entityCountMap, identifiedEntityCountMap);
                     } else {
                         evaluate(resultList, topMs, threshold, paper, guessable,

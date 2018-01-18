@@ -51,6 +51,18 @@ public class AuthorEstimator {
         LogisticRegressionModel.setOptions(options);
     }
 
+    private static List<Paper> readPaperFiles(String testDirPath) {
+        List<File> testFileList = FileUtil.getFileList(testDirPath);
+        List<Paper> testPaperList = new ArrayList<>();
+        for (File testFile : testFileList) {
+            List<String> testPaperLineList = FileUtil.readFile(testFile);
+            for (String testPaperLine : testPaperLineList) {
+                testPaperList.add(new Paper(testPaperLine));
+            }
+        }
+        return testPaperList;
+    }
+
     private static BaseModel selectModel(String modelType, String line, CommandLine cl) {
         if (RandomModel.checkIfValid(modelType)) {
             return new RandomModel(line, cl);
@@ -70,7 +82,7 @@ public class AuthorEstimator {
         return null;
     }
 
-    public static Pair<Integer, List<BaseModel>> readModelFile(File modelFile, String modelType,
+    private static Pair<Integer, List<BaseModel>> readModelFile(File modelFile, String modelType,
                                                                CommandLine cl, int minPaperSize) {
         System.out.println("\tStart:\treading author files");
         List<BaseModel> modelList = new ArrayList<>();
@@ -95,17 +107,17 @@ public class AuthorEstimator {
         return new Pair<>(modelCount, modelList);
     }
 
-    private static void score(List<String> testPaperLineList, List<BaseModel> modelList,
+    private static void score(List<Paper> testPaperList, List<BaseModel> modelList,
                               boolean first, String outputDirPath) {
         try {
-            for (String testPaperLine : testPaperLineList) {
-                Paper paper = new Paper(testPaperLine);
+            FileUtil.makeDirIfNotExist(outputDirPath);
+            for (Paper paper : testPaperList) {
                 String suffix = paper.id.substring(paper.id.length() - SUFFIX_SIZE);
                 File outputFile = new File(outputDirPath + "/" + suffix + "/" + paper.id);
                 FileUtil.makeParentDir(outputFile.getPath());
                 BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
                 if (first) {
-                    bw.write(testPaperLine);
+                    bw.write(paper.toString());
                     bw.newLine();
                 }
 
@@ -131,14 +143,9 @@ public class AuthorEstimator {
 
     private static void estimate(String modelDirPath, String testDirPath, String modelType,
                                  CommandLine cl, int minPaperSize, int startIdx, int endIdx, String outputDirPath) {
-        List<File> testFileList = FileUtil.getFileList(testDirPath);
         List<File> modelFileList = FileUtil.getFileList(modelDirPath);
         Collections.sort(modelFileList);
-        List<String> testPaperLineList = new ArrayList<>();
-        for (File testFile : testFileList) {
-            testPaperLineList.addAll(FileUtil.readFile(testFile));
-        }
-
+        List<Paper> testPaperList = readPaperFiles(testDirPath);
         int modelCount = 0;
         int availableCount = 0;
         int listSize = modelFileList.size();
@@ -150,9 +157,8 @@ public class AuthorEstimator {
             List<BaseModel> modelList = pair.second;
             modelCount += pair.first;
             availableCount += modelList.size();
-            FileUtil.makeDirIfNotExist(outputDirPath);
             boolean first = i == 0;
-            score(testPaperLineList, modelList, first, outputDirPath);
+            score(testPaperList, modelList, first, outputDirPath);
         }
 
         System.out.println(String.valueOf(availableCount) + " available authors");

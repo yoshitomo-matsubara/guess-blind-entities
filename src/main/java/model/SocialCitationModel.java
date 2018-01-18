@@ -36,15 +36,15 @@ public class SocialCitationModel extends BaseModel {
         }
 
         String[] elements = line.split(Config.FIRST_DELIMITER);
-        if (!elements[7].equals(Config.NULL) && elements[7].length() > 0) {
-            String[] socialStrs = elements[7].split(Config.SECOND_DELIMITER);
+        if (!elements[4].equals(Config.NULL) && elements[4].length() > 0) {
+            String[] socialStrs = elements[4].split(Config.SECOND_DELIMITER);
             for (String socialStr : socialStrs) {
                 String[] keyValue = socialStr.split(Config.KEY_VALUE_DELIMITER);
                 this.socialPaperCountMap.put(keyValue[0], Integer.parseInt(keyValue[1]));
                 this.socialWeightMap.put(keyValue[0], Double.parseDouble(keyValue[2]));
             }
         }
-        this.totalSocialCitationCount = Integer.parseInt(elements[8]);
+        this.totalSocialCitationCount = Integer.parseInt(elements[5]);
     }
 
     public SocialCitationModel(String line) {
