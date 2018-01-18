@@ -35,7 +35,9 @@ public class RandomModel extends BaseModel {
     }
 
     @Override
-    public void train() {}
+    public void train() {
+        super.train();
+    }
 
     @Override
     public double estimate(Paper paper) {
