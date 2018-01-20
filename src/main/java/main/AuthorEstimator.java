@@ -109,35 +109,27 @@ public class AuthorEstimator {
 
     private static void score(List<Paper> testPaperList, List<BaseModel> modelList,
                               boolean first, String outputDirPath) {
-        try {
-            FileUtil.makeDirIfNotExist(outputDirPath);
-            for (Paper paper : testPaperList) {
-                String suffix = paper.id.substring(paper.id.length() - SUFFIX_SIZE);
-                File outputFile = new File(outputDirPath + "/" + suffix + "/" + paper.id);
-                FileUtil.makeParentDir(outputFile.getPath());
-                BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile, !first));
-                if (first) {
-                    bw.write(paper.toString());
-                    bw.newLine();
-                }
-
-                for (BaseModel model : modelList) {
-                    double score = model.estimate(paper);
-                    if (paper.checkIfAuthor(model.authorId) && score == model.INVALID_VALUE) {
-                        score = ZERO_SCORE;
-                    }
-
-                    if (score != model.INVALID_VALUE) {
-                        bw.write(model.authorId + Config.FIRST_DELIMITER + String.valueOf(score));
-                        bw.newLine();
-                    }
-                }
-
-                bw.close();
+        for (Paper paper : testPaperList) {
+            String suffix = paper.id.substring(paper.id.length() - SUFFIX_SIZE);
+            List<String> outputLineList = new ArrayList<>();
+            if (first) {
+                outputLineList.add(paper.toString());
             }
-        } catch (Exception e) {
-            System.err.println("Exception @ score");
-            e.printStackTrace();
+
+            for (BaseModel model : modelList) {
+                double score = model.estimate(paper);
+                if (paper.checkIfAuthor(model.authorId) && score == model.INVALID_VALUE) {
+                    score = ZERO_SCORE;
+                }
+
+                if (score != model.INVALID_VALUE) {
+                    outputLineList.add(model.authorId + Config.FIRST_DELIMITER + String.valueOf(score));
+                }
+            }
+
+            if (outputLineList.size() > 0) {
+                FileUtil.overwriteFile(outputLineList, first, outputDirPath + "/" + suffix + "/" + paper.id);
+            }
         }
     }
 
