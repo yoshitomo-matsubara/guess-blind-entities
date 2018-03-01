@@ -8,7 +8,7 @@ import structure.Paper;
 import java.util.*;
 
 public class SocialCitationModel extends BaseModel {
-    public static final String TYPE = "sc";
+    public static final String TYPE = "socc";
     public static final String NAME = "Social Citation Model";
     protected static final String TRAIN_SIZE_OPTION = "trainsize";
     protected Set<String> coauthorIdSet;
