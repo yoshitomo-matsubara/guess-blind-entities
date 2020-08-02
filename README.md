@@ -1,10 +1,18 @@
-# Guess blind authors
-My private Maven project for guessing blind authors in a paper from their citation history.  
+# Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers
+How ***blind*** are the submitted papers in double-blind review systems?
+
+## Citation
+```bibtex
+@misc{matsubara2020citations,
+   title={Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers},
+   author={Yoshitomo Matsubara and Sameer Singh},
+   year={2020}
+}
+```
 
 ## Requirement
 - Java 1.8+  
 - commons-cli
 
-## Available Dataset
-- [KDD Cup 2016](https://academicgraph.blob.core.windows.net/graph-2016-02-05/index.html)
-
+## Dataset
+- [KDD Cup 2016](https://www.kdd.org/kdd-cup/view/kdd-cup-2016/Data)

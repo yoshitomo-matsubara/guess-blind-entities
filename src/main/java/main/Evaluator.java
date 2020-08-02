@@ -108,27 +108,36 @@ public class Evaluator {
         int authorSizeX = 0;
         int[] authorSizeMs = MiscUtil.initIntArray(topMs.length, 0);
         int bestRanking = INVALID_RANKING;
+        // Skip duplicate entity's score when wrongly using sidx/eidx in AuthorEstimator especially for 10pct dataset
+        // If sidx/eidx is correctly used or not used in Author Estimator, it doesn't matter
+        Set<String> doneIdSet = new HashSet<>();
+        int rank = 0;
         for (int i = 0; i < resultSize; i++) {
             Result result = resultList.get(i);
+            if (doneIdSet.contains(result.authorId)) {
+                continue;
+            }
+
+            rank++;
             if (paper.checkIfAuthor(result.authorId)) {
                 if (result.score > 0.0d) {
                     if (bestRanking == INVALID_RANKING) {
-                        bestRanking = i + 1;
+                        bestRanking = rank;
                     }
 
-                    if (i < trueAuthorSize) {
+                    if (rank <= trueAuthorSize) {
                         authorSizeX++;
                     }
 
                     for (int j = 0; j < authorSizeMs.length; j++) {
-                        if (i < topMs[j]) {
+                        if (rank <= topMs[j]) {
                             authorSizeMs[j]++;
                         }
                     }
                 }
             }
 
-            if (bestRanking > 0 && i >= topMs[topMs.length - 1]) {
+            if (bestRanking > 0 && rank > topMs[topMs.length - 1]) {
                 break;
             }
         }
