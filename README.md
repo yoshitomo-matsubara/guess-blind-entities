@@ -1,12 +1,18 @@
-# Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers
-How ***blind*** are the submitted papers in double-blind review systems?
+# How ***blind*** are the scientific papers in double-blind review systems?
+
+"Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers," [JCDL 2020 WOSP 2020](https://wosp.core.ac.uk/jcdl2020/)  
+[[PDF (Open Access)](https://www.aclweb.org/anthology/2020.wosp-1.2/)]
 
 ## Citation
 ```bibtex
-@misc{matsubara2020citations,
+@inproceedings{matsubara2020citations,
    title={Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers},
-   author={Yoshitomo Matsubara and Sameer Singh},
-   year={2020}
+   author={Matsubara, Yoshitomo and Singh, Sameer},
+   booktitle={Proceedings of the 8th International Workshop on Mining Scientific Publications},
+   year={2020},
+   publisher={Association for Computational Linguistics},
+   url={https://www.aclweb.org/anthology/2020.wosp-1.2},
+   pages={9--20}
 }
 ```
 
