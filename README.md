@@ -1,5 +1,4 @@
-# Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers
-How ***blind*** are the scientific papers in double-blind review systems?
+# How ***blind*** are the scientific papers in double-blind review systems?
 
 "Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers," [JCDL 2020 WOSP 2020](https://wosp.core.ac.uk/jcdl2020/)  
 [[PDF (Open Access)](https://www.aclweb.org/anthology/2020.wosp-1.2/)]
