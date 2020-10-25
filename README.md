@@ -3,9 +3,8 @@
 "Citations Beyond Self Citations: Identifying Authors, Affiliations, and Nationalities in Scientific Papers," [JCDL 2020 WOSP 2020](https://wosp.core.ac.uk/jcdl2020/)  
 [[PDF (Open Access)](https://www.aclweb.org/anthology/2020.wosp-1.2/)]  
 
-![](img/cs-hal1.png)  |
-:--------------------:|
-Affiliation prominences and identification rates (top 10 guesses) with CS dataset  | 
+Affiliation prominences and identification rates (top 10 guesses) with CS dataset
+![](img/cs-hal1.png)  
 
 ## Citation
 ```bibtex
